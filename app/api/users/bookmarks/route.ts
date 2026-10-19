@@ -6,7 +6,7 @@ const noStoreHeaders = {
   "Cache-Control": "no-store, max-age=0",
 };
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const user = await currentUser();
     if (!user) return NextResponse.json("Unauthorized!", { status: 401 });
@@ -107,8 +107,8 @@ export async function GET(request: Request) {
     return NextResponse.json("Internal Error", { status: 500 });
   }
 }
-/*
-/api/users/bookmarks
-**@description**
-fetches all the user's bookmarked posts and comments
+/** 
+ * /api/users/bookmarks
+ * @description
+ * fetches all the user's bookmarked posts and comments
 */

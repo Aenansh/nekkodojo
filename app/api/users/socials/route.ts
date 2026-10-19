@@ -26,13 +26,13 @@ export async function POST(request: Request) {
     return NextResponse.json("Internal Server Error.", { status: 500 });
   }
 }
-/*
-/api/users/socials
-**@description**
-creates a new social link in user's profile.
-*/
+/**
+ * /api/users/socials
+ * @description
+ * creates a new social link in user's profile.
+ */
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const user = await currentUser();
     if (!user) return NextResponse.json("Unauthorized!", { status: 401 });
@@ -54,10 +54,10 @@ export async function GET(request: Request) {
     return NextResponse.json("Internal Server Error!", { status: 500 });
   }
 }
-/*
-/api/users/socials
-**@description**
-fetches all of the user's social links.
+/** 
+ * /api/users/socials
+ * @description
+ * fetches all of the user's social links.
 */
 
 export async function PATCH(request: Request) {
@@ -89,11 +89,11 @@ export async function PATCH(request: Request) {
     return NextResponse.json("Internal Server Error!", { status: 500 });
   }
 }
-/*
-/api/users/socials
-**@description**
-updates a social link in user's profile.
-*/
+/**
+ * /api/users/socials
+ * @description
+ * updates a social link in user's profile.
+ */
 
 export async function DELETE(request: Request) {
   try {
@@ -114,8 +114,8 @@ export async function DELETE(request: Request) {
     return NextResponse.json("Internal Server Error!", { status: 500 });
   }
 }
-/*
-/api/users/socials
-**@description**
-deletes a social link in user's profile.
-*/
+/**
+ * /api/users/socials
+ * @description
+ * deletes a social link in user's profile.
+ */

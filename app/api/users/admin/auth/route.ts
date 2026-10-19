@@ -52,9 +52,8 @@ export async function POST(request: Request) {
     return NextResponse.json("Internal Server Error", { status: 500 });
   }
 }
-
-/*
-/api/users/admin/auth
-**@description**
-authorizes a user to access the admin portal and saves a admin session cookie.
+/** 
+ * /api/users/admin/auth
+ * @description
+ * authorizes a user to access the admin portal and saves a admin session cookie.
 */

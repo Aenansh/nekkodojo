@@ -22,3 +22,8 @@ export async function GET() {
     return NextResponse.json("Error: Failed to authenticate imagekit", { status: 500 });
   }
 }
+/**
+ * /api/upload-auth
+ * @description
+ * gets upload signed url for the frontend when uploading media to imagekit bucket.
+ */

@@ -72,8 +72,8 @@ export async function POST(req: Request) {
 
   return new Response("Webhook received successfully!", { status: 200 });
 }
-/*
-/api/webhooks/register
-**@description**
-registers a user to the database from clerk server.
-*/
+/**
+ * /api/webhooks/register
+ * @description
+ * registers a user to the database from clerk server.
+ */

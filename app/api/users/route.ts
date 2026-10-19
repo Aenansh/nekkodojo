@@ -42,8 +42,8 @@ export async function GET(request: Request) {
     return NextResponse.json("Internal Server Error!", { status: 500 });
   }
 }
-/*
-/api/users/
-**@description**
-searches users
-*/
+/**
+ * /api/users/
+ * @description
+ * searches users
+ */

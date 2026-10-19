@@ -22,8 +22,8 @@ export async function PATCH(request: Request) {
     return NextResponse.json("Internal Error", { status: 500 });
   }
 }
-/*
-/api/users/bio
-**@description**
-updates the bio of the user.
+/**
+ * /api/users/bio
+ * @description
+ * updates the bio of the user.
 */

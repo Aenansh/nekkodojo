@@ -64,8 +64,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
-/*
-/api/users/report
-**@description**
-serves a report action by an user, prevents self reprt and multiple reports by a user.
-*/
+/**
+ * /api/users/report
+ * @description
+ * serves a report action by an user, prevents self reprt and multiple reports by a user.
+ */
