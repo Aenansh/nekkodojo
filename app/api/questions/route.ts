@@ -1,5 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import { QuestionWhereInput } from "@/generated/prisma/models";
+import { fetchItems } from "@/lib/actions/caching";
 import { generateSlug } from "@/lib/actions/makeSlug";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
@@ -8,46 +9,83 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
     const user = await currentUser();
     if (!user) return NextResponse.json("Unauthorized!", { status: 401 });
+    if (searchParams.get("view") === "library") {
+      const companiesPromise = fetchItems({
+        key: "problems:companies",
+        expires: 300,
+        fetcher: async () =>
+          prisma.company.findMany({
+            take: 20,
+            orderBy: { questions: { _count: "desc" } },
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              logo: true,
+              websiteUrl: true,
+              _count: { select: { questions: true } },
+              questions: { select: { id: true } },
+            },
+          }),
+      });
 
-    const { searchParams } = new URL(request.url);
+      const categoriesPromise = fetchItems({
+        key: "problems:categories",
+        expires: 300,
+        fetcher: async () =>
+          prisma.category.findMany({
+            orderBy: { categoryOrder: "asc" },
+            include: {
+              questions: {
+                orderBy: { title: "asc" },
+                select: {
+                  id: true,
+                  title: true,
+                  description: true,
+                  difficulty: true,
+                  externalPlatformUrl: true,
+                  solutionUrl: true,
+                },
+              },
+            },
+          }),
+      });
+
+      const [userProgressData, companies, categories] = await Promise.all([
+        prisma.userProgress.findMany({
+          where: { userId: user.id },
+          select: { questionId: true, status: true },
+        }),
+        companiesPromise,
+        categoriesPromise,
+      ]);
+
+      const userProgress: Record<string, string> = {};
+      userProgressData.forEach((progress) => {
+        userProgress[progress.questionId] = progress.status.toLowerCase();
+      });
+
+      return NextResponse.json({ companies, categories, userProgress }, { status: 200 });
+    }
+
     const query = searchParams.get("query") || "";
     const category = searchParams.get("category");
     const company = searchParams.get("company");
 
-    const whereClause: QuestionWhereInput = {
-      AND: [
-        category && category !== "all"
-          ? {
-              categories: {
-                some: {
-                  slug: category,
-                },
-              },
-            }
-          : {},
+    const whereClause: QuestionWhereInput = {};
+    if (category && category !== "all") {
+      whereClause.categories = { some: { slug: category } };
+    }
+    if (company) {
+      whereClause.companyTag = { some: { slug: company } };
+    }
+    if (query) {
+      whereClause.title = { contains: query, mode: "insensitive" };
+    }
 
-        company
-          ? {
-              companyTag: {
-                some: {
-                  slug: company,
-                },
-              },
-            }
-          : {},
-
-        query
-          ? {
-              title: {
-                contains: query,
-                mode: "insensitive",
-              },
-            }
-          : {},
-      ],
-    };
     const questions = await prisma.question.findMany({
       where: whereClause,
       include: {

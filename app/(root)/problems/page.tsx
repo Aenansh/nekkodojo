@@ -1,79 +1,66 @@
-import { prisma } from "@/lib/prisma";
+"use client";
+
+import { useEffect, useState } from "react";
 import { CompanySection } from "@/components/Company/CompanySection";
+import type { CompanyCardItem } from "@/components/Company/CompanyCarousel";
 import QuestionExplorer from "@/components/Problems/ProblemSheet";
-import { currentUser } from "@clerk/nextjs/server";
-import { fetchItems } from "@/lib/actions/caching";
+import { Button } from "@/components/ui/button";
 
-export const dynamic = "force-dynamic";
+type LibraryCategory = {
+  id: string;
+  name: string;
+  questions: {
+    id: string;
+    title: string;
+    description: string;
+    difficulty: "Easy" | "Medium" | "Hard";
+    externalPlatformUrl: string;
+    solutionUrl: string | null;
+  }[];
+};
 
-export default async function ProblemsPage() {
-  const user = await currentUser();
+type LibraryData = {
+  companies: CompanyCardItem[];
+  categories: LibraryCategory[];
+  userProgress: Record<string, string>;
+};
 
-  const userProgressPromise = user
-    ? prisma.userProgress.findMany({
-        where: { userId: user.id },
-        select: { questionId: true, status: true },
-      })
-    : Promise.resolve([]);
+export default function ProblemsPage() {
+  const [data, setData] = useState<LibraryData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const companiesPromise = fetchItems({
-    key: "problems:companies",
-    expires: 300,
-    fetcher: async () => {
-      return prisma.company.findMany({
-        take: 20,
-        orderBy: { questions: { _count: "desc" } },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          logo: true,
-          websiteUrl: true,
-          _count: { select: { questions: true } },
-          questions: { select: { id: true } },
-        },
-      });
-    },
-  });
+  useEffect(() => {
+    let cancelled = false;
 
-  const categoriesPromise = fetchItems({
-    key: "problems:categories",
-    expires: 300, // 5 minutes
-    fetcher: async () => {
-      return prisma.category.findMany({
-        orderBy: { categoryOrder: "asc" },
-        include: {
-          questions: {
-            orderBy: { title: "asc" },
-            select: {
-              id: true,
-              title: true,
-              description: true,
-              difficulty: true,
-              externalPlatformUrl: true,
-              solutionUrl: true,
-            },
-          },
-        },
-      });
-    },
-  });
+    const loadLibrary = async () => {
+      setIsLoading(true);
+      setError(null);
 
-  const [userProgressData, companies, categories] = await Promise.all([
-    userProgressPromise,
-    companiesPromise,
-    categoriesPromise,
-  ]);
+      try {
+        const response = await fetch("/api/questions?view=library");
+        if (!response.ok) throw new Error("Failed to load questions.");
 
-  const progressMap: Record<string, string> = {};
-  userProgressData.forEach((p) => {
-    progressMap[p.questionId] = p.status.toLowerCase();
-  });
+        const library = (await response.json()) as LibraryData;
+        if (!cancelled) setData(library);
+      } catch (fetchError) {
+        console.error("Failed to load problem library:", fetchError);
+        if (!cancelled) setError("Unable to load the problem library. Please try again.");
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    void loadLibrary();
+    return () => {
+      cancelled = true;
+    };
+  }, [retryCount]);
 
   return (
     <div className="min-h-screen text-[#eaddcf] py-10">
       <div className="container mx-auto px-4 max-w-7xl space-y-16">
-        {/* Header */}
         <div className="space-y-4">
           <h1 className="text-4xl md:text-5xl font-black tracking-tight text-[#d4af37] uppercase">
             The Dojo Library
@@ -84,25 +71,38 @@ export default async function ProblemsPage() {
           </p>
         </div>
 
-        {/* Company Section */}
         <section className="space-y-6">
-          <CompanySection initialData={companies} userProgress={progressMap} />
+          {data && <CompanySection initialData={data.companies} userProgress={data.userProgress} />}
         </section>
 
         <div className="h-px w-full bg-linear-to-r from-transparent via-[#3e2723] to-transparent opacity-50" />
 
-        {/* Questions Section */}
         <section className="space-y-6">
           <div className="flex items-center gap-2 mb-6">
             <h2 className="text-2xl font-bold text-[#eaddcf]">All Katas</h2>
             <span className="text-sm text-[#5d4037] font-mono mt-1">
-              ({(categories as any[]).reduce((acc, cat) => acc + cat.questions.length, 0)} Total)
+              ({data?.categories.reduce((acc, cat) => acc + cat.questions.length, 0) ?? 0} Total)
             </span>
           </div>
 
-          <div className="mx-auto">
-            <QuestionExplorer data={categories} />
-          </div>
+          {isLoading ? (
+            <p className="text-sm text-[#a1887f]">Loading questions...</p>
+          ) : error ? (
+            <div className="space-y-3">
+              <p role="alert" className="text-sm text-red-400">{error}</p>
+              <Button
+                variant="outline"
+                onClick={() => setRetryCount((count) => count + 1)}
+                className="border-[#3e2723] text-[#eaddcf] hover:bg-[#1a110d]"
+              >
+                Try again
+              </Button>
+            </div>
+          ) : data ? (
+            <div className="mx-auto">
+              <QuestionExplorer data={data.categories} />
+            </div>
+          ) : null}
         </section>
       </div>
     </div>

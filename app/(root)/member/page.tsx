@@ -207,7 +207,7 @@ function DojoGroundsBackground() {
       <div className="text-center space-y-2">
         <h3 className="text-2xl font-serif text-[#eaddcf] italic opacity-90 drop-shadow-md flex items-center justify-center gap-2">
           <Sparkles className="w-5 h-5 text-yellow-500" />
-          "The dojo is peaceful..."
+          &ldquo;The dojo is peaceful...&rdquo;
         </h3>
         <p className="text-[#a1887f] text-sm font-medium">
           Type above to summon a ronin from the archives.

@@ -1,67 +1,78 @@
-import { prisma } from "@/lib/prisma";
-import { CompanyQuestionsSheet } from "@/components/Company/CompanySheet";
-import { redirect } from "next/navigation";
-import { fetchItems } from "@/lib/actions/caching";
-import { currentUser } from "@clerk/nextjs/server";
+"use client";
 
-export default async function CompanyProblemsPage({
-  params,
-}: {
-  params: Promise<{ companySlug: string }>;
-}) {
-  const { companySlug } = await params;
-  if (!companySlug) return redirect("/problems");
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { CompanyQuestionsSheet, type QuestionItem } from "@/components/Company/CompanySheet";
 
-  const user = await currentUser();
-  const userProgressPromise = user
-    ? prisma.userProgress.findMany({
-        where: { userId: user.id },
-        select: { questionId: true, status: true },
-      })
-    : Promise.resolve([]);
+type CompanyProblemsData = {
+  companyName: string;
+  questions: QuestionItem[];
+  userProgress: Record<string, string>;
+};
 
-  const companyDataPromise = fetchItems({
-    key: `company:${companySlug}`,
-    expires: 3600,
-    fetcher: async () => {
-      return prisma.company.findUnique({
-        where: { slug: companySlug },
-        include: {
-          questions: {
-            select: {
-              id: true,
-              title: true,
-              description: true,
-              difficulty: true,
-              externalPlatformUrl: true,
-              solutionUrl: true,
-            },
-          },
-        },
-      });
-    },
-  });
+export default function CompanyProblemsPage() {
+  const { companySlug } = useParams<{ companySlug: string }>();
+  const [data, setData] = useState<CompanyProblemsData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const [userProgressData, companyData] = await Promise.all([
-    userProgressPromise,
-    companyDataPromise,
-  ]);
+  useEffect(() => {
+    let cancelled = false;
 
-  if (!companyData) return <div>Company not found</div>;
+    const loadCompanyProblems = async () => {
+      setIsLoading(true);
+      setError(null);
 
-  const progressMap: Record<string, string> = {};
-  userProgressData.forEach((p) => {
-    progressMap[p.questionId] = p.status.toLowerCase();
-  });
+      try {
+        const response = await fetch(`/api/questions/${encodeURIComponent(companySlug)}`);
+        if (response.status === 404) {
+          if (!cancelled) setError("Company not found.");
+          return;
+        }
+        if (!response.ok) throw new Error("Failed to load company questions.");
+
+        const companyData = (await response.json()) as CompanyProblemsData;
+        if (!cancelled) setData(companyData);
+      } catch (fetchError) {
+        console.error("Failed to load company questions:", fetchError);
+        if (!cancelled) setError("Unable to load these questions. Please try again.");
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    void loadCompanyProblems();
+    return () => {
+      cancelled = true;
+    };
+  }, [companySlug, retryCount]);
 
   return (
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4 max-w-4xl">
-        <CompanyQuestionsSheet
-          questions={companyData.questions}
-          companyName={companyData.name}
-          userProgress={progressMap}
-        />
+        {isLoading ? (
+          <p className="text-sm text-[#a1887f]">Loading questions...</p>
+        ) : error ? (
+          <div className="space-y-3">
+            <p role="alert" className="text-sm text-red-400">{error}</p>
+            {error !== "Company not found." && (
+              <button
+                type="button"
+                onClick={() => setRetryCount((count) => count + 1)}
+                className="rounded-md border border-[#3e2723] px-4 py-2 text-sm text-[#eaddcf] hover:bg-[#1a110d]"
+              >
+                Try again
+              </button>
+            )}
+          </div>
+        ) : data ? (
+          <CompanyQuestionsSheet
+            questions={data.questions}
+            companyName={data.companyName}
+            userProgress={data.userProgress}
+          />
+        ) : null}
       </div>
     </div>
   );
