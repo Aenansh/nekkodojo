@@ -56,3 +56,8 @@ export async function GET(
     return NextResponse.json("Failed to fetch company questions", { status: 500 });
   }
 }
+/**
+ * /api/questions/:company-slug
+ * @description
+ * fetches a particular company's sheet of questions.
+ */

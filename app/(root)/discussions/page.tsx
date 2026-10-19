@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentProps } from "react";
 import Link from "next/link";
 import { PlusCircle, ArrowUpDown, Loader2, FilterIcon, ScrollText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,13 @@ import { DiscussionSkeleton } from "@/components/Discussion/DiscussionSkeleton";
 import { AnimatePresence, motion } from "framer-motion";
 import DiscussionPreviewCard from "@/components/Discussion/DiscussionPreview";
 
+type Discussion = ComponentProps<typeof DiscussionPreviewCard>["data"];
+
 export default function DiscussionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [discussions, setDiscussions] = useState<any[]>([]);
+  const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const [totalPage, setTotalPage] = useState(1);

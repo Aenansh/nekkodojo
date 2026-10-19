@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentProps } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Podium } from "@/components/Leaderboard/Podium";
 import { LeaderboardList } from "@/components/Leaderboard/LeaderboardList";
@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 export default function LeaderboardPage() {
   const [sortType, setSortType] = useState("reputation");
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<ComponentProps<typeof Podium>["users"]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,6 +21,7 @@ export default function LeaderboardPage() {
         const result = await res.json();
         setData(result);
       } catch (error) {
+        console.log(error);
         toast.error("Could not update leaderboard");
       } finally {
         setLoading(false);
