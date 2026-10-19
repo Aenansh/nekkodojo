@@ -34,3 +34,8 @@ export async function PATCH(request: Request) {
     return NextResponse.json("Internal Server Error", { status: 500 });
   }
 }
+/**
+ * /api/progress/attempted
+ * @description
+ * saves the user's question progress as attempted.
+ */

@@ -61,3 +61,8 @@ export async function PATCH(request: Request) {
     return NextResponse.json("Internal Server Error", { status: 500 });
   }
 }
+/**
+ * /api/progress/status
+ * @description
+ * updates the attempted question's status and if completed, increment user solved count or decrement if attempted.
+ */

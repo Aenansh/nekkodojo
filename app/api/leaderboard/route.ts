@@ -104,3 +104,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+/**
+ * /api/leaderboard
+ * @description
+ * fetches top users ordered based on a rank.
+ */
