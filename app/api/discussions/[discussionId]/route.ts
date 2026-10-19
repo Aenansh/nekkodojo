@@ -79,3 +79,8 @@ export async function GET(
     return NextResponse.json("Failed to fetch this discussion!" + error, { status: 500 });
   }
 }
+/**
+ * /api/discussion/:id
+ * @description
+ * fetches a discussion by id.
+ */

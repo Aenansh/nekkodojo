@@ -73,6 +73,12 @@ export async function PATCH(
     await invalidateDiscussionCaches(id, user.id);
     return NextResponse.json(newLike, { status: 200 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json("Failed to like/unlike", { status: 500 });
   }
 }
+/**
+ * /api/discussions/:id/like
+ * @description
+ * likes a discussion fetched by id.
+ */
