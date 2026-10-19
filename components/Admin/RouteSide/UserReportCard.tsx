@@ -11,27 +11,6 @@ import {
   shadowbanUser,
 } from "@/app/(admin)/(protected)/_actions";
 
-interface UserReportProps {
-  report: {
-    id: string;
-    reason: string;
-    createdAt: Date;
-    reporter: {
-      firstName: string | null;
-      lastName: string | null;
-      profileUrl: string | null;
-    };
-    reported: {
-      id: string;
-      firstName: string | null;
-      lastName: string | null;
-      profileUrl: string | null;
-      email: string;
-      isBanned?: boolean; // Optional fields from your Prisma User model
-      isShadowbanned?: boolean;
-    };
-  };
-}
 
 export function UserReportCard({ report }: UserReportProps) {
   const [loading, setLoading] = useState(false);
@@ -73,6 +52,7 @@ export function UserReportCard({ report }: UserReportProps) {
           break;
       }
     } catch (err) {
+      console.log(err);
       toast.error("An unexpected error occurred.");
     } finally {
       setLoading(false);
@@ -88,7 +68,7 @@ export function UserReportCard({ report }: UserReportProps) {
             <UserX size={10} /> BANNED
           </div>
         )}
-        {report.reported.isShadowbanned && (
+        {report.reported.isShadowBanned && (
           <div className="bg-orange-900/40 text-orange-500 text-[10px] font-bold px-2 py-0.5 rounded border border-orange-900 flex items-center gap-1">
             <Ghost size={10} /> SHADOW
           </div>
@@ -133,7 +113,7 @@ export function UserReportCard({ report }: UserReportProps) {
       <div className="bg-[#0f0b0a] p-3 rounded-lg border border-[#3e2723] mb-6">
         <div className="flex items-start gap-2">
           <ShieldAlert size={16} className="text-[#d4af37] mt-0.5 shrink-0" />
-          <p className="text-sm text-[#eaddcf] italic leading-relaxed">"{report.reason}"</p>
+          <p className="text-sm text-[#eaddcf] italic leading-relaxed">&ldquo;{report.reason}&rdquo;</p>
         </div>
       </div>
 

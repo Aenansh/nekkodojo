@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import CreateQuestionForm from "@/components/Admin/Questions/CreateQuestionForm";
+import CreateQuestionPageClient from "@/components/Admin/Questions/CreateQuestionPageClient";
 
 export const dynamic = "force-dynamic";
 
@@ -17,19 +17,8 @@ export default async function CreateQuestionPage() {
     select: { name: true, slug: true },
   });
 
-  // 2. Fetch Companies for Dropdown
-  const companies = await prisma.company.findMany({
-    orderBy: { name: "asc" },
-    select: { name: true, slug: true },
-  });
-
-  // 3. Format for the MultiSelect component
+  // Format categories for the MultiSelect component.
   const categoryOptions = categories.map((c) => ({
-    label: c.name,
-    value: c.slug,
-  }));
-
-  const companyOptions = companies.map((c) => ({
     label: c.name,
     value: c.slug,
   }));
@@ -43,10 +32,7 @@ export default async function CreateQuestionPage() {
         </p>
       </div>
 
-      <CreateQuestionForm 
-        categoryOptions={categoryOptions} 
-        companyOptions={companyOptions} 
-      />
+      <CreateQuestionPageClient categoryOptions={categoryOptions} />
     </div>
   );
 }

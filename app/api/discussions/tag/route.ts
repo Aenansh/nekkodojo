@@ -4,6 +4,29 @@ import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+export async function GET() {
+  try {
+    const user = await currentUser();
+    if (!user || user.publicMetadata.role !== "admin") {
+      return NextResponse.json("Unauthorized!", { status: 401 });
+    }
+
+    const tags = await prisma.tag.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        _count: {
+          select: { discussions: true },
+        },
+      },
+    });
+
+    return NextResponse.json(tags, { status: 200 });
+  } catch (error) {
+    console.error("GET DISCUSSION TAGS ERROR:", error);
+    return NextResponse.json("Failed to fetch discussion tags", { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const user = await currentUser();

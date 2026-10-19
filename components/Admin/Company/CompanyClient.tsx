@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Search, Edit2, Trash2, ExternalLink } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, Search, Edit2, Trash2, ExternalLink, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,11 @@ import { CreateCompanyDialog } from "./CreateDialog";
 import { EditCompanyDialog } from "./EditDialog";
 import { DeleteCompanyDialog } from "./DeleteDialog";
 
-export default function CompanyClient({ data }: { data: CompanyData[] }) {
+export default function CompanyClient() {
+  const [data, setData] = useState<CompanyData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Dialog State
@@ -19,8 +23,58 @@ export default function CompanyClient({ data }: { data: CompanyData[] }) {
   const [compToDelete, setCompToDelete] = useState<CompanyData | null>(null);
   const [compToEdit, setCompToEdit] = useState<CompanyData | null>(null);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCompanies = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch("/api/companies?admin=true");
+        if (!response.ok) throw new Error("Failed to fetch companies.");
+        const companies = (await response.json()) as CompanyData[];
+        if (!cancelled) setData(companies);
+      } catch (fetchError) {
+        console.error("Failed to load companies:", fetchError);
+        if (!cancelled) setError("Unable to load companies.");
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    void loadCompanies();
+    return () => {
+      cancelled = true;
+    };
+  }, [retryCount]);
+
   // Filter
   const filtered = data.filter((c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center gap-3 py-20 text-[#d4af37]">
+        <Loader2 className="size-5 animate-spin" />
+        <span>Loading companies...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-4 py-12 text-center">
+        <p role="alert" className="text-red-400">{error}</p>
+        <Button
+          onClick={() => setRetryCount((count) => count + 1)}
+          variant="outline"
+          className="border-[#3e2723] text-[#eaddcf]"
+        >
+          Try again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -72,7 +126,7 @@ export default function CompanyClient({ data }: { data: CompanyData[] }) {
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-[#5d4037]">
-                    No companies found matching "{searchTerm}"
+                    No companies found matching &quot;{searchTerm}&quot;
                   </td>
                 </tr>
               ) : (
@@ -154,18 +208,28 @@ export default function CompanyClient({ data }: { data: CompanyData[] }) {
       </div>
 
       {/* --- DIALOGS --- */}
-      <CreateCompanyDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+      <CreateCompanyDialog
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onSuccess={() => setRetryCount((count) => count + 1)}
+      />
       <EditCompanyDialog
         open={!!compToEdit}
         onOpenChange={(open) => !open && setCompToEdit(null)}
         company={compToEdit}
-        onSuccess={() => setCompToEdit(null)}
+        onSuccess={() => {
+          setCompToEdit(null);
+          setRetryCount((count) => count + 1);
+        }}
       />
       <DeleteCompanyDialog
         open={!!compToDelete}
         onOpenChange={(open) => !open && setCompToDelete(null)}
         company={compToDelete}
-        onSuccess={() => setCompToDelete(null)}
+        onSuccess={() => {
+          setCompToDelete(null);
+          setRetryCount((count) => count + 1);
+        }}
       />
     </div>
   );

@@ -20,9 +20,10 @@ import { Label } from "@/components/ui/label";
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export function CreateTagDialog({ open, onOpenChange }: Props) {
+export function CreateTagDialog({ open, onOpenChange, onSuccess }: Props) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,6 +59,7 @@ export function CreateTagDialog({ open, onOpenChange }: Props) {
 
       toast.success("Tag created successfully!");
       router.refresh();
+      onSuccess?.();
       
       // Reset
       setName("");
@@ -65,9 +67,9 @@ export function CreateTagDialog({ open, onOpenChange }: Props) {
       setColor("");
       onOpenChange(false);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error(typeof error.message === "string" ? error.message : "Something went wrong");
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setIsLoading(false);
     }

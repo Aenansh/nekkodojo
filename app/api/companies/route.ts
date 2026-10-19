@@ -12,6 +12,21 @@ export async function GET(request: Request) {
     if (!user) return NextResponse.json("Unauthorized!", { status: 401 });
 
     const { searchParams } = new URL(request.url);
+    if (searchParams.get("admin") === "true") {
+      if (user.publicMetadata.role !== "admin") {
+        return NextResponse.json("Unauthorized!", { status: 401 });
+      }
+
+      const companies = await prisma.company.findMany({
+        orderBy: { name: "asc" },
+        include: {
+          _count: { select: { questions: true } },
+        },
+      });
+
+      return NextResponse.json(companies, { status: 200 });
+    }
+
     const query = searchParams.get("company") || "";
 
     const whereClause: CompanyWhereInput = {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Search, Edit2, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, Search, Edit2, Trash2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,11 @@ import { CreateTagDialog } from "./CreateDialog";
 import { EditTagDialog } from "./EditDialog";
 import { DeleteTagDialog } from "./DeleteDialog";
 
-export default function TagClient({ data }: { data: TagData[] }) {
+export default function TagClient() {
+  const [data, setData] = useState<TagData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Dialog States
@@ -19,9 +23,59 @@ export default function TagClient({ data }: { data: TagData[] }) {
   const [tagToDelete, setTagToDelete] = useState<TagData | null>(null);
   const [tagToEdit, setTagToEdit] = useState<TagData | null>(null);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadTags = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch("/api/discussions/tag");
+        if (!response.ok) throw new Error("Failed to fetch tags.");
+        const tags = (await response.json()) as TagData[];
+        if (!cancelled) setData(tags);
+      } catch (fetchError) {
+        console.error("Failed to load discussion tags:", fetchError);
+        if (!cancelled) setError("Unable to load discussion tags.");
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    void loadTags();
+    return () => {
+      cancelled = true;
+    };
+  }, [retryCount]);
+
   const filteredTags = data.filter((tag) =>
     tag.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center gap-3 py-20 text-[#d4af37]">
+        <Loader2 className="size-5 animate-spin" />
+        <span>Loading tags...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-4 py-12 text-center">
+        <p role="alert" className="text-red-400">{error}</p>
+        <Button
+          onClick={() => setRetryCount((count) => count + 1)}
+          variant="outline"
+          className="border-[#3e2723] text-[#eaddcf]"
+        >
+          Try again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -77,7 +131,7 @@ export default function TagClient({ data }: { data: TagData[] }) {
               {filteredTags.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-8 text-center text-[#5d4037]">
-                    No tags found matching "{searchTerm}"
+                    No tags found matching &quot;{searchTerm}&quot;
                   </td>
                 </tr>
               ) : (
@@ -130,20 +184,30 @@ export default function TagClient({ data }: { data: TagData[] }) {
       </div>
 
       {/* --- DIALOGS --- */}
-      <CreateTagDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+      <CreateTagDialog
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onSuccess={() => setRetryCount((count) => count + 1)}
+      />
 
       <EditTagDialog
         open={!!tagToEdit}
         onOpenChange={(open) => !open && setTagToEdit(null)}
         tag={tagToEdit}
-        onSuccess={() => setTagToEdit(null)}
+        onSuccess={() => {
+          setTagToEdit(null);
+          setRetryCount((count) => count + 1);
+        }}
       />
 
       <DeleteTagDialog
         open={!!tagToDelete}
         onOpenChange={(open) => !open && setTagToDelete(null)}
         tag={tagToDelete}
-        onSuccess={() => setTagToDelete(null)}
+        onSuccess={() => {
+          setTagToDelete(null);
+          setRetryCount((count) => count + 1);
+        }}
       />
     </div>
   );
