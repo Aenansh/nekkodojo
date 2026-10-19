@@ -35,7 +35,6 @@ export async function POST(req: Request) {
     return new Response("Error occured", { status: 500 });
   }
 
-  const { id } = evt.data;
   const eventType = evt.type;
   if (eventType === "user.created") {
     try {
@@ -73,3 +72,8 @@ export async function POST(req: Request) {
 
   return new Response("Webhook received successfully!", { status: 200 });
 }
+/*
+/api/webhooks/register
+**@description**
+registers a user to the database from clerk server.
+*/

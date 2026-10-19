@@ -72,3 +72,8 @@ export async function POST(req: Request) {
     }
   }
 }
+/*
+/api/webhooks/update
+**@description**
+updates user to database when updated from clerk server.
+*/

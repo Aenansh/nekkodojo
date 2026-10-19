@@ -57,3 +57,8 @@ export async function POST(req: Request) {
   }
   return new Response("Webhook received successfully!", { status: 200 });
 }
+/*
+/api/webhooks/delete
+**@description**
+deletes user from the database when deleted from clerk server.
+*/
