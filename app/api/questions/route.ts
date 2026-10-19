@@ -62,3 +62,8 @@ export async function GET(request: Request) {
     return NextResponse.json("Failed to fetch questions", { status: 500 });
   }
 }
+/**
+ * /api/questions/category
+ * @description
+ * fetches questions filtered by category and company.
+ */

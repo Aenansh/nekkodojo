@@ -88,3 +88,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Server crashed during upload." }, { status: 500 });
   }
 }
+/**
+ * /api/questions/bulk
+ * @description
+ * uploads question data in bulk to the database.
+ */
