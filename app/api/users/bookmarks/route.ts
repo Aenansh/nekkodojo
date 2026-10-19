@@ -107,3 +107,8 @@ export async function GET(request: Request) {
     return NextResponse.json("Internal Error", { status: 500 });
   }
 }
+/*
+/api/users/bookmarks
+**@description**
+fetches all the user's bookmarked posts and comments
+*/

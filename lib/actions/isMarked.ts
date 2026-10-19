@@ -16,7 +16,7 @@ export async function checkIsDiscussionMarked(discussionId: string) {
 
     return mark ? true : false;
   } catch (error) {
-    console.error("No bookmark found here!");
+    console.error("No bookmark found here!", error);
     return false;
   }
 }

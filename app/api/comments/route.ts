@@ -37,10 +37,10 @@ export async function GET(request: Request) {
             parentId: null,
           },
         });
-        const orderBy =
+        const orderBy: Prisma.CommentOrderByWithRelationInput[] =
           sort === "top"
             ? [{ likeCount: "desc" }, { replies: { _count: "desc" } }]
-            : { createdAt: "desc" };
+            : [{ createdAt: "desc" }];
 
         const rootComments = await prisma.comment.findMany({
           where: {
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
           },
           take: limit,
           skip: skip,
-          orderBy: orderBy as any,
+          orderBy: orderBy,
           include: {
             author: {
               select: {

@@ -1,3 +1,4 @@
+import { fetchItems, set } from "@/lib/actions/caching";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -18,21 +19,42 @@ export async function POST(request: Request) {
     if (user.id === reportedId) {
       return NextResponse.json({ message: "You cannot report yourself." }, { status: 400 });
     }
-    const alreadyReported = await prisma.report.findFirst({
-      where: {
-        reporterId: user.id,
-        reportedId: reportedId,
+
+    const cacheKey = `report:r=${reportedId}:rp=${user.id}`;
+
+    const alreadyReported = await fetchItems({
+      key: cacheKey,
+      expires: 30,
+      fetcher: async () => {
+        const report = await prisma.report.findFirst({
+          where: {
+            reporterId: user.id,
+            reportedId: reportedId,
+          },
+          select: {
+            id: true,
+          },
+        });
+        if (!report) return null;
+        return report.id;
       },
     });
 
     if (alreadyReported)
       return NextResponse.json({ message: "You already reported this user." }, { status: 409 });
 
-    const newReport = await prisma.report.create({
-      data: {
-        reporterId: user.id,
-        reportedId: reportedId,
-        reason,
+    await set({
+      key: cacheKey,
+      expires: 60,
+      fetcher: async () => {
+        const report = await prisma.report.create({
+          data: {
+            reporterId: user.id,
+            reportedId: reportedId,
+            reason,
+          },
+        });
+        return report.id;
       },
     });
 
@@ -42,3 +64,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
+/*
+/api/users/report
+**@description**
+serves a report action by an user, prevents self reprt and multiple reports by a user.
+*/
