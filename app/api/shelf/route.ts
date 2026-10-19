@@ -65,8 +65,13 @@ export async function PATCH(request: Request) {
     return NextResponse.json("Internal Server Error", { status: 500 });
   }
 }
+/**
+ * /api/shelf
+ * @description
+ * this shelves a question, and can unshelve or update shelf type as well.
+ */
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const user = await currentUser();
     if (!user) return NextResponse.json("Unauthorized!", { status: 401 });
@@ -96,3 +101,8 @@ export async function GET(request: Request) {
     return NextResponse.json("Internal Server Error.", { status: 500 });
   }
 }
+/**
+ * /api/shelf
+ * @description
+ * this fetches all the questions that are shelved by the user.
+ */
