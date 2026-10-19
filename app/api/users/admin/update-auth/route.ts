@@ -65,3 +65,8 @@ export async function PUT(request: Request) {
     return NextResponse.json("Internal Server Error", { status: 500 });
   }
 }
+/**
+ * /api/users/admin/update-auth
+ * @description
+ * changes sudo password for admin moderator roles.
+ */

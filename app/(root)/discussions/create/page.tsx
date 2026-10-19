@@ -14,7 +14,6 @@ import { useUser } from "@clerk/nextjs";
 import { TagSelector } from "@/components/Discussion/Create/Tags";
 import attFromKit from "@/lib/actions/removeAtt";
 import Link from "next/link";
-// ✅ Import the new action
 import { ensureUserStatus } from "./_actions";
 
 export default function CreateDiscussionPage() {

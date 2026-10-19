@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShieldAlert, Users, ScrollText, Sword, Lock, Gavel, ArrowLeft, Flame } from "lucide-react";
+import { ShieldAlert, Users, ScrollText, Sword, Lock, ArrowLeft, Flame } from "lucide-react";
 
 export default function BushidoRulesPage() {
   const virtues = [
@@ -124,7 +124,7 @@ export default function BushidoRulesPage() {
                         {virtue.romaji}
                       </h2>
                       <p className="text-[#d4af37] font-medium tracking-widest text-sm">
-                        // {virtue.meaning}
+                        {virtue.meaning}
                       </p>
                     </div>
                   </div>

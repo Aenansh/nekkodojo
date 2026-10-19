@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
-import { Difficulty } from "@/generated/prisma/enums"; 
+import { Difficulty } from "@/generated/prisma/enums";
 
 export async function POST(request: Request) {
   try {
@@ -65,13 +65,15 @@ export async function POST(request: Request) {
         });
 
         stats.success++;
-      } catch (error: any) {
-        console.error(`Error uploading ${q.slug}:`, error.message);
-        stats.failed++;
-        if (error.code === "P2025") {
-          stats.errors.push(`Failed: ${q.slug} - Missing Category or Company tag in DB`);
-        } else {
-          stats.errors.push(`Failed: ${q.slug} - ${error.message}`);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(`Error uploading ${q.slug}:`, error.message);
+          stats.failed++;
+          if ("code" in error && error.code === "P2025") {
+            stats.errors.push(`Failed: ${q.slug} - Missing Category or Company tag in DB`);
+          } else {
+            stats.errors.push(`Failed: ${q.slug} - ${error.message}`);
+          }
         }
       }
     }

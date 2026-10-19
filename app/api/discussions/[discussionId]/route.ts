@@ -76,7 +76,8 @@ export async function GET(
     }
     return NextResponse.json(discussion);
   } catch (error) {
-    return NextResponse.json("Failed to fetch this discussion!" + error, { status: 500 });
+    console.log(error);
+    return NextResponse.json("Failed to fetch this discussion!", { status: 500 });
   }
 }
 /**

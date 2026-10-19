@@ -97,7 +97,7 @@ export default function ProfilePage() {
     };
   }, [username, retryCount]);
 
-  if (!isLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0f0b0a] text-[#a1887f] py-12 items-center justify-center">
         <div className="container mx-auto px-4 max-w-6xl">Loading profile...</div>
