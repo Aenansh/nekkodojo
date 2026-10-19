@@ -43,9 +43,10 @@ const SignInPage = () => {
         redirectCallbackUrl: "/sso-callback",
         redirectUrl: "/problems",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(JSON.stringify(error, null, 2));
-      setError(error.errors[0].message);
+      const clerkError = error as { errors?: { message?: string }[] };
+      setError(clerkError.errors?.[0]?.message ?? "An unexpected error occurred.");
     }
   }
 
@@ -60,9 +61,10 @@ const SignInPage = () => {
         redirectCallbackUrl: "/sso-callback",
         redirectUrl: "/problems",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(JSON.stringify(error, null, 2));
-      setError(error.errors[0].message);
+      const clerkError = error as { errors?: { message?: string }[] };
+      setError(clerkError.errors?.[0]?.message ?? "An unexpected error occurred.");
     }
   }
   async function submit(e: React.FormEvent) {
@@ -93,9 +95,10 @@ const SignInPage = () => {
       } else {
         console.log("Sign-in requires further action:", result);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(JSON.stringify(error, null, 2));
-      setError(error.errors[0].message);
+      const clerkError = error as { errors?: { message?: string }[] };
+      setError(clerkError.errors?.[0]?.message ?? "An unexpected error occurred.");
     }
     setIsLoading(false);
   }

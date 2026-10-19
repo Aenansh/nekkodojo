@@ -52,31 +52,3 @@ export async function updateUser(formData: FormData) {
     return { success: false, error: "Failed to update user profile" };
   }
 }
-
-export async function getUserData() {
-  const user = await currentUser();
-
-  if (!user || !user.emailAddresses?.[0].emailAddress) {
-    return null;
-  }
-
-  try {
-    const dbUser = await prisma.user.findUnique({
-      where: {
-        email: user.emailAddresses[0].emailAddress,
-      },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        name: true,
-        bio: true,
-      },
-    });
-
-    return dbUser;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-    return null;
-  }
-}
