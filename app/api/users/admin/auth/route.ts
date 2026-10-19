@@ -70,7 +70,11 @@ export async function POST(request: Request) {
       path: "/",
     });
 
-    return NextResponse.json({ success: true, message: "Sudo mode activated" });
+    return NextResponse.json({
+      success: true,
+      message: "Sudo mode activated",
+      redirectTo: `/${role}/dashboard`,
+    });
   } catch (error) {
     console.error("Sudo login error:", error);
     return NextResponse.json("Internal Server Error", { status: 500 });
