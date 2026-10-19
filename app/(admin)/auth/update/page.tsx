@@ -44,8 +44,8 @@ export default function UpdateSudoPage() {
       toast.success(data.message || "Password updated successfully");
       form.reset();
       setTimeout(() => router.push("/admin/dashboard"), 1500);
-    } catch (error: any) {
-      toast.error(error.message || "Something went wrong");
+    } catch (error: unknown) {
+      if (error instanceof Error) toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }

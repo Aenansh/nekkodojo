@@ -1,9 +1,6 @@
 import React from "react";
-import { currentUser } from "@clerk/nextjs/server";
 
 export default async function AdminRootLayout({ children }: { children: React.ReactNode }) {
-  const user = await currentUser();
-
   return (
     <div className="min-h-screen bg-[#0f0b0a] text-[#eaddcf] selection:bg-[#d4af37] selection:text-[#1a110d] flex flex-col relative overflow-x-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none">

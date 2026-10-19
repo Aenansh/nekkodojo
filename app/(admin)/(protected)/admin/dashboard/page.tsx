@@ -8,11 +8,11 @@ import {
   UserPlus,
   ArrowRight,
   ShieldCheck,
-  Settings,
   Activity,
   User,
   MessageSquareText, // Added Icon
-  FeatherIcon
+  FeatherIcon,
+  type LucideIcon
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
@@ -29,7 +29,17 @@ import { getWeeklyStats } from "@/lib/activity";
 
 // --- WIDGETS ---
 
-function StatCard({ title, value, icon: Icon, colorClass }: any) {
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  colorClass,
+}: {
+  title: string;
+  value: string | number;
+  icon: LucideIcon;
+  colorClass: string;
+}) {
   return (
     <div className="relative overflow-hidden rounded-xl border border-[#3e2723] bg-[#1a110d] p-6 transition-all hover:border-[#d4af37]/30 hover:shadow-lg hover:shadow-[#d4af37]/5">
       <div className="flex items-center justify-between">
@@ -45,7 +55,17 @@ function StatCard({ title, value, icon: Icon, colorClass }: any) {
   );
 }
 
-function ActivityItem({ icon: Icon, text, time, color }: any) {
+function ActivityItem({
+  icon: Icon,
+  text,
+  time,
+  color,
+}: {
+  icon: LucideIcon;
+  text: string;
+  time: string;
+  color: string;
+}) {
   return (
     <div className="flex items-center gap-4 py-3 border-b border-[#3e2723] last:border-0">
       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-opacity-10 ${color}`}>
@@ -280,7 +300,7 @@ export default async function AdminDashboard(params: {
                 
                 <div className="flex flex-col">
                   {recentComments.length > 0 ? (
-                    recentComments.map((comment: any, i: number) => (
+                    recentComments.map((comment, i) => (
                       <ActivityItem 
                         key={i}
                         icon={MessageSquareText}
