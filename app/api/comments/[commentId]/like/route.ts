@@ -81,6 +81,12 @@ export async function PATCH(
     await invalidateCommentCaches(comment.discussionId);
     return NextResponse.json(newLike, { status: 200 });
   } catch (error) {
+    console.log(error);
     return NextResponse.json("Failed to like/unlike", { status: 500 });
   }
 }
+/**
+ * /api/comments/:id/like
+ * @description
+ * likes a comment in a discussion.
+ */

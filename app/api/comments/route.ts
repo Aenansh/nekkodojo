@@ -1,6 +1,7 @@
 import { Prisma } from "@/generated/prisma/client";
-import { fetchItems } from "@/lib/actions/caching";
+import { fetchItems, invalidateCommentCaches } from "@/lib/actions/caching";
 import { buildCommentTree } from "@/lib/comment-tree";
+import imagekit from "@/lib/image-kit";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -157,3 +158,117 @@ export async function GET(request: Request) {
     return NextResponse.json("Internal Error", { status: 500 });
   }
 }
+/**
+ * /api/comments
+ * @description
+ * fetches all the comments of a discussion
+ */
+
+export async function POST(request: Request) {
+  let attId = "";
+  try {
+    const user = await currentUser();
+    if (!user) return NextResponse.json("Unauthorized!", { status: 401 });
+
+    const body = await request.json();
+    const { description, discussionId, attachment, parentId } = body;
+    if (!description || !discussionId) {
+      return NextResponse.json("Invalid comment!", { status: 400 });
+    }
+    if (attachment) attId = attachment.id;
+    const attachmentData = attachment
+      ? {
+          attachments: {
+            create: {
+              id: attachment.id,
+              postUrl: attachment.postUrl,
+              type: attachment.type,
+            },
+          },
+        }
+      : {};
+    const newComment = await prisma.comment.create({
+      data: {
+        description,
+        authorId: user.id,
+        discussionId: discussionId,
+        parentId: parentId || null,
+        ...attachmentData,
+      },
+      include: {
+        author: {
+          select: {
+            firstName: true,
+            lastName: true,
+            name: true,
+            profileUrl: true,
+            beltRank: true,
+          },
+        },
+        attachments: true,
+      },
+    });
+
+    if (!newComment) {
+      throw new Error("Failed to make the comment");
+    }
+
+    await invalidateCommentCaches(discussionId);
+    return NextResponse.json(newComment, { status: 201 });
+  } catch (error) {
+    console.error(error);
+    imagekit.deleteFile(attId);
+    return NextResponse.json(error, { status: 500 });
+  }
+}
+/**
+ * /api/comments
+ * @description
+ * creates a comment on a discussion.
+ */
+
+export async function DELETE(request: Request) {
+  try {
+    const user = await currentUser();
+    if (!user) return NextResponse.json("Unauthorized!", { status: 401 });
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("commentId");
+    if (!id) return NextResponse.json("No such comment found!", { status: 404 });
+
+    const res = await prisma.comment.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        authorId: true,
+        attachments: true,
+        discussion: {
+          select: {
+            id: true,
+            authorId: true,
+          },
+        },
+      },
+    });
+    if (!res) return NextResponse.json("No such comment.", { status: 404 });
+    if (res.authorId !== user.id && res.discussion.authorId !== user.id) {
+      return NextResponse.json("You are not the author of this comment!", { status: 403 });
+    } else {
+      if (res.attachments) await imagekit.deleteFile(res.attachments.id);
+
+      await prisma.comment.delete({
+        where: { id, authorId: res.authorId },
+      });
+    }
+    await invalidateCommentCaches(res.discussion.id);
+    return NextResponse.json("Comment deleted!", { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json("Failed to delete the comment!", { status: 500 });
+  }
+}
+/**
+ * /api/comments
+ * @description
+ * deletes a comment either by author or discussion author.
+ */

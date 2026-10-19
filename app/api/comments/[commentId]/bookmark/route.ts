@@ -46,3 +46,8 @@ export async function PATCH(
     return NextResponse.json(`Error occured: ${error}`, { status: 500 });
   }
 }
+/**
+ * /api/comments/:id/bookmark
+ * @description
+ * bookmarks a comment in a discussion.
+ */

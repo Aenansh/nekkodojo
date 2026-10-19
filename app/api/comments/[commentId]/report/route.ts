@@ -48,3 +48,8 @@ export async function POST(
     return NextResponse.json(error, { status: 500 });
   }
 }
+/**
+ * /api/comments/:id/report
+ * @description
+ * reports a comment in a discussion.
+ */
