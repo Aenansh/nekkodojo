@@ -1,3 +1,4 @@
+import { fetchItems } from "@/lib/actions/caching";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -11,104 +12,94 @@ export async function GET() {
     const user = await currentUser();
     if (!user) return NextResponse.json("Unauthorized!", { status: 401 });
 
-    const allBookmarks = await prisma.bookmark.findMany({
-      where: {
-        userId: user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        discussion: {
-          where: {
-            author: {
-              isBanned: false,
-            },
-          },
+    const bookmarks = await fetchItems({
+      key: `user:bookmarks:${user.id}`,
+      expires: 300,
+      fetcher: async () => {
+        const allBookmarks = await prisma.bookmark.findMany({
+          where: { userId: user.id },
+          orderBy: { createdAt: "desc" },
           include: {
-            author: {
-              select: {
-                firstName: true,
-                lastName: true,
-                name: true,
-                profileUrl: true,
-                beltRank: true,
+            discussion: {
+              where: { author: { isBanned: false } },
+              include: {
+                author: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                    name: true,
+                    profileUrl: true,
+                    beltRank: true,
+                  },
+                },
+                tag: { select: { slug: true } },
+                _count: { select: { comments: true } },
+                likes: {
+                  where: { userId: user.id },
+                  select: { type: true },
+                },
               },
             },
-            tag: {
-              select: {
-                slug: true,
+            comment: {
+              where: { author: { isBanned: false } },
+              include: {
+                author: {
+                  select: {
+                    name: true,
+                    firstName: true,
+                    lastName: true,
+                    profileUrl: true,
+                    beltRank: true,
+                  },
+                },
+                attachments: true,
+                likes: {
+                  where: { userId: user.id },
+                  select: { type: true },
+                },
               },
             },
-            _count: {
-              select: { comments: true },
-            },
-            likes: {
-              where: { userId: user.id },
-              select: { type: true },
-            },
           },
-        },
-        comment: {
-          where: {
-            author: {
-              isBanned: false,
-            },
-          },
-          include: {
-            author: {
-              select: {
-                name: true,
-                firstName: true,
-                lastName: true,
-                profileUrl: true,
-                beltRank: true,
-              },
-            },
-            attachments: true,
-            likes: {
-              where: { userId: user.id },
-              select: { type: true },
-            },
-          },
-        },
+        });
+
+        const discussions = allBookmarks
+          .filter((bookmark) => bookmark.discussion !== null)
+          .map((bookmark) => {
+            const discussion = bookmark.discussion!;
+            return {
+              ...discussion,
+              isBookmarked: true,
+              isLiked: discussion.likes?.[0]?.type === "like",
+              isDisliked: discussion.likes?.[0]?.type === "dislike",
+              likes: undefined,
+            };
+          });
+
+        const comments = allBookmarks
+          .filter((bookmark) => bookmark.comment !== null)
+          .map((bookmark) => {
+            const comment = bookmark.comment!;
+            return {
+              ...comment,
+              isBookmarked: true,
+              isLiked: comment.likes?.[0]?.type === "like",
+              isDisliked: comment.likes?.[0]?.type === "dislike",
+              likes: undefined,
+            };
+          });
+
+        return { discussions, comments };
       },
     });
 
-    const discussions = allBookmarks
-      .filter((b) => b.discussion !== null)
-      .map((b) => {
-        const d = b.discussion!;
-        return {
-          ...d,
-          isBookmarked: true,
-          isLiked: d.likes?.[0]?.type === "like",
-          isDisliked: d.likes?.[0]?.type === "dislike",
-          likes: undefined,
-        };
-      });
-
-    const comments = allBookmarks
-      .filter((b) => b.comment !== null)
-      .map((b) => {
-        const c = b.comment!;
-        return {
-          ...c,
-          isBookmarked: true,
-          isLiked: c.likes?.[0]?.type === "like",
-          isDisliked: c.likes?.[0]?.type === "dislike",
-          likes: undefined,
-        };
-      });
-
-    return NextResponse.json({ discussions, comments }, { status: 200, headers: noStoreHeaders });
+    return NextResponse.json(bookmarks, { status: 200, headers: noStoreHeaders });
   } catch (error) {
     console.error("Bookmark Fetch Error:", error);
     return NextResponse.json("Internal Error", { status: 500 });
   }
 }
-/** 
+/**
  * /api/users/bookmarks
  * @description
  * fetches all the user's bookmarked posts and comments
-*/
+ */

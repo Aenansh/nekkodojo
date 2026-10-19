@@ -1,4 +1,7 @@
-import { invalidateCommentCaches } from "@/lib/actions/caching";
+import {
+  invalidateCommentCaches,
+  invalidateUserBookmarksCache,
+} from "@/lib/actions/caching";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -30,7 +33,10 @@ export async function PATCH(
         },
       });
 
-      await invalidateCommentCaches(comment.discussionId);
+      await Promise.all([
+        invalidateCommentCaches(comment.discussionId),
+        invalidateUserBookmarksCache(user.id),
+      ]);
       return NextResponse.json("Bookmark removed!", { status: 200 });
     }
     await prisma.bookmark.create({
@@ -40,7 +46,10 @@ export async function PATCH(
       },
     });
 
-    await invalidateCommentCaches(comment.discussionId);
+    await Promise.all([
+      invalidateCommentCaches(comment.discussionId),
+      invalidateUserBookmarksCache(user.id),
+    ]);
     return NextResponse.json("Bookmarked!", { status: 201 });
   } catch (error) {
     return NextResponse.json(`Error occured: ${error}`, { status: 500 });
