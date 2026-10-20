@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Loader2, Layers } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { CompanyCarousel, CompanyCardItem } from "./CompanyCarousel"; // Check path
 
@@ -72,7 +72,7 @@ export function CompanySection({ initialData, userProgress }: Props) {
         {companies.length > 0 ? (
           <CompanyCarousel 
             items={companies} 
-            userProgress={userProgress} // <--- CRITICAL FIX: Pass the prop down
+            userProgress={userProgress}
           />
         ) : (
           <div className="flex flex-col items-center justify-center h-48 w-full border border-dashed border-[#3e2723] rounded-2xl bg-[#1a110d]/30 text-center">

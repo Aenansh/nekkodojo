@@ -11,6 +11,7 @@ type LibraryCategory = {
   name: string;
   questions: {
     id: string;
+    slug: string;
     title: string;
     description: string;
     difficulty: "Easy" | "Medium" | "Hard";

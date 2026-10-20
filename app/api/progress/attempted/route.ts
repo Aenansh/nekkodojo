@@ -25,6 +25,8 @@ export async function PATCH(request: Request) {
         userId: user.id,
         questionId: qId,
         status: "attempted",
+        result: "PENDING",
+        languageId: null,
       },
     });
 

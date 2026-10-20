@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Clock,
   ThumbsUp,
+  type LucideIcon,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,7 @@ interface SolvedQuestion {
     id: string;
     title: string;
     difficulty: string;
-    slug?: string;
+    slug: string;
     externalPlatformUrl: string;
   };
 }
@@ -92,8 +93,7 @@ export function ProfileActivityTabs({ solvedQuestions, discussions, comments }: 
                 {solvedQuestions.map((item) => (
                   <Link
                     key={item.id}
-                    href={item.question.externalPlatformUrl}
-                    target="_blank"
+                    href={`/problems/${encodeURIComponent(item.question.slug)}`}
                     className="group flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 md:p-4 rounded-lg hover:bg-[#0f0b0a] border border-transparent hover:border-[#3e2723] transition-all gap-3"
                   >
                     <div className="flex items-start sm:items-center gap-3 md:gap-4 w-full">
@@ -205,7 +205,7 @@ export function ProfileActivityTabs({ solvedQuestions, discussions, comments }: 
                         </span>
                       </div>
                       <p className="text-xs md:text-sm text-[#eaddcf]/80 line-clamp-2 italic border-l-2 border-[#3e2723] pl-3 group-hover:border-[#d4af37] transition-colors">
-                        "{comment.description}"
+                        &quot;{comment.description}&quot;
                       </p>
                     </div>
                   </Link>
@@ -223,7 +223,17 @@ export function ProfileActivityTabs({ solvedQuestions, discussions, comments }: 
 
 // --- HELPER COMPONENTS ---
 
-function TabButton({ value, icon: Icon, label, count }: any) {
+function TabButton({
+  value,
+  icon: Icon,
+  label,
+  count,
+}: {
+  value: string;
+  icon: LucideIcon;
+  label: string;
+  count: number;
+}) {
   return (
     <TabsTrigger
       value={value}

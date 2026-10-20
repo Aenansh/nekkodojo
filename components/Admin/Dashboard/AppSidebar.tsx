@@ -17,6 +17,7 @@ import {
   Plus,
   List,
   Key,
+  Code2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -125,6 +126,11 @@ export function AppSidebar() {
           title: "Companies",
           url: `${basePath}/questions/company`,
           icon: Building2,
+        },
+        {
+          title: "Languages",
+          url: `${basePath}/questions/language`,
+          icon: Code2,
         },
       ],
     },

@@ -243,7 +243,7 @@ function ShelfCard({
         <div className="h-8 w-px bg-[#3e2723] mx-2 hidden sm:block" />
 
         <Link
-          href={`/problems/${question.id}`}
+          href={`/problems/${encodeURIComponent(question.slug)}`}
           className="flex items-center gap-2 text-sm font-semibold text-[#a1887f] hover:text-[#d4af37] transition-colors"
         >
           Solve <ArrowUpRight className="w-4 h-4" />

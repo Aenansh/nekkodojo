@@ -38,6 +38,7 @@ type ProfileData = {
     updatedAt: string;
     question: {
       id: string;
+      slug: string;
       title: string;
       difficulty: string;
       externalPlatformUrl: string;

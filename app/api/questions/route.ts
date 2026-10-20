@@ -44,6 +44,7 @@ export async function GET(request: Request) {
                 orderBy: { title: "asc" },
                 select: {
                   id: true,
+                  slug: true,
                   title: true,
                   description: true,
                   difficulty: true,

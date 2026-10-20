@@ -157,7 +157,7 @@ function CompanyCard({
 
         {/* Bottom Row: Actions */}
         <div className="flex gap-3">
-          <Link href={`/problems/${company.slug}`} className="flex-1">
+          <Link href={`/problems/sheet/${company.slug}`} className="flex-1">
             <Button className="w-full bg-[#eaddcf] text-[#1a110d] hover:bg-white hover:scale-[1.02] transition-all font-semibold h-8 text-xs">
               Open Sheet <ArrowRight className="w-3 h-3 ml-1.5" />
             </Button>

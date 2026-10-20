@@ -43,7 +43,13 @@ export async function GET(
           id: true,
           updatedAt: true,
           question: {
-            select: { id: true, title: true, difficulty: true, externalPlatformUrl: true },
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+              difficulty: true,
+              externalPlatformUrl: true,
+            },
           },
         },
       }),

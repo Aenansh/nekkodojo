@@ -471,13 +471,31 @@ export default function QuestionEditor({
                     setQuestion({ ...question, difficulty: value })
                   }
                 >
-                  <SelectTrigger id="difficulty" className={fieldClass}>
+                  <SelectTrigger
+                    id="difficulty"
+                    className="w-[180px] border-[#3e2723] bg-[#0f0b0a] text-[#eaddcf]"
+                  >
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Easy">Easy</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
-                    <SelectItem value="Hard">Hard</SelectItem>
+                  <SelectContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
+                    <SelectItem
+                      value="Easy"
+                      className="text-green-400 focus:bg-[#3e2723]/20 focus:text-green-400"
+                    >
+                      Easy
+                    </SelectItem>
+                    <SelectItem
+                      value="Medium"
+                      className="text-yellow-400 focus:bg-[#3e2723]/20 focus:text-yellow-400"
+                    >
+                      Medium
+                    </SelectItem>
+                    <SelectItem
+                      value="Hard"
+                      className="text-red-400 focus:bg-[#3e2723]/20 focus:text-red-400"
+                    >
+                      Hard
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -703,12 +721,21 @@ export default function QuestionEditor({
               <div className="space-y-2">
                 <Label htmlFor="new-stub-language">Language</Label>
                 <Select name="languageId" required>
-                  <SelectTrigger id="new-stub-language" className={fieldClass}>
+                  <SelectTrigger
+                    id="new-stub-language"
+                    className="w-[180px] border-[#3e2723] bg-[#0f0b0a] text-[#eaddcf]"
+                  >
                     <SelectValue placeholder="Select a language" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
                     {languages.filter((language) => !codestubs.some((stub) => stub.languageId === language.id)).map((language) => (
-                      <SelectItem key={language.id} value={language.id}>{language.name}</SelectItem>
+                      <SelectItem
+                        key={language.id}
+                        value={language.id}
+                        className="focus:bg-[#3e2723]/20 focus:text-[#eaddcf]"
+                      >
+                        {language.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -790,12 +817,21 @@ export default function QuestionEditor({
                 <div className="space-y-2">
                   <Label htmlFor="new-checker-language">Language</Label>
                   <Select name="languageId" required>
-                    <SelectTrigger id="new-checker-language" className={fieldClass}>
+                    <SelectTrigger
+                      id="new-checker-language"
+                      className="w-[180px] border-[#3e2723] bg-[#0f0b0a] text-[#eaddcf]"
+                    >
                       <SelectValue placeholder="Select a language" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
                       {languages.map((language) => (
-                        <SelectItem key={language.id} value={language.id}>{language.name}</SelectItem>
+                        <SelectItem
+                          key={language.id}
+                          value={language.id}
+                          className="focus:bg-[#3e2723]/20 focus:text-[#eaddcf]"
+                        >
+                          {language.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

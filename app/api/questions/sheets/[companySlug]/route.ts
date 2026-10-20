@@ -22,6 +22,7 @@ export async function GET(
               questions: {
                 select: {
                   id: true,
+                  slug: true,
                   title: true,
                   description: true,
                   difficulty: true,

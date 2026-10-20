@@ -23,8 +23,37 @@ type QuestionStatus = "unvisited" | "attempted" | "completed";
 type Difficulty = "Easy" | "Medium" | "Hard";
 type ShelfType = "later" | "revisit" | "important" | "stuck";
 
+function isQuestionProgress(
+  value: unknown
+): value is { questionId: string; status: QuestionStatus } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "questionId" in value &&
+    typeof value.questionId === "string" &&
+    "status" in value &&
+    (value.status === "unvisited" ||
+      value.status === "attempted" ||
+      value.status === "completed")
+  );
+}
+
+function isQuestionShelf(
+  value: unknown
+): value is { questionId: string; type: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "questionId" in value &&
+    typeof value.questionId === "string" &&
+    "type" in value &&
+    typeof value.type === "string"
+  );
+}
+
 interface Question {
   id: string;
+  slug: string;
   title: string;
   description: string;
   difficulty: Difficulty;
@@ -54,11 +83,13 @@ export default function QuestionExplorer({ data }: Props) {
         // Fetch Progress
         const progRes = await fetch("/api/progress");
         if (progRes.ok) {
-          const progData = await progRes.json();
+          const progData: unknown = await progRes.json();
           const progressMap: Record<string, QuestionStatus> = {};
           if (Array.isArray(progData)) {
-            progData.forEach((item: any) => {
-              progressMap[item.questionId] = item.status as QuestionStatus;
+            progData.forEach((item: unknown) => {
+              if (isQuestionProgress(item)) {
+                progressMap[item.questionId] = item.status;
+              }
             });
           }
           setProgress(progressMap);
@@ -67,11 +98,21 @@ export default function QuestionExplorer({ data }: Props) {
         // Fetch Shelf Data
         const shelfRes = await fetch("/api/shelf");
         if (shelfRes.ok) {
-          const shelfData = await shelfRes.json();
+          const shelfData: unknown = await shelfRes.json();
           const shelfMap: Record<string, ShelfType> = {};
           if (Array.isArray(shelfData)) {
-            shelfData.forEach((item: any) => {
-              shelfMap[item.questionId] = item.type.toLowerCase() as ShelfType;
+            shelfData.forEach((item: unknown) => {
+              if (isQuestionShelf(item)) {
+                const type = item.type.toLowerCase();
+                if (
+                  type === "later" ||
+                  type === "revisit" ||
+                  type === "important" ||
+                  type === "stuck"
+                ) {
+                  shelfMap[item.questionId] = type;
+                }
+              }
             });
           }
           setShelfState(shelfMap);
@@ -92,7 +133,7 @@ export default function QuestionExplorer({ data }: Props) {
 
     try {
       await fetch(`/api/progress/attempted?questionId=${q.id}`, { method: "PATCH" });
-    } catch (error) {
+    } catch {
       toast.error("Could not save progress");
       setProgress((prev) => ({ ...prev, [q.id]: "unvisited" }));
     }
@@ -107,7 +148,7 @@ export default function QuestionExplorer({ data }: Props) {
 
     try {
       await fetch(`/api/progress/status?questionId=${qId}`, { method: "PATCH" });
-    } catch (error) {
+    } catch {
       toast.error("Failed to save progress");
       setProgress((prev) => ({ ...prev, [qId]: previousStatus }));
     }
@@ -131,7 +172,7 @@ export default function QuestionExplorer({ data }: Props) {
 
       const msg = newType ? `Added to ${type} shelf` : `Removed from shelf`;
       toast.success(msg);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update shelf");
       setShelfState((prev) => ({ ...prev, [qId]: previousType })); // Revert
     } finally {
@@ -296,9 +337,7 @@ export default function QuestionExplorer({ data }: Props) {
                                       className="bg-[#d4af37] text-black hover:bg-[#b5952f] font-semibold h-9 px-4"
                                     >
                                       <Link
-                                        href={q.externalPlatformUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                        href={`/problems/${encodeURIComponent(q.slug)}`}
                                         className="flex items-center gap-2"
                                       >
                                         <Play className="w-3.5 h-3.5 fill-current" />

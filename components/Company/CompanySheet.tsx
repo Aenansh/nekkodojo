@@ -21,8 +21,22 @@ import { SHELF_BUTTONS } from "@/constants/shelfs";
 type QuestionStatus = "unvisited" | "attempted" | "completed";
 type ShelfType = "later" | "revisit" | "important" | "stuck";
 
+function isQuestionShelf(
+  value: unknown
+): value is { questionId: string; type: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "questionId" in value &&
+    typeof value.questionId === "string" &&
+    "type" in value &&
+    typeof value.type === "string"
+  );
+}
+
 export interface QuestionItem {
   id: string;
+  slug: string;
   title: string;
   description: string;
   difficulty: string;
@@ -52,11 +66,21 @@ export function CompanyQuestionsSheet({ questions, companyName, userProgress }: 
         // We ONLY fetch shelf data now, since progress is already here.
         const shelfRes = await fetch("/api/shelf");
         if (shelfRes.ok) {
-          const shelfData = await shelfRes.json();
+          const shelfData: unknown = await shelfRes.json();
           const shelfMap: Record<string, ShelfType> = {};
           if (Array.isArray(shelfData)) {
-            shelfData.forEach((item: any) => {
-              shelfMap[item.questionId] = item.type.toLowerCase() as ShelfType;
+            shelfData.forEach((item: unknown) => {
+              if (isQuestionShelf(item)) {
+                const type = item.type.toLowerCase();
+                if (
+                  type === "later" ||
+                  type === "revisit" ||
+                  type === "important" ||
+                  type === "stuck"
+                ) {
+                  shelfMap[item.questionId] = type;
+                }
+              }
             });
           }
           setShelfState(shelfMap);
@@ -77,7 +101,7 @@ export function CompanyQuestionsSheet({ questions, companyName, userProgress }: 
     try {
       const res = await fetch(`/api/progress/attempted?questionId=${q.id}`, { method: "PATCH" });
       if (!res.ok) throw new Error("Failed");
-    } catch (error) {
+    } catch {
       toast.error("Sync failed");
       setProgress((prev) => ({ ...prev, [q.id]: "unvisited" }));
     }
@@ -94,7 +118,7 @@ export function CompanyQuestionsSheet({ questions, companyName, userProgress }: 
     try {
       const res = await fetch(`/api/progress/status?questionId=${qId}`, { method: "PATCH" });
       if (!res.ok) throw new Error("Failed");
-    } catch (error) {
+    } catch {
       toast.error("Sync failed");
       setProgress((prev) => ({ ...prev, [qId]: prevStatus }));
     }
@@ -116,7 +140,7 @@ export function CompanyQuestionsSheet({ questions, companyName, userProgress }: 
 
       const msg = newType ? `Added to ${type.toUpperCase()}` : `Removed from shelf`;
       toast.success(msg);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update shelf");
       setShelfState((prev) => ({ ...prev, [qId]: previousType }));
     } finally {
@@ -280,9 +304,7 @@ export function CompanyQuestionsSheet({ questions, companyName, userProgress }: 
                         className="bg-[#d4af37] text-black hover:bg-[#b5952f] font-bold h-10 px-6 shadow-md shadow-[#d4af37]/10"
                       >
                         <Link
-                          href={q.externalPlatformUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          href={`/problems/${encodeURIComponent(q.slug)}`}
                         >
                           <Play className="w-4 h-4 mr-2 fill-current" />
                           Solve Challenge

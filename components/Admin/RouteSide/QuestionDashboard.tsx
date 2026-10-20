@@ -10,6 +10,7 @@ import {
   Layers,
   Tag,
   Building2,
+  Code2,
   MoreHorizontal,
   Loader2,
 } from "lucide-react";
@@ -92,7 +93,7 @@ export default function QuestionsDashboard({ initialCategories }: Props) {
   return (
     <div className="space-y-8 w-full">
       {/* --- 1. TOP NAVIGATION CARDS --- */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-5">
         {[
           {
             title: "Categories",
@@ -102,6 +103,7 @@ export default function QuestionsDashboard({ initialCategories }: Props) {
           },
           { title: "Tags", icon: Tag, href: "/admin/discussions/tag", desc: "Manage topics" },
           { title: "Companies", icon: Building2, href: "/admin/companies", desc: "Manage orgs" },
+          { title: "Languages", icon: Code2, href: "/admin/questions/language", desc: "Add runtime language" },
           {
             title: "Add Question",
             icon: Plus,
