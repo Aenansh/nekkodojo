@@ -16,7 +16,7 @@ import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { Loader2, User, FileText, Camera, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { updateUser } from "../action";
+import { updateUser } from "../_action";
 import { useRef, useState } from "react";
 import Image from "next/image";
 
@@ -46,7 +46,7 @@ const Onboarding = ({ initialData }: Props) => {
   const [imagePreview, setImagePreview] = useState<string | null>(
     initialData?.profileUrl || user?.imageUrl || null
   );
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -92,9 +92,24 @@ const Onboarding = ({ initialData }: Props) => {
       await updateUser(dataToSend);
 
       router.push(`/member/${formData.username.toLowerCase()}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.errors?.[0]?.longMessage || "Failed to update profile");
+      let errorMessage = "Failed to update profile";
+      if (typeof err === "object" && err !== null && "errors" in err) {
+        const errors = err.errors;
+        if (Array.isArray(errors)) {
+          const firstError: unknown = errors[0];
+          if (
+            typeof firstError === "object" &&
+            firstError !== null &&
+            "longMessage" in firstError &&
+            typeof firstError.longMessage === "string"
+          ) {
+            errorMessage = firstError.longMessage;
+          }
+        }
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -104,7 +119,6 @@ const Onboarding = ({ initialData }: Props) => {
     <div className="w-full max-w-lg relative z-10">
       <Card className="shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-[#5d4037] bg-[#1a110d]/90 backdrop-blur-md relative z-10 text-[#eaddcf]">
         <CardHeader className="space-y-3 pb-6 border-b border-[#3e2723]">
-          
           <div
             className="mx-auto relative group cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
@@ -177,7 +191,7 @@ const Onboarding = ({ initialData }: Props) => {
                 <span>{formData.username.length} / 4+</span>
               </p>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label
@@ -212,7 +226,7 @@ const Onboarding = ({ initialData }: Props) => {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label
                 htmlFor="bio"
@@ -228,9 +242,7 @@ const Onboarding = ({ initialData }: Props) => {
                 onChange={handleChange}
                 maxLength={160}
               />
-              <p className="text-[10px] text-[#5d4037] text-right">
-                {formData.bio.length} / 160
-              </p>
+              <p className="text-[10px] text-[#5d4037] text-right">{formData.bio.length} / 160</p>
             </div>
 
             {error && (
@@ -266,14 +278,12 @@ const Onboarding = ({ initialData }: Props) => {
               <span className="w-full border-t border-[#3e2723]" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#1a110d] px-2 text-[#5d4037] tracking-widest">
-                Almost there
-              </span>
+              <span className="bg-[#1a110d] px-2 text-[#5d4037] tracking-widest">Almost there</span>
             </div>
           </div>
 
           <p className="text-sm text-center text-[#a1887f]">
-            Welcome aboard! We're excited to have you join the Dojo{" "}
+            Welcome aboard! We&apos;re excited to have you join the Dojo{" "}
             <span className="text-[#d4af37]">🥋</span>
           </p>
         </CardFooter>

@@ -1,9 +1,33 @@
 import { prisma } from "@/lib/prisma";
 import { createJWTToken } from "@/utils/jwtToken";
+import { verifyJWT } from "@/utils/verify-jwt";
 import { currentUser } from "@clerk/nextjs/server";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+
+export async function GET() {
+  try {
+    const user = await currentUser();
+    if (!user) return NextResponse.json("Unauthorized!", { status: 401 });
+
+    const role = user.publicMetadata.role as string;
+    const isAuthenticated = await verifyJWT(role);
+
+    return NextResponse.json({
+      isAuthenticated,
+      redirectTo: isAuthenticated ? `/${role}/dashboard` : null,
+    });
+  } catch (error) {
+    console.error("Sudo session check error:", error);
+    return NextResponse.json("Failed to check sudo session", { status: 500 });
+  }
+}
+/**
+ * /api/users/admin/auth
+ * @description
+ * checks current admin/moderator's session.
+ */
 
 export async function POST(request: Request) {
   try {
@@ -46,7 +70,11 @@ export async function POST(request: Request) {
       path: "/",
     });
 
-    return NextResponse.json({ success: true, message: "Sudo mode activated" });
+    return NextResponse.json({
+      success: true,
+      message: "Sudo mode activated",
+      redirectTo: `/${role}/dashboard`,
+    });
   } catch (error) {
     console.error("Sudo login error:", error);
     return NextResponse.json("Internal Server Error", { status: 500 });

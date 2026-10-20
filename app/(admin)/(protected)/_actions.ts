@@ -78,9 +78,6 @@ export async function removeRole(formData: FormData) {
 }
 
 export async function deleteDiscussion(formData: FormData) {
-  const client = await clerkClient();
-
-  // Security Check
   if (!checkRole("admin")) return { message: "Not Authorized" };
 
   try {
@@ -114,8 +111,6 @@ export async function deleteDiscussion(formData: FormData) {
 }
 
 export async function deleteComment(formData: FormData) {
-  const client = await clerkClient();
-
   if (!checkRole("admin") && !checkRole("moderator")) {
     return { message: "Not Authorized" };
   }
@@ -152,7 +147,6 @@ export async function deleteComment(formData: FormData) {
 }
 
 export async function dismissReport(reportId: string) {
-  const client = await clerkClient();
   if (!checkRole("admin") && !checkRole("moderator")) {
     return { message: "Not Authorized" };
   }
@@ -167,6 +161,7 @@ export async function dismissReport(reportId: string) {
     revalidatePath("/moderator/reports");
     return { message: "Success" };
   } catch (err) {
+    console.log(err);
     return { message: "Error" };
   }
 }
@@ -206,7 +201,7 @@ export async function shadowbanUser(userId: string, reportId: string, durationDa
     return { message: "Not Authorized" };
   }
   try {
-    let metadata: any = { shadowbanned: true };
+    const metadata: { shadowbanned: boolean; shadowbanExpires?: number } = { shadowbanned: true };
     if (durationDays > 0) {
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + durationDays);
@@ -234,8 +229,9 @@ export async function shadowbanUser(userId: string, reportId: string, durationDa
     revalidatePath("/moderator/reports");
     const msg =
       durationDays > 0 ? `Shadowbanned for ${durationDays} days` : "Shadowbanned permanently";
-    return { success: true, message: msg };
+    return { success: true, messrage: msg };
   } catch (error) {
+    console.log(error);
     return { success: false, message: "Failed to shadowban" };
   }
 }

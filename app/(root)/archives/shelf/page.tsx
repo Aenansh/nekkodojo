@@ -7,22 +7,17 @@ import { Loader2, ChevronLeft, ArrowUpRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { SHELF_BUTTONS, SHELF_TABS } from "@/constants/shelfs"; 
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { SHELF_BUTTONS, SHELF_TABS } from "@/constants/shelfs";
 
 // Types
 type ShelfType = "later" | "revisit" | "important" | "stuck";
 
 interface ShelfItem {
-  id: string; 
+  id: string;
   type: ShelfType;
   question: {
-    id: string; 
+    id: string;
     title: string;
     difficulty: "Easy" | "Medium" | "Hard";
     slug: string;
@@ -52,14 +47,14 @@ export default function ShelfPage() {
       try {
         const response = await fetch("/api/shelf");
         if (!response.ok) throw new Error("Failed to fetch");
-        const data = await response.json();
-        // Normalize type
-        const normalizedData = data.map((d: any) => ({
-           ...d,
-           type: d.type.toLowerCase()
-        }))
+        const data: Array<Omit<ShelfItem, "type"> & { type: string }> = await response.json();
+        const normalizedData = data.map((d) => ({
+          ...d,
+          type: d.type.toLowerCase() as ShelfType,
+        }));
         setItems(normalizedData);
       } catch (error) {
+        console.log(error);
         toast.error("Could not load shelf items");
       } finally {
         setLoading(false);
@@ -120,11 +115,7 @@ export default function ShelfPage() {
           >
             {getItemsByType(tab.value as ShelfType).length > 0 ? (
               getItemsByType(tab.value as ShelfType).map((item) => (
-                <ShelfCard 
-                  key={item.id} 
-                  item={item} 
-                  onUpdate={updateLocalState}
-                />
+                <ShelfCard key={item.id} item={item} onUpdate={updateLocalState} />
               ))
             ) : (
               <EmptyShelf label={tab.label} />
@@ -137,12 +128,12 @@ export default function ShelfPage() {
 }
 
 // --- CARD SUB-COMPONENT ---
-function ShelfCard({ 
-  item, 
-  onUpdate 
-}: { 
-  item: ShelfItem; 
-  onUpdate: (qId: string, type: ShelfType | null) => void 
+function ShelfCard({
+  item,
+  onUpdate,
+}: {
+  item: ShelfItem;
+  onUpdate: (qId: string, type: ShelfType | null) => void;
 }) {
   const { question } = item;
   const [loadingType, setLoadingType] = useState<ShelfType | null>(null);
@@ -153,8 +144,8 @@ function ShelfCard({
     question.difficulty === "Easy"
       ? "text-green-400 bg-green-900/20 border-green-900"
       : question.difficulty === "Medium"
-      ? "text-yellow-400 bg-yellow-900/20 border-yellow-900"
-      : "text-red-400 bg-red-900/20 border-red-900";
+        ? "text-yellow-400 bg-yellow-900/20 border-yellow-900"
+        : "text-red-400 bg-red-900/20 border-red-900";
 
   const toggleShelf = async (type: ShelfType) => {
     // 1. Set Loading State
@@ -169,14 +160,14 @@ function ShelfCard({
       });
 
       if (!res.ok) throw new Error("Failed");
-      
+
       const msg = newType ? `Moved to ${type}` : "Removed from Shelf";
       toast.success(msg);
 
       // 3. Update State AFTER success
       onUpdate(question.id, newType);
-
     } catch (error) {
+      console.log(error);
       toast.error("Failed to update shelf");
     } finally {
       setLoadingType(null);
@@ -219,18 +210,18 @@ function ShelfCard({
                         isActive
                           ? `${btn.activeColor} shadow-[0_0_12px_-3px_currentColor] scale-110 z-10`
                           : `text-[#5d4037] hover:bg-[#3e2723]/40 ${btn.hoverColor} hover:scale-105`,
-                         isLoading && "opacity-50 cursor-wait"
+                        isLoading && "opacity-50 cursor-wait"
                       )}
                     >
                       {isLoading ? (
-                         <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                         <btn.icon
-                           className={cn(
-                             "w-4 h-4 transition-all duration-300",
-                             isActive && "fill-current"
-                           )}
-                         />
+                        <btn.icon
+                          className={cn(
+                            "w-4 h-4 transition-all duration-300",
+                            isActive && "fill-current"
+                          )}
+                        />
                       )}
                       {isActive && (
                         <span className="absolute -bottom-1 w-1 h-1 rounded-full bg-current" />
@@ -265,7 +256,7 @@ function ShelfCard({
 function EmptyShelf({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 border border-dashed border-[#3e2723] rounded-xl bg-[#1a110d]/30 text-[#5d4037]">
-      <p>No questions marked as "{label}" yet.</p>
+      <p>No questions marked as &ldquo;{label}&rdquo; yet.</p>
     </div>
   );
 }

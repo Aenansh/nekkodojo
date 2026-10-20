@@ -16,6 +16,7 @@ export async function verifyJWT(role: string): Promise<boolean> {
 
     return true;
   } catch (error) {
+    console.log(error);
     return false;
   }
 }

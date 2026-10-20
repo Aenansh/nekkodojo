@@ -7,7 +7,7 @@ import { toast } from "sonner"; // Assuming you use Sonner or standard toast
 
 export default function SudoAuthForm() {
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user"); 
+  const [role, setRole] = useState("user");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -24,16 +24,34 @@ export default function SudoAuthForm() {
         body: JSON.stringify({ password, role }),
       });
 
-      const data = await res.json();
+      const responseData: unknown = await res.json();
 
       if (!res.ok) {
-        throw new Error(data || "Authentication failed");
+        const message =
+          typeof responseData === "string"
+            ? responseData
+            : typeof responseData === "object" &&
+                responseData !== null &&
+                "message" in responseData &&
+                typeof responseData.message === "string"
+              ? responseData.message
+              : "Authentication failed";
+        throw new Error(message);
+      }
+
+      if (
+        typeof responseData !== "object" ||
+        responseData === null ||
+        !("redirectTo" in responseData) ||
+        typeof responseData.redirectTo !== "string"
+      ) {
+        throw new Error("Authentication succeeded without a redirect target.");
       }
 
       toast.success(`Identity Verified, Welcome back ${role}`);
-      router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
+      router.replace(responseData.redirectTo);
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message || "Something went wrong.");
       setPassword("");
     } finally {
       setLoading(false);

@@ -55,9 +55,10 @@ const SignUpPage = () => {
       await signUp.verifications.sendEmailCode();
 
       setPendingVerification(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(JSON.stringify(error, null, 2));
-      setError(error.errors[0].message);
+      const clerkError = error as { errors?: { message?: string }[] };
+      setError(clerkError.errors?.[0]?.message ?? "An unexpected error occurred.");
     }
     setIsLoading(false);
   }
@@ -85,9 +86,10 @@ const SignUpPage = () => {
           },
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(JSON.stringify(error, null, 2));
-      setError(error.errors[0].message);
+      const clerkError = error as { errors?: { message?: string }[] };
+      setError(clerkError.errors?.[0]?.message ?? "An unexpected error occurred.");
     }
     setIsLoading(false);
   }
@@ -101,9 +103,10 @@ const SignUpPage = () => {
         redirectCallbackUrl: "/sso-callback",
         redirectUrl: "/onboarding",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(JSON.stringify(error, null, 2));
-      setError(error.errors[0].message);
+      const clerkError = error as { errors?: { message?: string }[] };
+      setError(clerkError.errors?.[0]?.message ?? "An unexpected error occurred.");
     }
   }
 
@@ -118,9 +121,10 @@ const SignUpPage = () => {
         redirectCallbackUrl: "/sso-callback",
         redirectUrl: "/onboarding",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(JSON.stringify(error, null, 2));
-      setError(error.errors[0].message);
+      const clerkError = error as { errors?: { message?: string }[] };
+      setError(clerkError.errors?.[0]?.message ?? "An unexpected error occurred.");
     }
   }
 

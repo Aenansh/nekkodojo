@@ -32,7 +32,7 @@ export default async function AdminReportsPage() {
           profileUrl: true,
           email: true,
           isBanned: true,
-          isShadowBanned: true, // ✅ FIX 1: Changed from isShadowBanned to isShadowbanned
+          isShadowBanned: true,
         },
       },
     },
@@ -167,11 +167,17 @@ export default async function AdminReportsPage() {
         <TabsContent value="ronins" className="space-y-4">
           {userReports.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {userReports.map(
-                (r) =>
-                  // ✅ FIX 3: Check if reported exists before rendering
-                  r.reported && <UserReportCard key={r.id} report={r as any} />
-              )}
+              {userReports.map((report) => {
+                const reported = report.reported;
+                if (!reported) return null;
+
+                return (
+                  <UserReportCard
+                    key={report.id}
+                    report={{ ...report, reported }}
+                  />
+                );
+              })}
             </div>
           ) : (
             <EmptyState message="No Ronins flagged." />
@@ -217,16 +223,17 @@ export default async function AdminReportsPage() {
         <TabsContent value="archive" className="space-y-4">
           {resolvedReports.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-75">
-              {resolvedReports.map((r) =>
-                r.reportedId && r.reported ? (
+              {resolvedReports.map((report) => {
+                const reported = report.reported;
+                return report.reportedId && reported ? (
                   <UserReportCard
-                    key={r.id}
-                    report={r as any}
+                    key={report.id}
+                    report={{ ...report, reported }}
                   />
                 ) : (
-                  <ReportCard key={r.id} report={r} />
-                )
-              )}
+                  <ReportCard key={report.id} report={report} />
+                );
+              })}
             </div>
           ) : (
             <EmptyState message="No history for today." />

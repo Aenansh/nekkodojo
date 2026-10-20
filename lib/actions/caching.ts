@@ -31,6 +31,22 @@ export const deleteCacheKeys = async (...keys: string[]) => {
   return redis.del(...uniqueKeys);
 };
 
+export const invalidateUserShelfCache = async (userId: string) => {
+  try {
+    await deleteCacheKeys(`user:shelf:${userId}`);
+  } catch (error) {
+    console.error("User shelf cache invalidation failed:", error);
+  }
+};
+
+export const invalidateUserBookmarksCache = async (userId: string) => {
+  try {
+    await deleteCacheKeys(`user:bookmarks:${userId}`);
+  } catch (error) {
+    console.error("User bookmarks cache invalidation failed:", error);
+  }
+};
+
 export const deleteCacheByPrefix = async (prefix: string) => {
   let cursor: string | number = 0;
   let deleted = 0;

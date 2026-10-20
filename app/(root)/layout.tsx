@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/Landing Page/Navbar";
-import { getIsOnboarded } from "../(auth)/action";
+import { getIsOnboarded } from "../(auth)/_action";
 import DoorOpen from "@/components/Landing Page/DoorOpen";
 import { ClerkProvider } from "@clerk/nextjs";
 

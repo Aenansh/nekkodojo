@@ -1,3 +1,5 @@
+"use client";
+
 import ForgotPassword from "./_components/ForgotPassword";
 
 const Page = () => {

@@ -6,7 +6,10 @@ export async function isShadowBanned(targetUserId?: string): Promise<boolean> {
   const userId = targetUserId || session.userId;
 
   if (!userId) return false;
-  let metadata: any;
+  let metadata: Record<string, unknown> & {
+    shadowbanned?: boolean;
+    shadowbanExpires?: string | null;
+  };
 
   if (userId === session.userId && session.sessionClaims?.metadata) {
     metadata = session.sessionClaims.metadata;

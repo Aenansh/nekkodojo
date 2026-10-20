@@ -1,6 +1,7 @@
+"use client";
+
 import Link from "next/link";
 import { BookMarked, Library, ArrowRight, ScrollText, Swords } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export default function BookmarksHub() {
   return (

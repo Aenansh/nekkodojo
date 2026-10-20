@@ -59,9 +59,18 @@ const ForgotPassword = () => {
         return;
       }
       setPendingVerification(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(JSON.stringify(error, null, 2));
-      setError(error.errors?.[0]?.longMessage || "Failed to send code");
+      const firstError =
+        typeof error === "object" && error !== null && "errors" in error && Array.isArray(error.errors)
+          ? error.errors[0]
+          : undefined;
+      const longMessage =
+        typeof firstError === "object" && firstError !== null &&
+        "longMessage" in firstError && typeof firstError.longMessage === "string"
+          ? firstError.longMessage
+          : undefined;
+      setError(longMessage || (error instanceof Error ? error.message : "Failed to send code"));
     } finally {
       setIsLoading(false);
     }
@@ -108,9 +117,13 @@ const ForgotPassword = () => {
       } else {
         setError("Verification failed. Please try again.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(JSON.stringify(error, null, 2));
-      setError(error.errors?.[0]?.longMessage || "Failed to reset password");
+      const clerkError = error as { errors?: { longMessage?: string }[] };
+      setError(
+        clerkError.errors?.[0]?.longMessage ||
+          (error instanceof Error ? error.message : "Failed to reset password"),
+      );
     } finally {
       setIsLoading(false);
     }

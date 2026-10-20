@@ -26,9 +26,9 @@ declare interface DiscussionProps {
     comments: number;
   };
   userVote?: "like" | "dislike" | null;
-  isLiked: Boolean;
-  isDisliked: Boolean;
-  isBookmarked?: Boolean;
+  isLiked: boolean;
+  isDisliked: boolean;
+  isBookmarked: boolean;
 }
 
 declare interface CommentProps {
@@ -55,9 +55,9 @@ declare interface CommentProps {
     replies: number;
   };
   replies?: CommentProps[];
-  isLiked?: Boolean;
-  isDisliked?: Boolean;
-  isBookmarked?: Boolean;
+  isLiked?: boolean;
+  isDisliked?: boolean;
+  isBookmarked?: boolean;
 }
 
 declare interface Attachment {
@@ -82,8 +82,8 @@ declare interface UserProps {
   role: string;
   beltRank: string;
   createdAt: string;
-  isBanned?: Boolean;
-  isShadowBanned?: Boolean;
+  isBanned?: boolean;
+  isShadowBanned?: boolean;
 }
 
 declare interface ReportProps {
@@ -151,10 +151,16 @@ declare interface CompanyData {
 declare interface Question {
   id: string;
   title: string;
-  description: string; // Ensure your fetch includes this
+  description: string;
   difficulty: "Easy" | "Medium" | "Hard";
   externalPlatformUrl: string;
   solutionUrl?: string | null;
   categories: Category[];
   companyTag: Company[];
+}
+
+declare interface UserReportProps {
+  report: Omit<ReportProps, "reported"> & {
+    reported: NonNullable<ReportProps["reported"]>;
+  };
 }

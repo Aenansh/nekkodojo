@@ -1,4 +1,4 @@
-import { getIsOnboarded } from "./action";
+import { getIsOnboarded } from "./_action";
 import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
 

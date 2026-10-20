@@ -22,9 +22,10 @@ import attFromKit from "@/lib/actions/removeAtt";
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export function CreateCompanyDialog({ open, onOpenChange }: Props) {
+export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: Props) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -70,6 +71,7 @@ export function CreateCompanyDialog({ open, onOpenChange }: Props) {
 
       toast.success("Company created successfully!");
       router.refresh();
+      onSuccess?.();
 
       // Reset Form
       setName("");
@@ -78,9 +80,9 @@ export function CreateCompanyDialog({ open, onOpenChange }: Props) {
       setLogoUrl(null);
       setLogoId(null);
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error(typeof error.message === "string" ? error.message : "Failed to create company");
+      toast.error(error instanceof Error ? error.message : "Failed to create company");
     } finally {
       setIsLoading(false);
     }

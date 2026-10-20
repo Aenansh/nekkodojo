@@ -29,10 +29,10 @@ export async function sendSudoPasswordEmail(email: string, role: string, passwor
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent: %s", info.messageId);
+    console.log("Email sent: %s", info.messageId);
     return { success: true };
   } catch (error) {
-    console.error("❌ Email failed:", error);
+    console.error("Email failed:", error);
     return { success: false, error };
   }
 }

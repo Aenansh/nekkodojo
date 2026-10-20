@@ -1,4 +1,5 @@
 import { ShelfType } from "@/generated/prisma/enums";
+import { fetchItems, invalidateUserShelfCache } from "@/lib/actions/caching";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -38,6 +39,7 @@ export async function PATCH(request: Request) {
         },
       });
 
+      await invalidateUserShelfCache(user.id);
       return NextResponse.json(shelved, { status: 201 });
     }
     if (isShelved && isShelved.type === shelfType) {
@@ -47,6 +49,7 @@ export async function PATCH(request: Request) {
         },
       });
 
+      await invalidateUserShelfCache(user.id);
       return NextResponse.json("Unshelved from revisited!", { status: 200 });
     }
 
@@ -59,6 +62,7 @@ export async function PATCH(request: Request) {
       },
     });
 
+    await invalidateUserShelfCache(user.id);
     return NextResponse.json(shelved, { status: 200 });
   } catch (error) {
     console.log("Error Occured", error);
@@ -76,23 +80,28 @@ export async function GET() {
     const user = await currentUser();
     if (!user) return NextResponse.json("Unauthorized!", { status: 401 });
 
-    const allShelfItems = await prisma.shelf.findMany({
-      where: {
-        userId: user.id,
-      },
-      include: {
-        question: {
-          select: {
-            id: true,
-            title: true,
-            externalPlatformUrl: true,
-            solutionUrl: true,
-            description: true,
-            difficulty: true,
-            categories: true,
+    const allShelfItems = await fetchItems({
+      key: `user:shelf:${user.id}`,
+      expires: 300,
+      fetcher: () =>
+        prisma.shelf.findMany({
+          where: {
+            userId: user.id,
           },
-        },
-      },
+          include: {
+            question: {
+              select: {
+                id: true,
+                title: true,
+                externalPlatformUrl: true,
+                solutionUrl: true,
+                description: true,
+                difficulty: true,
+                categories: true,
+              },
+            },
+          },
+        }),
     });
 
     return NextResponse.json(allShelfItems, { status: 200, headers: noStoreHeaders });
