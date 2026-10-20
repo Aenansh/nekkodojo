@@ -19,7 +19,7 @@ model User {
 
   isOnboarded Boolean? @default(false)
 
-  noOfQuestionsSolved Int? @default(0)
+  noOfQuestionsSolved Int?     @default(0)
   beltRank            BeltType @default(white_belt)
 
   discussions Discussion[]
@@ -203,14 +203,24 @@ model Question {
   externalPlatformUrl String
   solutionUrl         String
 
+  timeLimit   Int @default(2000)
+  memoryLimit Int @default(256)
+
   noOfSubmissions  Int @default(0)
   noOfPeopleSolved Int @default(0)
 
   userProgresses UserProgress[]
+  judgeType      JudgeType      @default(EXACT_MATCH)
+  hasChecker     Boolean        @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  shelves   Shelf[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  shelves        Shelf[]
+  codestubs      Codestub[]
+  testcases      Testcase[]
+  customCheckers CustomChecker[]
+
+  @@index([difficulty])
 }
 
 model Category {
@@ -256,12 +266,25 @@ model UserProgress {
 
   status QuestionStatusType @default(unvisited)
 
-  userCode String? @db.Text
+  userCode   String? @db.Text
+  timeTaken  Int     @default(0)
+  memoryUsed Int     @default(0)
+
+  testcasesPassed Int @default(0)
+  totalTestcases  Int @default(0)
+
+  errorLog String?
+  result   ResultType @default(PENDING)
+
+  languageId String?
+  language   Language? @relation(fields: [languageId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([userId, questionId])
+  @@index([userId, questionId])
+  @@index([questionId])
 }
 
 model Tag {
@@ -292,6 +315,74 @@ model Shelf {
   updatedAt DateTime @updatedAt
 
   @@unique([questionId, userId])
+}
+
+model Language {
+  id         String @id @default(cuid())
+  name       String @unique
+  slug       String @unique
+  monacoSlug String
+  extension  String
+
+  dockerImage String
+  compileCmd  String?
+  runCmd      String
+
+  isSupported Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userProgress   UserProgress[]
+  codestubs      Codestub[]
+  customCheckers CustomChecker[]
+
+  @@index([slug])
+}
+
+model Codestub {
+  id String @id @default(cuid())
+
+  userSnippet String @db.Text
+  driverCode  String @db.Text
+
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  languageId String
+  language   Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, languageId])
+}
+
+model Testcase {
+  id String @id @default(cuid())
+
+  input          String  @db.Text
+  expectedOutput String  @db.Text
+  isHidden       Boolean
+
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model CustomChecker {
+  id String @id @default(cuid())
+
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onUpdate: Cascade)
+
+  languageId String
+  language   Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  scriptSource String @db.Text
+
+  timeoutMs Int      @default(2000)
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+
+  @@unique([questionId, version])
 }
 
 //enums
@@ -369,4 +460,22 @@ enum Difficulty {
   Easy
   Hard
   Medium
+}
+
+enum ResultType {
+  PENDING
+  RUNNING
+  SUCCESS
+  WRONG
+  RUNTIME_ERROR
+  COMPILE_ERROR
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  SYSTEM_ERROR
+}
+
+enum JudgeType {
+  EXACT_MATCH
+  UNORDERED_MATCH
+  SPECIAL_JUDGE
 }
