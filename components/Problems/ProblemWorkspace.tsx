@@ -422,7 +422,12 @@ export default function ProblemWorkspace({
                     ["Latest result", problem.userProgress.result],
                     ["Test cases passed", `${problem.userProgress.testcasesPassed}/${problem.userProgress.totalTestcases}`],
                     ["Execution time", `${problem.userProgress.timeTaken} ms`],
-                    ["Memory used", `${problem.userProgress.memoryUsed} MB`],
+                    [
+                      "Memory used",
+                      problem.userProgress.memoryUsed > 0
+                        ? `${problem.userProgress.memoryUsed} MB`
+                        : "Not measured",
+                    ],
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-lg border border-[#3e2723] bg-[#0f0b0a] p-3">
                       <dt className="text-xs text-[#a1887f]">{label}</dt>
