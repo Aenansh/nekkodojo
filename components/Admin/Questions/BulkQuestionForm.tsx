@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { bulk_template } from "@/questions-bulk-upload-template";
 
 export default function BulkQuestionForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -17,46 +18,7 @@ export default function BulkQuestionForm() {
   } | null>(null);
 
   const downloadTemplate = () => {
-    const template = [
-      {
-        title: "Example Question",
-        slug: "example-question-slug",
-        description: "Problem description goes here...",
-        difficulty: "Easy",
-        externalPlatformUrl: "https://leetcode.com/...",
-        solutionUrl: "https://youtube.com/...",
-        categories: ["arrays", "dynamic-programming"],
-        companies: ["google", "amazon"],
-        supportedLanguageIds: ["replace-with-supported-language-id"],
-        timeLimit: 2000,
-        memoryLimit: 256,
-        judgeType: "EXACT_MATCH",
-        testcases: [
-          {
-            input: "nums = [2,7,11,15]\ntarget = 9",
-            expectedOutput: "[0,1]",
-            isHidden: false,
-          },
-          {
-            input: "nums = [3,2,4]\ntarget = 6",
-            expectedOutput: "[1,2]",
-            isHidden: true,
-          },
-        ],
-        codestubs: [
-          {
-            languageSlug: "replace-with-supported-language-slug",
-            userSnippet: "function solution() {\n  // Your code here\n}",
-            driverCode: "// Language-specific driver code",
-          },
-        ],
-        customChecker: {
-          languageSlug: "replace-with-supported-language-slug",
-          scriptSource: "// Custom checker source",
-          timeoutMs: 2000,
-        },
-      },
-    ];
+    const template = bulk_template;
 
     const blob = new Blob([JSON.stringify(template, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -91,14 +53,10 @@ export default function BulkQuestionForm() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          typeof result === "string" ? result : result.error || "Upload failed",
-        );
+        throw new Error(typeof result === "string" ? result : result.error || "Upload failed");
       }
 
-      const successCount = Number(
-        result.message?.match(/Success: (\d+)/)?.[1] ?? 0,
-      );
+      const successCount = Number(result.message?.match(/Success: (\d+)/)?.[1] ?? 0);
       const errors = Array.isArray(result.data)
         ? result.data.filter((error: unknown): error is string => typeof error === "string")
         : [];
@@ -129,10 +87,9 @@ export default function BulkQuestionForm() {
           <div className="text-sm text-[#a1887f]">
             <p className="font-bold text-[#eaddcf]">Need the format?</p>
             <p>
-              Download the JSON template. Test inputs and outputs are raw text;
-              replace the language slugs with existing supported languages. If
-              codestubs are included, add one for every supported language.
-              supportedLanguageIds can optionally restrict the question to a
+              Download the JSON template. Test inputs and outputs are raw text; replace the language
+              slugs with existing supported languages. If codestubs are included, add one for every
+              supported language. supportedLanguageIds can optionally restrict the question to a
               subset of enabled language IDs.
             </p>
           </div>
