@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { bulk_template } from "@/questions-bulk-upload-template";
+import { bulk_template } from "@/lib/stores/questions-bulk-upload-template";
 
 export default function BulkQuestionForm() {
   const [file, setFile] = useState<File | null>(null);

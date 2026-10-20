@@ -37,8 +37,10 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tabler/icons-react": "^3.36.0",
+    "@trigger.dev/sdk": "4.7.5",
     "@upstash/redis": "^1.36.1",
     "bcryptjs": "^3.0.3",
+    "bullmq": "^6.3.18",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -72,6 +74,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.19",
+    "@trigger.dev/build": "4.7.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.19.27",
     "@types/nodemailer": "^7.0.5",
