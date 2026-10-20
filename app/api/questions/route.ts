@@ -129,6 +129,7 @@ export async function POST(request: Request) {
       solutionUrl,
       companyTag = [],
       categories = [],
+      supportedLanguageIds,
     } = body;
 
     const user = await currentUser();
@@ -153,6 +154,39 @@ export async function POST(request: Request) {
       return NextResponse.json("Categories must be a list!", { status: 400 });
     }
 
+    if (
+      supportedLanguageIds !== undefined &&
+      (!Array.isArray(supportedLanguageIds) ||
+        supportedLanguageIds.length === 0 ||
+        supportedLanguageIds.some(
+          (id: unknown) => typeof id !== "string" || !id.trim()
+        ) ||
+        new Set(supportedLanguageIds).size !== supportedLanguageIds.length)
+    ) {
+      return NextResponse.json(
+        "Select at least one unique supported language.",
+        { status: 400 }
+      );
+    }
+
+    const availableLanguages = await prisma.language.findMany({
+      where: { isSupported: true },
+      select: { id: true },
+    });
+    const selectedLanguageIds: string[] =
+      supportedLanguageIds ?? availableLanguages.map((language) => language.id);
+    if (
+      selectedLanguageIds.length === 0 ||
+      selectedLanguageIds.some(
+        (id) => !availableLanguages.some((language) => language.id === id)
+      )
+    ) {
+      return NextResponse.json(
+        "One or more selected languages are unavailable.",
+        { status: 400 }
+      );
+    }
+
     const rawSlug = generateSlug(title);
     const uniqueId = `${rawSlug}-${nanoid(5)}`;
 
@@ -173,6 +207,9 @@ export async function POST(request: Request) {
           connect: companyTag.map((comp: string) => ({
             slug: comp,
           })),
+        },
+        supportedLanguages: {
+          connect: selectedLanguageIds.map((id) => ({ id })),
         },
       },
     });
@@ -254,6 +291,7 @@ export async function PATCH(request: Request) {
       solutionUrl,
       categories = [],
       companyTag = [],
+      supportedLanguageIds,
       timeLimit,
       memoryLimit,
       judgeType,
@@ -276,6 +314,21 @@ export async function PATCH(request: Request) {
       return NextResponse.json("Categories must be a list!", { status: 400 });
     }
     if (
+      supportedLanguageIds !== undefined &&
+      (!Array.isArray(supportedLanguageIds) ||
+        supportedLanguageIds.length === 0 ||
+        supportedLanguageIds.some(
+          (languageId: unknown) =>
+            typeof languageId !== "string" || !languageId.trim()
+        ) ||
+        new Set(supportedLanguageIds).size !== supportedLanguageIds.length)
+    ) {
+      return NextResponse.json(
+        "Select at least one unique supported language.",
+        { status: 400 }
+      );
+    }
+    if (
       (timeLimit !== undefined &&
         (!Number.isInteger(timeLimit) || timeLimit <= 0)) ||
       (memoryLimit !== undefined &&
@@ -294,6 +347,40 @@ export async function PATCH(request: Request) {
 
     if (!oldQuestion) {
       return NextResponse.json("Question not found!", { status: 404 });
+    }
+
+    let selectedLanguageIds: string[] | undefined;
+    if (supportedLanguageIds !== undefined) {
+      if (
+        !Array.isArray(supportedLanguageIds) ||
+        supportedLanguageIds.length === 0 ||
+        supportedLanguageIds.some(
+          (languageId: unknown) =>
+            typeof languageId !== "string" || !languageId.trim()
+        ) ||
+        new Set(supportedLanguageIds).size !== supportedLanguageIds.length
+      ) {
+        return NextResponse.json(
+          "Select at least one unique supported language.",
+          { status: 400 }
+        );
+      }
+      const availableLanguages = await prisma.language.findMany({
+        where: { isSupported: true },
+        select: { id: true },
+      });
+      selectedLanguageIds = supportedLanguageIds as string[];
+      if (
+        selectedLanguageIds.some(
+          (languageId) =>
+            !availableLanguages.some((language) => language.id === languageId)
+        )
+      ) {
+        return NextResponse.json(
+          "One or more selected languages are unavailable.",
+          { status: 400 }
+        );
+      }
     }
 
     let finalSlug = oldQuestion.slug;
@@ -325,6 +412,13 @@ export async function PATCH(request: Request) {
             slug: cat,
           })),
         },
+        ...(selectedLanguageIds
+          ? {
+              supportedLanguages: {
+                set: selectedLanguageIds.map((languageId) => ({ id: languageId })),
+              },
+            }
+          : {}),
       },
     });
 

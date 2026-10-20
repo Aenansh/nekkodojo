@@ -37,6 +37,7 @@ type Language = {
   slug: string;
   monacoSlug: string;
   extension: string;
+  isSupported?: boolean;
 };
 type QuestionData = {
   id: string;
@@ -52,6 +53,7 @@ type QuestionData = {
   hasChecker: boolean;
   categories: Option[];
   companyTag: Option[];
+  supportedLanguages: Language[];
 };
 type Testcase = {
   id: string;
@@ -157,6 +159,13 @@ export default function QuestionEditor({
     () => companies.map(({ name, slug }) => ({ label: name, value: slug })),
     [companies]
   );
+  const supportedLanguageOptions = useMemo(
+    () =>
+      languages
+        .filter((language) => language.isSupported !== false)
+        .map((language) => ({ label: language.name, value: language.id })),
+    [languages]
+  );
 
   const updateQuestion = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -170,6 +179,7 @@ export default function QuestionEditor({
       solutionUrl: String(form.get("solutionUrl") ?? "").trim(),
       categories: question.categories.map((category) => category.slug),
       companyTag: question.companyTag.map((company) => company.slug),
+      supportedLanguageIds: question.supportedLanguages.map((language) => language.id),
       timeLimit: Number(form.get("timeLimit")),
       memoryLimit: Number(form.get("memoryLimit")),
       judgeType: question.judgeType,
@@ -194,6 +204,9 @@ export default function QuestionEditor({
         solutionUrl: payload.solutionUrl,
         timeLimit: payload.timeLimit,
         memoryLimit: payload.memoryLimit,
+        supportedLanguages: payload.supportedLanguageIds
+          .map((id) => languages.find((language) => language.id === id))
+          .filter((language): language is Language => language !== undefined),
       });
       if (updated.slug !== question.slug) {
         router.replace(`/admin/questions/${updated.slug}`);
@@ -384,7 +397,7 @@ export default function QuestionEditor({
         <p role="alert" className="text-red-400">
           {pageError || "Question not found."}
         </p>
-        <Button onClick={() => void loadEditorData()} variant="outline">
+        <Button onClick={() => void loadEditorData()} variant="secondary">
           Try again
         </Button>
       </div>
@@ -615,6 +628,26 @@ export default function QuestionEditor({
                 }
                 placeholder="Select companies"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Supported languages</Label>
+              <MultiSelect
+                options={supportedLanguageOptions}
+                selected={question.supportedLanguages.map((language) => language.id)}
+                onChange={(ids) =>
+                  setQuestion({
+                    ...question,
+                    supportedLanguages: languages.filter(
+                      (language) =>
+                        ids.includes(language.id) && language.isSupported !== false
+                    ),
+                  })
+                }
+                placeholder="Select supported languages"
+              />
+              <p className="text-xs text-[#a1887f]">
+                Select at least one enabled language for this question.
+              </p>
             </div>
             <div className="flex justify-end gap-2">
               <Button type="button" variant={"destructive"} onClick={() => void loadEditorData()}>

@@ -68,6 +68,7 @@ type Problem = {
   noOfPeopleSolved: number;
   categories: { id: string; name: string; slug: string }[];
   companyTag: { id: string; name: string; slug: string; logo: string | null }[];
+  supportedLanguages: Language[];
   testcases: Testcase[];
   codestubs: Codestub[];
   userProgress: Progress;
@@ -125,6 +126,17 @@ export default function ProblemWorkspace({
   const [isWideScreen, setIsWideScreen] = useState(false);
   const [activeProblemTab, setActiveProblemTab] = useState("description");
   const workspaceRef = useRef<HTMLDivElement>(null);
+  const availableLanguages = useMemo(
+    () =>
+      problem?.supportedLanguages.length
+        ? languages.filter((language) =>
+            problem.supportedLanguages.some(
+              (supportedLanguage) => supportedLanguage.id === language.id
+            )
+          )
+        : languages,
+    [languages, problem]
+  );
 
   const loadProblem = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -177,17 +189,28 @@ export default function ProblemWorkspace({
 
   useEffect(() => {
     if (!problem) return;
+    const preferredLanguageCandidates = [
+      problem.userProgress?.languageId,
+      problem.codestubs[0]?.languageId,
+      availableLanguages[0]?.id,
+    ];
     const preferredLanguage =
-      problem.userProgress?.languageId ??
-      problem.codestubs[0]?.languageId ??
-      languages[0]?.id ??
-      "";
-    setSelectedLanguageId((current) => current || preferredLanguage);
+      preferredLanguageCandidates.find(
+        (languageId) =>
+          languageId !== null &&
+          languageId !== undefined &&
+          availableLanguages.some((language) => language.id === languageId)
+      ) ?? "";
+    setSelectedLanguageId((current) =>
+      availableLanguages.some((language) => language.id === current)
+        ? current
+        : preferredLanguage
+    );
     if (problem.testcases.length > 0) {
       setSelectedTestcaseId((current) => current || problem.testcases[0].id);
       setTestInput((current) => current || problem.testcases[0].input);
     }
-  }, [languages, problem]);
+  }, [availableLanguages, problem]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1280px)");
@@ -198,8 +221,10 @@ export default function ProblemWorkspace({
   }, []);
 
   const selectedLanguage = useMemo(
-    () => languages.find((language) => language.id === selectedLanguageId) ?? null,
-    [languages, selectedLanguageId]
+    () =>
+      availableLanguages.find((language) => language.id === selectedLanguageId) ??
+      null,
+    [availableLanguages, selectedLanguageId]
   );
   const selectedStub = useMemo(
     () => problem?.codestubs.find((stub) => stub.languageId === selectedLanguageId),
@@ -442,7 +467,7 @@ export default function ProblemWorkspace({
               onChange={(event) => setSelectedLanguageId(event.target.value)}
               className="h-9 min-w-44 cursor-pointer rounded-md border border-[#3e2723] bg-[#0f0b0a] px-3 text-sm text-[#eaddcf] outline-none transition-colors hover:border-[#d4af37]/70 focus:border-[#d4af37]"
             >
-              {languages.map((language) => (
+              {availableLanguages.map((language) => (
                 <option key={language.id} value={language.id}>
                   {language.name}
                 </option>

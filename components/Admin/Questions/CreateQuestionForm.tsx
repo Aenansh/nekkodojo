@@ -26,9 +26,14 @@ interface Option {
 interface Props {
   categoryOptions: Option[];
   companyOptions: Option[];
+  languageOptions: Option[];
 }
 
-export default function CreateQuestionForm({ categoryOptions, companyOptions }: Props) {
+export default function CreateQuestionForm({
+  categoryOptions,
+  companyOptions,
+  languageOptions,
+}: Props) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -42,13 +47,16 @@ export default function CreateQuestionForm({ categoryOptions, companyOptions }: 
   // Multi-Select State (Stores Array of Slugs)
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
+    languageOptions.map((language) => language.value)
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/questions/create", {
+      const res = await fetch("/api/questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -59,20 +67,23 @@ export default function CreateQuestionForm({ categoryOptions, companyOptions }: 
           solutionUrl,
           categories: selectedCategories, // Sends array of slugs
           companyTag: selectedCompanies, // Sends array of slugs
+          supportedLanguageIds: selectedLanguages,
         }),
       });
 
       if (!res.ok) {
         const errorMsg = await res.json();
-        throw new Error(errorMsg || "Failed to create question");
+        throw new Error(
+          typeof errorMsg === "string" ? errorMsg : "Failed to create question"
+        );
       }
 
       toast.success("Question created successfully!");
       router.push("/admin/questions"); // Redirect back to list
       router.refresh();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error(error.message || "Something went wrong");
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setIsLoading(false);
     }
@@ -207,6 +218,19 @@ export default function CreateQuestionForm({ categoryOptions, companyOptions }: 
             placeholder="Select Companies..."
           />
           <p className="text-[10px] text-[#5d4037]">Who asked this question?</p>
+        </div>
+
+        <div className="grid gap-2">
+          <Label className="text-[#a1887f]">Supported Languages</Label>
+          <MultiSelect
+            options={languageOptions}
+            selected={selectedLanguages}
+            onChange={setSelectedLanguages}
+            placeholder="Select supported languages..."
+          />
+          <p className="text-[10px] text-[#5d4037]">
+            Choose which enabled languages can be used for this question. All are selected by default.
+          </p>
         </div>
       </div>
 

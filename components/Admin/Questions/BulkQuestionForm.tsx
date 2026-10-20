@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, FileJson, Download, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, Download, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -10,9 +10,12 @@ import { toast } from "sonner";
 export default function BulkQuestionForm() {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [stats, setStats] = useState<{ success: number; total: number } | null>(null);
+  const [stats, setStats] = useState<{
+    success: number;
+    total: number;
+    errors: string[];
+  } | null>(null);
 
-  // Helper to download a template JSON file
   const downloadTemplate = () => {
     const template = [
       {
@@ -24,6 +27,34 @@ export default function BulkQuestionForm() {
         solutionUrl: "https://youtube.com/...",
         categories: ["arrays", "dynamic-programming"],
         companies: ["google", "amazon"],
+        supportedLanguageIds: ["replace-with-supported-language-id"],
+        timeLimit: 2000,
+        memoryLimit: 256,
+        judgeType: "EXACT_MATCH",
+        testcases: [
+          {
+            input: "nums = [2,7,11,15]\ntarget = 9",
+            expectedOutput: "[0,1]",
+            isHidden: false,
+          },
+          {
+            input: "nums = [3,2,4]\ntarget = 6",
+            expectedOutput: "[1,2]",
+            isHidden: true,
+          },
+        ],
+        codestubs: [
+          {
+            languageSlug: "replace-with-supported-language-slug",
+            userSnippet: "function solution() {\n  // Your code here\n}",
+            driverCode: "// Language-specific driver code",
+          },
+        ],
+        customChecker: {
+          languageSlug: "replace-with-supported-language-slug",
+          scriptSource: "// Custom checker source",
+          timeoutMs: 2000,
+        },
       },
     ];
 
@@ -46,7 +77,7 @@ export default function BulkQuestionForm() {
       let jsonData;
       try {
         jsonData = JSON.parse(fileContent);
-      } catch (e) {
+      } catch {
         throw new Error("Invalid JSON file.");
       }
 
@@ -59,21 +90,32 @@ export default function BulkQuestionForm() {
 
       const result = await response.json();
 
-      if (!response.ok) throw new Error(result.error || "Upload failed");
+      if (!response.ok) {
+        throw new Error(
+          typeof result === "string" ? result : result.error || "Upload failed",
+        );
+      }
+
+      const successCount = Number(
+        result.message?.match(/Success: (\d+)/)?.[1] ?? 0,
+      );
+      const errors = Array.isArray(result.data)
+        ? result.data.filter((error: unknown): error is string => typeof error === "string")
+        : [];
 
       setStats({
-        success: result.message.split("Success: ")[1].split(",")[0],
+        success: successCount,
         total: jsonData.length,
+        errors,
       });
-      if (result.data && result.data.length > 0) {
-        toast.warning(`Upload complete with ${result.data.length} errors. Check console.`);
-        console.warn("Upload Errors:", result.data);
+      if (errors.length > 0) {
+        toast.warning(`Upload completed with ${errors.length} failed question(s).`);
       } else {
-        toast.success(`Successfully processed batch!`);
+        toast.success("Successfully processed batch!");
       }
       setFile(null);
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Upload failed.");
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +128,13 @@ export default function BulkQuestionForm() {
         <div className="flex items-center justify-between p-4 bg-[#0f0b0a] rounded-lg border border-[#3e2723]">
           <div className="text-sm text-[#a1887f]">
             <p className="font-bold text-[#eaddcf]">Need the format?</p>
-            <p>Download the JSON template.</p>
+            <p>
+              Download the JSON template. Test inputs and outputs are raw text;
+              replace the language slugs with existing supported languages. If
+              codestubs are included, add one for every supported language.
+              supportedLanguageIds can optionally restrict the question to a
+              subset of enabled language IDs.
+            </p>
           </div>
           <Button
             variant="outline"
@@ -123,13 +171,40 @@ export default function BulkQuestionForm() {
 
         {/* Stats */}
         {stats && (
-          <Alert className="bg-green-900/20 border-green-900 text-green-400">
-            <CheckCircle2 className="h-4 w-4" />
-            <AlertTitle>Success</AlertTitle>
-            <AlertDescription>
-              Processed {stats.success} / {stats.total} questions.
-            </AlertDescription>
-          </Alert>
+          <>
+            <Alert
+              className={
+                stats.errors.length > 0
+                  ? "bg-amber-900/20 border-amber-900 text-amber-300"
+                  : "bg-green-900/20 border-green-900 text-green-400"
+              }
+            >
+              {stats.errors.length > 0 ? (
+                <AlertCircle className="h-4 w-4" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" />
+              )}
+              <AlertTitle>
+                {stats.errors.length > 0 ? "Completed with errors" : "Success"}
+              </AlertTitle>
+              <AlertDescription>
+                Processed {stats.success} / {stats.total} questions.
+              </AlertDescription>
+            </Alert>
+            {stats.errors.length > 0 && (
+              <Alert className="bg-red-950/30 border-red-900 text-red-300">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Questions that failed</AlertTitle>
+                <AlertDescription>
+                  <ul className="list-disc space-y-1 pl-4">
+                    {stats.errors.map((error, index) => (
+                      <li key={`${index}-${error}`}>{error}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
+          </>
         )}
       </div>
     </div>

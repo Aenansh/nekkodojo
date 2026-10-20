@@ -13,6 +13,11 @@ interface Company {
   name: string;
   slug: string;
 }
+interface Language {
+  id: string;
+  name: string;
+  isSupported: boolean;
+}
 
 export default function CreateQuestionPageClient({
   categoryOptions,
@@ -20,6 +25,7 @@ export default function CreateQuestionPageClient({
   categoryOptions: Option[];
 }) {
   const [companyOptions, setCompanyOptions] = useState<Option[]>([]);
+  const [languageOptions, setLanguageOptions] = useState<Option[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
@@ -32,17 +38,29 @@ export default function CreateQuestionPageClient({
       setError(null);
 
       try {
-        const response = await fetch("/api/companies?admin=true");
-        if (!response.ok) throw new Error("Failed to fetch companies.");
-        const companies = (await response.json()) as Company[];
+        const [companyResponse, languageResponse] = await Promise.all([
+          fetch("/api/companies?admin=true"),
+          fetch("/api/language"),
+        ]);
+        if (!companyResponse.ok) throw new Error("Failed to fetch companies.");
+        if (!languageResponse.ok) throw new Error("Failed to fetch languages.");
+        const [companies, languages] = await Promise.all([
+          companyResponse.json() as Promise<Company[]>,
+          languageResponse.json() as Promise<Language[]>,
+        ]);
         if (!cancelled) {
           setCompanyOptions(
             companies.map((company) => ({ label: company.name, value: company.slug }))
           );
+          setLanguageOptions(
+            languages
+              .filter((language) => language.isSupported)
+              .map((language) => ({ label: language.name, value: language.id }))
+          );
         }
       } catch (fetchError) {
-        console.error("Failed to load company options:", fetchError);
-        if (!cancelled) setError("Unable to load company options.");
+        console.error("Failed to load question options:", fetchError);
+        if (!cancelled) setError("Unable to load company and language options.");
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -58,7 +76,7 @@ export default function CreateQuestionPageClient({
     return (
       <div className="flex items-center gap-3 py-12 text-[#d4af37]">
         <Loader2 className="size-5 animate-spin" />
-        <span>Loading company options...</span>
+        <span>Loading company and language options...</span>
       </div>
     );
   }
@@ -82,6 +100,7 @@ export default function CreateQuestionPageClient({
     <CreateQuestionForm
       categoryOptions={categoryOptions}
       companyOptions={companyOptions}
+      languageOptions={languageOptions}
     />
   );
 }

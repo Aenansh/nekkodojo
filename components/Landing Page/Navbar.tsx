@@ -128,7 +128,7 @@ const Navbar = () => {
                         <Image
                           src={userAvatarSrc}
                           alt={user.username || "profile_image"}
-                          className="h-8 w-8 rounded-full object-cover"
+                          className="h-auto w-8 rounded-full object-cover"
                           width={32}
                           height={32}
                         />

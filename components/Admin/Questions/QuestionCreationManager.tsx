@@ -26,9 +26,14 @@ interface Option {
 interface Props {
   categoryOptions: Option[];
   companyOptions: Option[];
+  languageOptions: Option[];
 }
 
-export default function QuestionCreationManager({ categoryOptions, companyOptions }: Props) {
+export default function QuestionCreationManager({
+  categoryOptions,
+  companyOptions,
+  languageOptions,
+}: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -68,7 +73,11 @@ export default function QuestionCreationManager({ categoryOptions, companyOption
 
           <TabsContent value="single">
             {/* Using your existing form here */}
-            <CreateQuestionForm categoryOptions={categoryOptions} companyOptions={companyOptions} />
+            <CreateQuestionForm
+              categoryOptions={categoryOptions}
+              companyOptions={companyOptions}
+              languageOptions={languageOptions}
+            />
           </TabsContent>
 
           <TabsContent value="bulk">

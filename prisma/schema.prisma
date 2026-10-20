@@ -206,6 +206,8 @@ model Question {
   timeLimit   Int @default(2000)
   memoryLimit Int @default(256)
 
+  supportedLanguages Language[] @relation("QuestionSupportedLanguages")
+
   noOfSubmissions  Int @default(0)
   noOfPeopleSolved Int @default(0)
 
@@ -335,6 +337,7 @@ model Language {
   userProgress   UserProgress[]
   codestubs      Codestub[]
   customCheckers CustomChecker[]
+  supportedByQuestions Question[] @relation("QuestionSupportedLanguages")
 
   @@index([slug])
 }

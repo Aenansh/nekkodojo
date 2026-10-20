@@ -37,6 +37,17 @@ export async function GET(
             select: { id: true, name: true, slug: true, logo: true },
             orderBy: { name: "asc" },
           },
+          supportedLanguages: {
+            where: { isSupported: true },
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              monacoSlug: true,
+              extension: true,
+            },
+            orderBy: { name: "asc" },
+          },
           testcases: {
             where: { isHidden: false },
             select: {
@@ -48,7 +59,12 @@ export async function GET(
             orderBy: { id: "asc" },
           },
           codestubs: {
-            where: { language: { isSupported: true } },
+            where: {
+              language: {
+                isSupported: true,
+                supportedByQuestions: { some: { id: questionId } },
+              },
+            },
             select: {
               id: true,
               languageId: true,
