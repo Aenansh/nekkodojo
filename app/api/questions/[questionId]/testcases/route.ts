@@ -130,3 +130,89 @@ export async function POST(
     return NextResponse.json("Failed to add testcases", { status: 500 });
   }
 }
+
+export async function PATCH(request: Request, { params }: { params: Promise<{ questionId: string }> }) {
+  try {
+    const user = await currentUser();
+    if (!user || user.publicMetadata.role !== "admin") {
+      return NextResponse.json("Unauthorized!", { status: 401 });
+    }
+
+    const { questionId } = await params;
+    const body: unknown = await request.json().catch(() => null);
+    if (
+      typeof body !== "object" ||
+      body === null ||
+      !("testcaseId" in body) ||
+      typeof body.testcaseId !== "string" ||
+      (!("input" in body) && !("expectedOutput" in body) && !("isHidden" in body))
+    ) {
+      return NextResponse.json("testcaseId and at least one testcase field are required", {
+        status: 400,
+      });
+    }
+
+    const data: { input?: string; expectedOutput?: string; isHidden?: boolean } = {};
+    if ("input" in body) {
+      if (typeof body.input !== "string") {
+        return NextResponse.json("input must be a string", { status: 400 });
+      }
+      data.input = body.input;
+    }
+    if ("expectedOutput" in body) {
+      if (typeof body.expectedOutput !== "string") {
+        return NextResponse.json("expectedOutput must be a string", { status: 400 });
+      }
+      data.expectedOutput = body.expectedOutput;
+    }
+    if ("isHidden" in body) {
+      if (typeof body.isHidden !== "boolean") {
+        return NextResponse.json("isHidden must be a boolean", { status: 400 });
+      }
+      data.isHidden = body.isHidden;
+    }
+
+    const result = await prisma.testcase.updateMany({
+      where: { id: body.testcaseId, questionId },
+      data,
+    });
+    if (result.count === 0) {
+      return NextResponse.json("Testcase not found", { status: 404 });
+    }
+
+    const testcase = await prisma.testcase.findUnique({
+      where: { id: body.testcaseId },
+      select: { id: true, input: true, expectedOutput: true, isHidden: true },
+    });
+    return NextResponse.json(testcase, { status: 200 });
+  } catch (error) {
+    console.error("[QUESTION_TESTCASES_PATCH]", error);
+    return NextResponse.json("Failed to update testcase", { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ questionId: string }> }) {
+  try {
+    const user = await currentUser();
+    if (!user || user.publicMetadata.role !== "admin") {
+      return NextResponse.json("Unauthorized!", { status: 401 });
+    }
+
+    const { questionId } = await params;
+    const testcaseId = new URL(request.url).searchParams.get("testcaseId");
+    if (!testcaseId) {
+      return NextResponse.json("testcaseId is required", { status: 400 });
+    }
+
+    const result = await prisma.testcase.deleteMany({
+      where: { id: testcaseId, questionId },
+    });
+    if (result.count === 0) {
+      return NextResponse.json("Testcase not found", { status: 404 });
+    }
+    return NextResponse.json({ deleted: true }, { status: 200 });
+  } catch (error) {
+    console.error("[QUESTION_TESTCASES_DELETE]", error);
+    return NextResponse.json("Failed to delete testcase", { status: 500 });
+  }
+}

@@ -99,7 +99,7 @@ export default function QuestionsAdminClient({
           companyOptions={companyOptions}
         />
       </div>
-      <QuestionsDashboard initialCategories={categories} allCompanies={companies} />
+      <QuestionsDashboard initialCategories={categories} />
     </>
   );
 }

@@ -208,3 +208,28 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     return NextResponse.json("Failed to update codestub", { status: 500 });
   }
 }
+
+export async function DELETE(request: Request, { params }: RouteContext) {
+  try {
+    if (!(await isAdmin())) {
+      return NextResponse.json("Unauthorized!", { status: 401 });
+    }
+
+    const { questionId } = await params;
+    const languageId = new URL(request.url).searchParams.get("languageId");
+    if (!languageId) {
+      return NextResponse.json("languageId is required", { status: 400 });
+    }
+
+    const result = await prisma.codestub.deleteMany({
+      where: { questionId, languageId },
+    });
+    if (result.count === 0) {
+      return NextResponse.json("Codestub not found", { status: 404 });
+    }
+    return NextResponse.json({ deleted: true }, { status: 200 });
+  } catch (error) {
+    console.error("[QUESTION_CODESTUB_DELETE]", error);
+    return NextResponse.json("Failed to delete codestub", { status: 500 });
+  }
+}

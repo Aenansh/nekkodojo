@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
+import { JudgeType } from "@/generated/prisma/enums";
 
 export async function GET(request: Request) {
   try {
@@ -88,7 +89,14 @@ export async function GET(request: Request) {
 
     const questions = await prisma.question.findMany({
       where: whereClause,
-      include: {
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        description: true,
+        difficulty: true,
+        externalPlatformUrl: true,
+        solutionUrl: true,
         categories: { select: { name: true, slug: true } },
         companyTag: { select: { name: true, slug: true, logo: true } },
       },
@@ -199,10 +207,9 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("questionId");
     if (!id || typeof id !== "string") return NextResponse.json("No question.", { status: 404 });
-    await prisma.question.delete({
-      where: {
-        id,
-      },
+    await prisma.$transaction(async (transaction) => {
+      await transaction.customChecker.deleteMany({ where: { questionId: id } });
+      await transaction.question.delete({ where: { id } });
     });
 
     return NextResponse.json("Question deleted!", { status: 200 });
@@ -246,6 +253,10 @@ export async function PATCH(request: Request) {
       solutionUrl,
       categories = [],
       companyTag = [],
+      timeLimit,
+      memoryLimit,
+      judgeType,
+      hasChecker,
     } = body;
 
     if (
@@ -262,6 +273,17 @@ export async function PATCH(request: Request) {
 
     if (!Array.isArray(categories)) {
       return NextResponse.json("Categories must be a list!", { status: 400 });
+    }
+    if (
+      (timeLimit !== undefined &&
+        (!Number.isInteger(timeLimit) || timeLimit <= 0)) ||
+      (memoryLimit !== undefined &&
+        (!Number.isInteger(memoryLimit) || memoryLimit <= 0)) ||
+      (judgeType !== undefined &&
+        !Object.values(JudgeType).includes(judgeType)) ||
+      (hasChecker !== undefined && typeof hasChecker !== "boolean")
+    ) {
+      return NextResponse.json("Invalid question configuration!", { status: 400 });
     }
 
     const oldQuestion = await prisma.question.findUnique({
@@ -288,6 +310,10 @@ export async function PATCH(request: Request) {
         externalPlatformUrl,
         solutionUrl,
         slug: finalSlug,
+        ...(timeLimit !== undefined ? { timeLimit } : {}),
+        ...(memoryLimit !== undefined ? { memoryLimit } : {}),
+        ...(judgeType !== undefined ? { judgeType } : {}),
+        ...(hasChecker !== undefined ? { hasChecker } : {}),
         companyTag: {
           set: companyTag.map((ct) => ({
             slug: ct,

@@ -24,8 +24,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
-import { EditQuestionDialog } from "../Questions/EditDialog";
 import { DeleteQuestionDialog } from "../Questions/DeleteDialog";
+import { useRouter } from "next/navigation";
 
 interface Category {
   id: string;
@@ -35,10 +35,10 @@ interface Category {
 
 interface Props {
   initialCategories: Category[];
-  allCompanies: { name: string; slug: string }[];
 }
 
-export default function QuestionsDashboard({ initialCategories, allCompanies }: Props) {
+export default function QuestionsDashboard({ initialCategories }: Props) {
+  const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -47,11 +47,7 @@ export default function QuestionsDashboard({ initialCategories, allCompanies }: 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [questionToEdit, setQuestionToEdit] = useState<Question | null>(null);
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(null);
-
-  const categoryOptions = initialCategories.map((c) => ({ label: c.name, value: c.slug }));
-  const companyOptions = allCompanies.map((c) => ({ label: c.name, value: c.slug }));
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -225,8 +221,7 @@ export default function QuestionsDashboard({ initialCategories, allCompanies }: 
                     <th className="p-4 font-medium">Categories</th>
                     <th className="p-4 font-medium">Difficulty</th>
                     <th className="p-4 font-medium">Companies</th>
-                    <th className="p-4 font-medium text-right">Actions</th>{" "}
-                    {/* ✅ Removed sticky classes */}
+                    <th className="p-4 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#3e2723]">
@@ -247,11 +242,20 @@ export default function QuestionsDashboard({ initialCategories, allCompanies }: 
                     </tr>
                   ) : (
                     questions.map((q) => (
-                      <tr key={q.id} className="group hover:bg-[#3e2723]/10 transition-colors">
+                      <tr
+                        key={q.id}
+                        className="group cursor-pointer transition-colors hover:bg-[#3e2723]/10"
+                        onClick={() => router.push(`/admin/questions/${encodeURIComponent(q.slug)}`)}
+                        onKeyDown={(event) => {
+                          if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+                            event.preventDefault();
+                            router.push(`/admin/questions/${encodeURIComponent(q.slug)}`);
+                          }
+                        }}
+                      >
                         <td className="p-4">
                           <Link
-                            href={q.externalPlatformUrl}
-                            target="_blank"
+                            href={`/admin/questions/${encodeURIComponent(q.slug)}`}
                             className="font-medium text-[#eaddcf] hover:text-[#d4af37] hover:underline block max-w-[200px] md:max-w-none truncate"
                           >
                             {q.title}
@@ -316,7 +320,7 @@ export default function QuestionsDashboard({ initialCategories, allCompanies }: 
                           {" "}
                           {/* ✅ Removed sticky classes */}
                           <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
+                            <DropdownMenuTrigger asChild onClick={(event) => event.stopPropagation()}>
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -330,10 +334,10 @@ export default function QuestionsDashboard({ initialCategories, allCompanies }: 
                               className="bg-[#1a110d] border-[#3e2723] text-[#eaddcf]"
                             >
                               <DropdownMenuItem
-                                onClick={() => setQuestionToEdit(q)}
+                                onClick={() => router.push(`/admin/questions/${encodeURIComponent(q.slug)}`)}
                                 className="hover:bg-[#3e2723] cursor-pointer"
                               >
-                                Edit Question
+                                Manage Question
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => setQuestionToDelete(q)}
@@ -353,18 +357,6 @@ export default function QuestionsDashboard({ initialCategories, allCompanies }: 
           </div>
         </div>
       </div>
-      <EditQuestionDialog
-        open={!!questionToEdit}
-        onOpenChange={(open) => !open && setQuestionToEdit(null)}
-        question={questionToEdit}
-        categoryOptions={categoryOptions}
-        companyOptions={companyOptions}
-        onSuccess={() => {
-          setQuestionToEdit(null);
-          setSelectedCategory("");
-        }}
-      />
-
       <DeleteQuestionDialog
         open={!!questionToDelete}
         onOpenChange={(open) => !open && setQuestionToDelete(null)}

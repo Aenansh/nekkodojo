@@ -31,8 +31,7 @@ export function DeleteQuestionDialog({ question, open, onOpenChange, onSuccess }
     setIsLoading(true);
 
     try {
-      // Assumes you will create DELETE /api/questions?questionId=...
-      const res = await fetch(`/api/questions/delete?questionId=${question.id}`, {
+      const res = await fetch(`/api/questions?questionId=${question.id}`, {
         method: "DELETE",
       });
 
@@ -58,7 +57,7 @@ export function DeleteQuestionDialog({ question, open, onOpenChange, onSuccess }
           <AlertDialogTitle>Delete Question?</AlertDialogTitle>
           <AlertDialogDescription className="text-[#a1887f]">
             This will permanently delete{" "}
-            <span className="text-[#d4af37] font-bold">"{question?.title}"</span>. This action
+            <span className="text-[#d4af37] font-bold">&quot;{question?.title}&quot;</span>. This action
             cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>

@@ -150,6 +150,7 @@ declare interface CompanyData {
 
 declare interface Question {
   id: string;
+  slug: string;
   title: string;
   description: string;
   difficulty: "Easy" | "Medium" | "Hard";
