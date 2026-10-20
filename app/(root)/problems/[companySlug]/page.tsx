@@ -25,7 +25,7 @@ export default function CompanyProblemsPage() {
       setError(null);
 
       try {
-        const response = await fetch(`/api/questions/${encodeURIComponent(companySlug)}`);
+        const response = await fetch(`/api/questions/sheets/${encodeURIComponent(companySlug)}`);
         if (response.status === 404) {
           if (!cancelled) setError("Company not found.");
           return;
