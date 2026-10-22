@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Play, Unlock, Lock, CheckCircle2, Loader2 } from "lucide-react";
+import { Play, Unlock, Lock, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,7 +13,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { DojoProgress } from "../ui/dojo-progress";
 import { SHELF_BUTTONS } from "@/constants/shelfs";
@@ -32,15 +31,11 @@ function isQuestionProgress(
     "questionId" in value &&
     typeof value.questionId === "string" &&
     "status" in value &&
-    (value.status === "unvisited" ||
-      value.status === "attempted" ||
-      value.status === "completed")
+    (value.status === "unvisited" || value.status === "attempted" || value.status === "completed")
   );
 }
 
-function isQuestionShelf(
-  value: unknown
-): value is { questionId: string; type: string } {
+function isQuestionShelf(value: unknown): value is { questionId: string; type: string } {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -70,6 +65,37 @@ interface Category {
 interface Props {
   data: Category[];
 }
+
+/* Kanji numerals for the category seals; falls back to digits past twenty */
+const KANJI_NUMERALS = [
+  "一",
+  "二",
+  "三",
+  "四",
+  "五",
+  "六",
+  "七",
+  "八",
+  "九",
+  "十",
+  "十一",
+  "十二",
+  "十三",
+  "十四",
+  "十五",
+  "十六",
+  "十七",
+  "十八",
+  "十九",
+  "二十",
+];
+
+/* Difficulty drawn as a small belt (obi) */
+const BELT: Record<Difficulty, { bar: string; text: string }> = {
+  Easy: { bar: "bg-green-500", text: "text-green-400" },
+  Medium: { bar: "bg-yellow-500", text: "text-yellow-400" },
+  Hard: { bar: "bg-red-500", text: "text-red-400" },
+};
 
 export default function QuestionExplorer({ data }: Props) {
   const [progress, setProgress] = useState<Record<string, QuestionStatus>>({});
@@ -182,8 +208,8 @@ export default function QuestionExplorer({ data }: Props) {
 
   return (
     <div className="w-full space-y-4">
-      <Accordion type="single" collapsible className="space-y-4">
-        {data.map((category) => {
+      <Accordion type="single" collapsible className="space-y-3">
+        {data.map((category, catIdx) => {
           const totalQuestions = category.questions.length;
           const solvedCount = category.questions.filter(
             (q) => progress[q.id] === "completed"
@@ -191,55 +217,74 @@ export default function QuestionExplorer({ data }: Props) {
           const percentComplete =
             totalQuestions > 0 ? Math.round((solvedCount / totalQuestions) * 100) : 0;
           const isCategoryCompleted = percentComplete === 100;
+          const numeral = KANJI_NUMERALS[catIdx] ?? String(catIdx + 1);
 
           return (
             <AccordionItem
               key={category.id}
               value={category.id}
               className={cn(
-                "border rounded-xl px-4 overflow-hidden transition-colors",
+                "group/cat relative overflow-hidden rounded-lg border bg-linear-to-br from-[#1a110d] to-[#120c0a] transition-colors duration-300",
+                "data-[state=open]:shadow-[0_18px_36px_-24px_rgba(0,0,0,0.9)]",
                 isCategoryCompleted
-                  ? "border-green-900/50 bg-[#1a110d] shadow-[0_0_15px_-3px_rgba(22,163,74,0.1)]"
-                  : "border-[#3e2723] bg-[#1a110d]"
+                  ? "border-[#d4af37]/40"
+                  : "border-[#3e2723] hover:border-[#5d4037] data-[state=open]:border-[#5d4037]"
               )}
             >
               {/* Category Header */}
-              <AccordionTrigger className="hover:no-underline py-5 group">
-                <div className="flex items-center gap-4 w-full pr-4">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3">
+              <AccordionTrigger className="group px-4 py-4 hover:no-underline sm:px-5">
+                <div className="flex w-full items-center gap-4 pr-3">
+                  {/* seal with the kanji numeral */}
+                  <div
+                    className={cn(
+                      "flex size-12 shrink-0 items-center justify-center rounded-md border font-serif transition-colors duration-300",
+                      numeral.length > 1 ? "text-sm" : "text-xl",
+                      isCategoryCompleted
+                        ? "border-[#d4af37] bg-[#d4af37] text-[#1a110d]"
+                        : "border-[#5d4037] bg-[#2c1810] text-[#d4af37] group-hover:border-[#d4af37]/60"
+                    )}
+                  >
+                    {numeral}
+                  </div>
+
+                  <div className="min-w-0 flex-1 space-y-2.5 text-left">
+                    <div className="flex items-baseline justify-between gap-3">
                       <span
                         className={cn(
-                          "text-xs sm:text-lg font-bold transition-colors",
+                          "truncate font-serif text-base font-semibold tracking-wide transition-colors sm:text-lg",
                           isCategoryCompleted
-                            ? "text-green-500"
+                            ? "text-[#d4af37]"
                             : "text-[#eaddcf] group-hover:text-[#d4af37]"
                         )}
                       >
                         {category.name}
                       </span>
-                      {isCategoryCompleted && (
-                        <Badge
-                          variant="outline"
-                          className="border-green-600 bg-green-900/20 text-green-400 gap-1 px-2"
-                        >
-                          <CheckCircle2 className="w-3 h-3" /> <span className="hidden sm:inline" >Completed</span>
-                        </Badge>
-                      )}
+                      <span className="shrink-0 text-xs tabular-nums text-[#a1887f]">
+                        {isCategoryCompleted && (
+                          <span className="mr-2 hidden text-[#d4af37] sm:inline">Completed</span>
+                        )}
+                        {solvedCount} / {totalQuestions}
+                        <span className="ml-1.5 text-[#5d4037]">{percentComplete}%</span>
+                      </span>
                     </div>
-                    <span className="px-1 text-xs font-mono text-[#a1887f]">
-                      {solvedCount} / {totalQuestions} ({percentComplete}%)
-                    </span>
+                    <DojoProgress value={percentComplete} />
                   </div>
-                  <DojoProgress value={percentComplete} />
                 </div>
               </AccordionTrigger>
 
               {/* Content */}
-              <AccordionContent className="pb-4 pt-0">
-                <div className="flex flex-col gap-2 pl-4 border-l-2 border-[#3e2723]/30 ml-2 mt-2">
+              <AccordionContent className="relative pb-4 pt-0">
+                {/* 型 (kata, "form"): a faint watermark */}
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute bottom-2 right-4 select-none font-serif text-8xl text-[#d4af37]/4"
+                >
+                  型
+                </span>
+
+                <div className="relative mx-4 border-t border-[#3e2723]/70 pt-3 sm:mx-5">
                   {category.questions.length === 0 ? (
-                    <div className="text-sm text-[#5d4037] italic py-2">No katas available.</div>
+                    <div className="py-3 text-sm italic text-[#5d4037]">No katas available.</div>
                   ) : (
                     <Accordion type="single" collapsible className="w-full">
                       {category.questions.map((q, idx) => {
@@ -250,47 +295,60 @@ export default function QuestionExplorer({ data }: Props) {
                         // Current Shelf Status
                         const activeShelf = shelfState[q.id];
                         const isLoadingThisShelf = loadingShelf[q.id];
+                        const belt = BELT[q.difficulty];
 
                         return (
-                          <AccordionItem key={q.id} value={q.id} className="border-b-0 mb-1">
-                            <div className="flex items-center w-full rounded-lg hover:bg-[#3e2723]/20 transition-colors group/q pr-2">
+                          <AccordionItem
+                            key={q.id}
+                            value={q.id}
+                            className="mb-1 rounded-md border-b-0 transition-colors data-[state=open]:bg-[#0f0b0a]/50"
+                          >
+                            <div className="group/q relative flex w-full items-center rounded-md pr-2 transition-colors hover:bg-[#2c1810]/40">
+                              {/* gold marker drawn from the centre on hover */}
+                              <span
+                                aria-hidden="true"
+                                className="absolute inset-y-2 left-0 w-0.5 origin-center scale-y-0 bg-[#d4af37] transition-transform duration-300 ease-out group-hover/q:scale-y-100"
+                              />
+
                               {/* Checkbox */}
-                              <div className="pl-3 py-3 flex items-center">
+                              <div className="flex items-center py-3 pl-4">
                                 <Checkbox
                                   checked={isSolved}
                                   onCheckedChange={(checked) =>
                                     toggleSolved(q.id, checked as boolean)
                                   }
                                   disabled={status === "unvisited"}
+                                  aria-label={`Mark ${q.title} as solved`}
                                   className={cn(
-                                    "w-5 h-5 border-[#3e2723] transition-all data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600",
-                                    status === "unvisited" && "opacity-30 cursor-not-allowed"
+                                    "size-5 rounded-[5px] border-[#5d4037] transition-all data-[state=checked]:border-[#d4af37] data-[state=checked]:bg-[#d4af37] data-[state=checked]:text-[#1a110d]",
+                                    status === "unvisited" && "cursor-not-allowed opacity-30"
                                   )}
                                 />
                               </div>
 
                               {/* Question Header */}
-                              <AccordionTrigger className="hover:no-underline py-3 px-4 flex-1">
-                                <div className="flex items-center gap-4 w-full">
-                                  <span className="font-mono text-xs text-[#5d4037]">
+                              <AccordionTrigger className="flex-1 px-4 py-3 hover:no-underline">
+                                <div className="flex w-full items-center gap-4">
+                                  <span className="w-5 shrink-0 text-xs tabular-nums text-[#5d4037]">
                                     {(idx + 1).toString().padStart(2, "0")}
                                   </span>
                                   <span
                                     className={cn(
-                                      "text-sm font-medium transition-all text-left flex-1",
+                                      "flex-1 text-left text-sm font-medium transition-all",
                                       isSolved
-                                        ? "text-[#a1887f] line-through decoration-[#3e2723]"
+                                        ? "text-[#a1887f] line-through decoration-[#5d4037]"
                                         : "text-[#eaddcf] group-hover/q:text-[#d4af37]"
                                     )}
                                   >
                                     {q.title}
                                   </span>
+
                                   <div className="ml-auto flex items-center gap-3">
-                                    {/* Small Shelf Indicator in Header */}
+                                    {/* Shelf indicator */}
                                     {activeShelf && (
-                                      <div
+                                      <span
                                         className={cn(
-                                          "w-2 h-2 rounded-full",
+                                          "size-2 rounded-full",
                                           activeShelf === "important" && "bg-yellow-500",
                                           activeShelf === "stuck" && "bg-red-500",
                                           activeShelf === "revisit" && "bg-orange-500",
@@ -299,48 +357,50 @@ export default function QuestionExplorer({ data }: Props) {
                                       />
                                     )}
 
-                                    <Badge
-                                      variant="outline"
+                                    {/* Difficulty as a belt */}
+                                    <span
                                       className={cn(
-                                        "text-[10px] h-5 border-none bg-[#3e2723]/30 min-w-[60px] justify-center hidden sm:flex",
-                                        q.difficulty === "Easy"
-                                          ? "text-green-400"
-                                          : q.difficulty === "Medium"
-                                            ? "text-yellow-400"
-                                            : "text-red-400"
+                                        "hidden items-center gap-2 text-[11px] sm:flex",
+                                        belt.text
                                       )}
                                     >
+                                      <span className={cn("h-1.5 w-4 rounded-full", belt.bar)} />
                                       {q.difficulty}
-                                    </Badge>
-                                    {isSolved && (
-                                      <CheckCircle2 className="w-4 h-4 text-green-500 animate-in zoom-in spin-in-90 duration-300" />
-                                    )}
+                                    </span>
+
+                                    {/* Solved: a paw stamp */}
+                                    <span className="flex size-4 items-center justify-center">
+                                      {isSolved && (
+                                        <Paw className="animate-in zoom-in size-4 -rotate-12 text-[#d4af37] duration-300" />
+                                      )}
+                                    </span>
                                   </div>
                                 </div>
                               </AccordionTrigger>
                             </div>
 
                             {/* Expanded Details */}
-                            <AccordionContent className="px-12 pb-6 pt-0">
+                            <AccordionContent className="px-4 pb-5 pt-1 sm:px-6">
                               <div className="space-y-4">
-                                <p className="text-sm text-[#a1887f] leading-relaxed border-l-2 border-[#d4af37]/20 pl-4">
+                                {/* the kata, written out like a scroll */}
+                                <p className="rounded-md border border-[#3e2723] border-l-2 border-l-[#d4af37]/50 bg-[#0f0b0a]/60 px-4 py-3 text-sm leading-relaxed text-[#a1887f]">
                                   {q.description}
                                 </p>
 
                                 {/* Action Buttons Row */}
-                                <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+                                <div className="flex flex-wrap items-center justify-between gap-4">
                                   <div className="flex gap-3">
                                     <Button
                                       asChild
                                       size="sm"
                                       onClick={() => handleAttempt(q)}
-                                      className="bg-[#d4af37] text-black hover:bg-[#b5952f] font-semibold h-9 px-4"
+                                      className="h-9 rounded-md bg-[#d4af37] px-4 font-semibold text-[#1a110d] hover:bg-[#c5a028]"
                                     >
                                       <Link
                                         href={`/problems/${encodeURIComponent(q.slug)}`}
                                         className="flex items-center gap-2"
                                       >
-                                        <Play className="w-3.5 h-3.5 fill-current" />
+                                        <Play className="size-3.5 fill-current" />
                                         Solve <span className="hidden sm:inline">Problem</span>
                                       </Link>
                                     </Button>
@@ -352,10 +412,10 @@ export default function QuestionExplorer({ data }: Props) {
                                         size="sm"
                                         variant="outline"
                                         className={cn(
-                                          "h-9 px-4 border-[#3e2723] bg-transparent transition-all flex items-center gap-2",
+                                          "flex h-9 items-center gap-2 rounded-md border-[#3e2723] bg-transparent px-4 transition-all",
                                           isAttempted
-                                            ? "text-[#eaddcf] hover:text-[#d4af37] hover:border-[#d4af37] cursor-pointer"
-                                            : "text-[#5d4037] opacity-60 cursor-not-allowed hover:bg-transparent"
+                                            ? "cursor-pointer text-[#eaddcf] hover:border-[#d4af37] hover:bg-[#2c1810]/40 hover:text-[#d4af37]"
+                                            : "cursor-not-allowed text-[#5d4037] opacity-60 hover:bg-transparent"
                                         )}
                                       >
                                         {isAttempted ? (
@@ -365,12 +425,12 @@ export default function QuestionExplorer({ data }: Props) {
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2"
                                           >
-                                            <Unlock className="w-3.5 h-3.5" />
+                                            <Unlock className="size-3.5" />
                                             <span>View Solution</span>
                                           </Link>
                                         ) : (
                                           <span className="flex items-center gap-2">
-                                            <Lock className="w-3.5 h-3.5" />
+                                            <Lock className="size-3.5" />
                                             <span>Solution </span>
                                             <span className="hidden sm:inline">Locked</span>
                                           </span>
@@ -381,9 +441,8 @@ export default function QuestionExplorer({ data }: Props) {
 
                                   {/* --- SHELF BUTTONS SECTION --- */}
                                   <div className="flex items-center gap-3">
-                                    {/* Text Label for Active Status */}
-                                    <div className="hidden sm:flex flex-col items-end mr-1">
-                                      <span className="text-[10px] text-[#5d4037] font-bold tracking-widest uppercase">
+                                    <div className="mr-1 hidden flex-col items-end sm:flex">
+                                      <span className="text-[10px] font-bold uppercase tracking-widest text-[#5d4037]">
                                         Shelf
                                       </span>
                                       {activeShelf && (
@@ -401,10 +460,10 @@ export default function QuestionExplorer({ data }: Props) {
                                       )}
                                     </div>
 
-                                    {/* Buttons Container */}
-                                    <div className="flex items-center gap-1.5 p-1.5 rounded-full border border-[#3e2723] bg-[#0f0b0a] shadow-inner">
+                                    {/* Buttons Container: a small wooden rack */}
+                                    <div className="flex items-center gap-1 rounded-lg border border-[#3e2723] bg-[#0f0b0a] p-1.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
                                       {isLoadingThisShelf ? (
-                                        <Loader2 className="w-4 h-4 text-[#a1887f] animate-spin mx-6" />
+                                        <Loader2 className="mx-6 size-4 animate-spin text-[#a1887f]" />
                                       ) : (
                                         <TooltipProvider delayDuration={100}>
                                           {SHELF_BUTTONS.map((btn) => {
@@ -414,35 +473,30 @@ export default function QuestionExplorer({ data }: Props) {
                                               <Tooltip key={btn.type}>
                                                 <TooltipTrigger asChild>
                                                   <button
+                                                    type="button"
                                                     onClick={(e) => {
                                                       e.stopPropagation(); // Prevent accordion collapse
                                                       toggleShelf(q.id, btn.type);
                                                     }}
                                                     className={cn(
-                                                      "relative w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
-                                                      // Base Styles
-                                                      "border border-transparent",
-
-                                                      // ACTIVE STATE (Glow + Color)
+                                                      "relative flex size-8 items-center justify-center rounded-md border border-transparent transition-all duration-300",
                                                       isActive
-                                                        ? `${btn.activeColor} shadow-[0_0_12px_-3px_currentColor] scale-110 z-10`
+                                                        ? `${btn.activeColor} z-10 scale-110 shadow-[0_0_12px_-3px_currentColor]`
                                                         : `text-[#5d4037] hover:bg-[#3e2723]/40 ${btn.hoverColor} hover:scale-105`
                                                     )}
                                                   >
                                                     <btn.icon
                                                       className={cn(
-                                                        "w-4 h-4 transition-all duration-300",
-                                                        isActive && "fill-current" // Fills the icon when active
+                                                        "size-4 transition-all duration-300",
+                                                        isActive && "fill-current"
                                                       )}
                                                     />
-
-                                                    {/* Tiny dot indicator for extra visibility */}
                                                     {isActive && (
-                                                      <span className="absolute -bottom-1 w-1 h-1 rounded-full bg-current" />
+                                                      <span className="absolute -bottom-1 size-1 rounded-full bg-current" />
                                                     )}
                                                   </button>
                                                 </TooltipTrigger>
-                                                <TooltipContent className="border-[#3e2723] text-[#eaddcf] text-xs">
+                                                <TooltipContent className="border-[#3e2723] text-xs text-[#eaddcf]">
                                                   <p>
                                                     {isActive ? "Remove from " : "Add to "}
                                                     <span className="font-bold">{btn.label}</span>
@@ -458,8 +512,9 @@ export default function QuestionExplorer({ data }: Props) {
                                 </div>
 
                                 {!isAttempted && (
-                                  <p className="text-[10px] text-[#5d4037] italic">
-                                    * The solution scroll is sealed. Attempt the kata to break the
+                                  <p className="flex items-center gap-2 text-[11px] italic text-[#5d4037]">
+                                    <Lock className="size-3 shrink-0" />
+                                    The solution scroll is sealed. Attempt the kata to break the
                                     seal.
                                   </p>
                                 )}
@@ -477,5 +532,18 @@ export default function QuestionExplorer({ data }: Props) {
         })}
       </Accordion>
     </div>
+  );
+}
+
+/* A cat's paw print, used as the "solved" stamp */
+function Paw({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <ellipse cx="12" cy="16" rx="5" ry="4" />
+      <circle cx="5" cy="10" r="2.2" />
+      <circle cx="9.5" cy="5.5" r="2.2" />
+      <circle cx="14.5" cy="5.5" r="2.2" />
+      <circle cx="19" cy="10" r="2.2" />
+    </svg>
   );
 }
