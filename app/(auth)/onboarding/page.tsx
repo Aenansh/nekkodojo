@@ -59,8 +59,8 @@ export default function OnboardingPage() {
         ></div>
       </div>
       {isLoading ? (
-        <div className="relative z-10 flex items-center gap-3 text-[#d4af37]">
-          <Loader2 className="size-5 animate-spin" />
+        <div className="relative z-10 flex items-center justify-center gap-3 text-[#d4af37]" role="status" aria-live="polite">
+          <Loader2 className="size-5 animate-spin" aria-hidden="true" />
           <span>Loading your profile...</span>
         </div>
       ) : error ? (

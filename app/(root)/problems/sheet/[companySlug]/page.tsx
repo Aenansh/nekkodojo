@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { CompanyQuestionsSheet, type QuestionItem } from "@/components/Company/CompanySheet";
+import { Loader2 } from "lucide-react";
 
 type CompanyProblemsData = {
   companyName: string;
@@ -52,7 +53,14 @@ export default function CompanyProblemsPage() {
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4 max-w-4xl">
         {isLoading ? (
-          <p className="text-sm text-[#a1887f]">Loading questions...</p>
+          <div
+            className="flex min-h-[60vh] items-center justify-center gap-3 text-[#d4af37]"
+            role="status"
+            aria-live="polite"
+          >
+            <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+            <span>Loading questions...</span>
+          </div>
         ) : error ? (
           <div className="space-y-3">
             <p role="alert" className="text-sm text-red-400">{error}</p>

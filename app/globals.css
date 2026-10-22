@@ -20,7 +20,8 @@
 }
 
 :root {
-  --font-sans: var(--font-inter), "system-ui", "sans-serif";
+  --font-sans: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-ui: var(--font-inter), "system-ui", "sans-serif";
   --font-mono:
     var(--font-jetbrains-mono), var(--font-fira-code), "Consolas", "Menlo", "Monaco", "monospace";
   --radius: 0.625rem;
@@ -63,6 +64,27 @@ body {
 
 .font-sans {
   font-family: var(--font-sans);
+}
+
+.font-ui {
+  font-family: var(--font-ui);
+}
+
+.font-brand {
+  font-family: var(--font-inter), "system-ui", "sans-serif";
+}
+
+p,
+small,
+label,
+button,
+input,
+textarea,
+select,
+nav,
+.text-xs,
+.text-sm {
+  font-family: var(--font-ui);
 }
 
 .font-mono {

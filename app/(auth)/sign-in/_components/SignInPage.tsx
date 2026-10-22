@@ -147,7 +147,7 @@ const SignInPage = () => {
       <div className="min-h-screen flex items-center justify-center bg-[#0f0b0a]">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="size-12 animate-spin text-[#d4af37]" />
-          <p className="text-sm text-[#d4af37]/60 font-mono tracking-widest">LOADING DOJO...</p>
+          <p className="text-sm text-[#d4af37] font-mono tracking-widest">LOADING DOJO...</p>
         </div>
       </div>
     );
@@ -166,7 +166,7 @@ const SignInPage = () => {
         <DojoArt />
         <Link
           href="/"
-          className="relative z-10 text-xl font-bold text-[#d4af37] tracking-tight w-fit"
+          className="font-brand relative z-10 text-xl font-bold text-[#d4af37] tracking-tight w-fit"
         >
           NekkoDojo
         </Link>
@@ -186,7 +186,7 @@ const SignInPage = () => {
 
         <div className="relative z-10 w-full max-w-md space-y-8">
           {/* mobile brand, since the art panel is hidden */}
-          <Link href="/" className="lg:hidden block text-xl font-bold text-[#d4af37] w-fit">
+          <Link href="/" className="font-brand lg:hidden block text-xl font-bold text-[#d4af37] w-fit">
             NekkoDojo
           </Link>
 

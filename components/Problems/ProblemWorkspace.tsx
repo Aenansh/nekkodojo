@@ -18,8 +18,8 @@ import { useProblemWorkspaceStore } from "@/lib/stores/problem-workspace";
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full items-center justify-center text-sm text-[#a1887f]">
-      <Loader2 className="mr-2 size-4 animate-spin" /> Loading editor...
+    <div className="flex h-full items-center justify-center gap-2 text-sm text-[#d4af37]" role="status" aria-live="polite">
+      <Loader2 className="size-4 animate-spin" aria-hidden="true" /> Loading editor...
     </div>
   ),
 });
@@ -507,7 +507,18 @@ export default function ProblemWorkspace({
               />
             ) : (
               <div className="flex h-full items-center justify-center p-6 text-center text-sm text-[#a1887f]">
-                {isLoading ? "Loading supported languages..." : "No supported languages are configured."}
+                {isLoading ? (
+                  <span
+                    className="flex items-center gap-2 text-[#d4af37]"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                    Loading supported languages...
+                  </span>
+                ) : (
+                  "No supported languages are configured."
+                )}
               </div>
             )}
           </div>

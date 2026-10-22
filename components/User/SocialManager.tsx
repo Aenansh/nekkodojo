@@ -10,7 +10,6 @@ import {
   Trash2,
   Link as LinkIcon,
   ExternalLink,
-  ScrollText,
   Loader2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -19,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { getPlatform } from "@/lib/get-social";
 import Image from "next/image";
 import { toast } from "sonner";
+import { CatSeal, SectionHeading } from "./Profileornaments";
 
 interface SocialLink {
   id: string;
@@ -142,6 +142,7 @@ export default function SocialsManager({
       router.refresh();
 
     } catch (error) {
+      console.log(error)
       toast.error("Update failed");
     } finally {
       setIsLoading(false);
@@ -169,6 +170,7 @@ export default function SocialsManager({
       router.refresh();
 
     } catch (error) {
+      console.log(error)
       setLinks(previousLinks); // Revert
       toast.error("Could not delete link");
     }
@@ -177,31 +179,27 @@ export default function SocialsManager({
   // --- VISITOR VIEW (Empty State) ---
   if (!isOwnProfile && links.length === 0) {
     return (
-      <div className="w-full">
-        <h3 className="text-xs font-bold text-[#a1887f] uppercase tracking-wider mb-3">
-          Social Connections
-        </h3>
-        <div className="flex flex-col items-center justify-center p-6 border border-dashed border-[#3e2723] rounded-xl bg-[#1a110d]/30 text-center">
-          <ScrollText className="w-8 h-8 text-[#5d4037] mb-2" />
-          <p className="text-sm text-[#a1887f] italic">
-            "This ninja walks a solitary path..."
+      <section className="w-full space-y-4" aria-labelledby="social-connections-heading">
+        <SectionHeading id="social-connections-heading" title="Connections" kanji="絆" />
+        <div className="relative flex min-h-36 flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed border-[#5d4037]/70 bg-[linear-gradient(145deg,rgba(44,24,16,0.35),rgba(15,11,10,0.5))] px-6 py-7 text-center">
+          <CatSeal className="mb-3 size-9 text-[#8d6e63]/80" />
+          <p className="font-serif text-base text-[#eaddcf]/90">
+            This member has not shared any connections yet.
           </p>
-          <span className="text-[10px] text-[#5d4037] uppercase mt-1">
-            No connections linked
+          <span className="mt-1 text-xs tracking-wide text-[#8d6e63]">
+            Their path is still unfolding
           </span>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="w-full space-y-2">
-      <h3 className="text-xs font-bold text-[#a1887f] uppercase tracking-wider mb-3">
-        Social Connections
-      </h3>
+    <section className="w-full space-y-4" aria-labelledby="social-connections-heading">
+      <SectionHeading id="social-connections-heading" title="Connections" kanji="絆" />
 
-      <ScrollArea className="max-h-[300px] w-full rounded-xl border border-[#3e2723]/50 bg-[#0f0b0a]/20 p-2">
-        <div className="space-y-2 pr-3">
+      <ScrollArea className="max-h-[300px] w-full rounded-2xl border border-[#3e2723] bg-[linear-gradient(145deg,rgba(26,17,13,0.68),rgba(15,11,10,0.52))] p-2.5 shadow-[inset_0_1px_0_rgba(234,221,207,0.025)]">
+        <div className="space-y-2.5 pr-3">
           {/* --- LINKS LIST --- */}
           {links.map((link, index) => {
             if (isOwnProfile && editingIndex === index) {
@@ -240,19 +238,19 @@ export default function SocialsManager({
               ) : (
                 <button
                   onClick={() => setIsAdding(true)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-dashed border-[#3e2723] text-[#5d4037] hover:text-[#d4af37] hover:border-[#d4af37] hover:bg-[#1a110d] transition-all duration-300 opacity-60 hover:opacity-100 group"
+                  className="group flex w-full items-center gap-3 rounded-xl border border-dashed border-[#5d4037]/70 p-3 text-left text-[#a1887f] transition-all duration-300 hover:border-[#d4af37]/60 hover:bg-[#2c1810]/30 hover:text-[#eaddcf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-[#0f0b0a] flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Plus className="w-4 h-4" />
+                  <div className="flex size-9 items-center justify-center rounded-lg border border-[#3e2723] bg-[#0f0b0a]/70 text-[#d4af37] transition-colors group-hover:border-[#d4af37]/30">
+                    <Plus className="size-4" />
                   </div>
-                  <span className="text-sm font-medium">Add new connection</span>
+                  <span className="text-sm font-medium">Add a connection</span>
                 </button>
               )}
             </>
           )}
         </div>
       </ScrollArea>
-    </div>
+    </section>
   );
 }
 
@@ -276,17 +274,14 @@ function SocialLinkItem({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group relative flex items-center justify-between p-2 rounded-xl bg-[#1a110d] border border-[#3e2723] transition-all cursor-pointer",
-        isOwnProfile
-          ? "hover:border-[#d4af37]/30" // Subtle hover for owner
-          : "hover:border-[#d4af37] hover:bg-[#1a110d]/80" // Stronger hover for visitor
+        "group relative flex items-center justify-between rounded-xl border border-[#3e2723]/90 bg-[#120c0a]/60 p-2.5 transition-all duration-200 hover:bg-[#1a110d]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]",
+        isOwnProfile ? "hover:border-[#d4af37]/45" : "hover:border-[#d4af37]/60"
       )}
     >
       <div className="flex items-center gap-3 overflow-hidden">
-        {/* Icon Box */}
         <div
           className={cn(
-            "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+            "flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/5",
             info?.color
           )}
         >
@@ -301,29 +296,29 @@ function SocialLinkItem({
           )}
         </div>
 
-        {/* Text Info */}
         <div className="flex flex-col min-w-0">
-          <span className="text-xs font-bold text-[#eaddcf] capitalize truncate flex items-center gap-2">
+          <span className="flex items-center gap-2 truncate text-sm font-medium capitalize text-[#eaddcf]">
             {info?.type || "Link"}
-            
-            {/* Show external link icon for EVERYONE now, to indicate it's clickable */}
-            <ExternalLink className="w-3 h-3 text-[#5d4037] opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ExternalLink className="size-3 text-[#8d6e63] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
+          </span>
+          <span className="truncate text-xs text-[#8d6e63]">
+            {url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
           </span>
         </div>
       </div>
 
-      {/* Edit Button (Owner Only) */}
       {isOwnProfile && (
         <button
           onClick={(e) => {
-            // STOP PROPAGATION so the link doesn't open
             e.preventDefault();
             e.stopPropagation();
             onEdit();
           }}
-          className="mr-2 p-1.5 text-[#5d4037] hover:text-[#d4af37] hover:bg-[#3e2723]/30 rounded-lg transition-all opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 duration-200 z-10"
+          type="button"
+          aria-label="Edit social connection"
+          className="z-10 ml-2 rounded-lg p-2 text-[#8d6e63] transition-colors hover:bg-[#3e2723]/40 hover:text-[#d4af37] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37] md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100"
         >
-          <Pencil className="w-3.5 h-3.5" />
+          <Pencil className="size-3.5" />
         </button>
       )}
     </a>
@@ -374,31 +369,34 @@ function SocialLinkEditor({
   return (
     <div
       ref={containerRef}
-      className="flex items-center gap-2 p-2 rounded-xl bg-[#0f0b0a] border border-[#d4af37] shadow-[0_0_15px_-5px_rgba(212,175,55,0.2)] animate-in fade-in zoom-in-95 duration-200"
+      className="flex items-center gap-2 rounded-xl border border-[#d4af37]/50 bg-[#120c0a]/95 p-2 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(234,221,207,0.04)] animate-in fade-in zoom-in-95 duration-200"
     >
       <div className="relative flex-1">
-        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#5d4037]" />
+        <LinkIcon className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-[#8d6e63]" />
         <Input
           autoFocus
           disabled={isLoading}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Paste URL..."
-          className="h-9 pl-9 bg-[#1a110d] border-none text-xs text-[#eaddcf] placeholder:text-[#3e2723] focus-visible:ring-0 disabled:opacity-50"
+          placeholder="Paste a profile or website URL"
+          aria-label="Social profile or website URL"
+          className="h-10 rounded-lg border border-[#3e2723] bg-[#0f0b0a]/80 pl-9 text-sm text-[#eaddcf] placeholder:text-[#8d6e63]/70 focus-visible:border-[#d4af37]/60 focus-visible:ring-1 focus-visible:ring-[#d4af37]/40 disabled:opacity-50"
         />
       </div>
 
-      <div className="flex items-center gap-1 pr-1">
+      <div className="flex items-center gap-1">
         <button
           onClick={() => onSave(value)}
           disabled={isLoading}
-          className="p-1.5 bg-[#d4af37] text-[#0f0b0a] rounded-md hover:bg-[#b5952f] transition-colors disabled:opacity-50"
+          type="button"
+          aria-label={isLoading ? "Saving connection" : "Save connection"}
+          className="rounded-lg bg-[#d4af37] p-2 text-[#0f0b0a] transition-colors hover:bg-[#e2c45a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#eaddcf]/70 disabled:opacity-50"
         >
           {isLoading ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
           ) : (
-            <Check className="w-3.5 h-3.5" />
+            <Check className="size-4" />
           )}
         </button>
 
@@ -406,18 +404,22 @@ function SocialLinkEditor({
           <button
             onClick={onDelete}
             disabled={isLoading}
-            className="p-1.5 text-[#5d4037] hover:text-red-400 hover:bg-red-400/10 rounded-md transition-colors disabled:opacity-50"
+            type="button"
+            aria-label="Remove connection"
+            className="rounded-lg p-2 text-[#8d6e63] transition-colors hover:bg-red-400/10 hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:opacity-50"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 className="size-4" />
           </button>
         )}
 
         <button
           onClick={onCancel}
           disabled={isLoading}
-          className="p-1.5 text-[#5d4037] hover:text-[#a1887f] hover:bg-[#3e2723]/30 rounded-md transition-colors disabled:opacity-50"
+          type="button"
+          aria-label="Cancel editing"
+          className="rounded-lg p-2 text-[#8d6e63] transition-colors hover:bg-[#3e2723]/40 hover:text-[#eaddcf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]/70 disabled:opacity-50"
         >
-          <X className="w-3.5 h-3.5" />
+          <X className="size-4" />
         </button>
       </div>
     </div>

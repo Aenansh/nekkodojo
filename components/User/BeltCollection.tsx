@@ -1,24 +1,25 @@
 "use client";
 
-import { Lock, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SectionHeading } from "./Profileornaments";
+import { BELTS } from "@/constants/belts";
 
-export const BELTS = [
-  { name: "White Belt", minSolved: 0, color: "bg-white text-black" },
-  { name: "Yellow Belt", minSolved: 10, color: "bg-yellow-400 text-black" },
-  { name: "Orange Belt", minSolved: 25, color: "bg-orange-500 text-white" },
-  { name: "Green Belt", minSolved: 50, color: "bg-green-600 text-white" },
-  { name: "Blue Belt", minSolved: 100, color: "bg-blue-600 text-white" },
-  { name: "Purple Belt", minSolved: 200, color: "bg-purple-600 text-white" },
-  { name: "Brown Belt", minSolved: 350, color: "bg-[#6d4c41] text-white" },
-  { name: "Black Belt", minSolved: 500, color: "bg-black text-white" },
-];
+/** Looks up the swatch colour and kanji for a belt by its display name. */
+export function getBeltVisual(name: string) {
+  const key = name.toLowerCase().split(" ")[0];
+  const belt = BELTS.find((b) => b.name.toLowerCase().startsWith(key));
+  return { hex: belt?.hex ?? "#d4af37", kanji: belt?.kanji ?? "" };
+}
 
 export function BeltProgress({ totalSolved }: { totalSolved: number }) {
-  const currentIndex = BELTS.findLastIndex((belt) => totalSolved >= belt.minSolved);
+  const currentIndex = Math.max(
+    0,
+    BELTS.findLastIndex((belt) => totalSolved >= belt.minSolved)
+  );
 
   const current = BELTS[currentIndex];
   const next = BELTS[currentIndex + 1];
+  const remaining = next ? next.minSolved - totalSolved : 0;
 
   const progress = next
     ? Math.min(
@@ -28,91 +29,78 @@ export function BeltProgress({ totalSolved }: { totalSolved: number }) {
     : 100;
 
   return (
-    <section className="rounded-3xl border border-amber-500/20 bg-linear-to-br from-[#111111] to-black p-6 shadow-[0_0_40px_rgba(245,158,11,0.05)]">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+    <section aria-labelledby="belt-heading">
+      <SectionHeading id="belt-heading" title="Belt" kanji="帯" />
+
+      <div className="mt-8 grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] md:items-end">
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-amber-400 mb-2">Rank Progression</p>
-
-          <h2 className="text-2xl font-black text-white">Dojo Belts</h2>
-
-          <p className="text-sm text-zinc-400 mt-2">
-            Current Rank: <span className="text-amber-400 font-bold">{current.name}</span>
+          <p className="text-sm text-[#a1887f]">Current belt</p>
+          <p className="mt-2 flex items-baseline gap-3 font-serif text-4xl text-[#eaddcf]">
+            {current.name}
+            <span lang="ja" className="text-xl text-[#8d6e63]">
+              {current.kanji}
+            </span>
           </p>
         </div>
 
-        {next && (
-          <div className="text-sm text-zinc-400">
-            Next Rank: <span className="text-white font-semibold">{next.name}</span>
-          </div>
-        )}
+        <div>
+          {next ? (
+            <>
+              <div className="flex items-baseline justify-between gap-4 text-sm">
+                <p className="text-[#a1887f]">
+                  <span className="tabular-nums text-[#eaddcf]">{remaining}</span> more{" "}
+                  {remaining === 1 ? "solve" : "solves"} to reach {next.name}
+                </p>
+                <p className="tabular-nums text-[#8d6e63]">{progress}%</p>
+              </div>
+              <div
+                role="progressbar"
+                aria-valuenow={progress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`Progress to ${next.name}`}
+                className="mt-3 h-[3px] w-full rounded-full bg-[#3e2723]"
+              >
+                <div
+                  className="h-full rounded-full bg-[#d4af37] transition-[width] duration-700"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-[#a1887f]">You have reached the highest belt.</p>
+          )}
+        </div>
       </div>
 
-      {/* Progress */}
-      {next && (
-        <div className="mb-8">
-          <div className="mb-2 flex items-center justify-between text-xs text-zinc-500 uppercase tracking-widest">
-            <span>Journey</span>
-            <span>{progress}%</span>
-          </div>
-
-          <div className="h-3 overflow-hidden rounded-full bg-zinc-900 border border-zinc-800">
-            <div
-              className="h-full rounded-full bg-linear-to-r from-amber-500 to-yellow-400 transition-all duration-700"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-
-          <p className="mt-3 text-sm text-zinc-400">
-            {totalSolved} solved • Need{" "}
-            <span className="text-white font-semibold">{next.minSolved - totalSolved}</span> more
-            for {next.name}
-          </p>
-        </div>
-      )}
-
-      {/* Belts Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <ol className="mt-10 grid grid-cols-4 gap-x-4 gap-y-8 md:grid-cols-8">
         {BELTS.map((belt, index) => {
           const unlocked = totalSolved >= belt.minSolved;
           const active = index === currentIndex;
 
           return (
-            <div
-              key={belt.name}
-              className={cn(
-                "rounded-2xl border p-4 transition-all",
-                unlocked
-                  ? "border-zinc-700 bg-[#0f0f0f]"
-                  : "border-zinc-900 bg-[#0a0a0a] opacity-50",
-                active && "border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.15)]"
-              )}
-            >
-              {/* Belt Bar */}
-              <div
+            <li key={belt.name} aria-current={active ? "step" : undefined} className="min-w-0">
+              <span
                 className={cn(
-                  "h-8 rounded-xl flex items-center justify-center font-bold text-xs",
-                  unlocked ? belt.color : "bg-zinc-800 text-zinc-500"
+                  "block h-2 rounded-full border",
+                  unlocked ? "border-white/10" : "border-[#3e2723]",
+                  active && "ring-1 ring-[#d4af37] ring-offset-2 ring-offset-[#0f0b0a]"
                 )}
-              >
-                {unlocked ? belt.name : <Lock className="h-4 w-4" />}
-              </div>
-
-              <div className="mt-4">
-                <p className="font-semibold text-sm text-white">{belt.name}</p>
-
-                <p className="text-xs text-zinc-500 mt-1">{belt.minSolved}+ solved</p>
-
-                {active && (
-                  <div className="mt-3 flex items-center gap-1 text-xs text-amber-400 font-semibold">
-                    Active <ChevronRight className="h-3 w-3" />
-                  </div>
-                )}
-              </div>
-            </div>
+                style={{ backgroundColor: unlocked ? belt.hex : "transparent" }}
+              />
+              <p className={cn("mt-4 text-sm", unlocked ? "text-[#eaddcf]" : "text-[#8d6e63]")}>
+                {belt.name.replace(" Belt", "")}{" "}
+                <span lang="ja" className="text-[#8d6e63]">
+                  {belt.kanji}
+                </span>
+              </p>
+              <p className="mt-0.5 text-xs tabular-nums text-[#8d6e63]">
+                {belt.minSolved === 0 ? "Starting belt" : `${belt.minSolved} solved`}
+              </p>
+            </li>
           );
         })}
-      </div>
+      </ol>
     </section>
   );
 }

@@ -217,7 +217,7 @@ const SignUpPage = () => {
       <div className="min-h-screen flex items-center justify-center bg-[#0f0b0a]">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="size-12 animate-spin text-[#d4af37]" />
-          <p className="text-sm text-[#d4af37]/60 font-mono tracking-widest">LOADING DOJO...</p>
+          <p className="text-sm text-[#d4af37] font-mono tracking-widest">LOADING DOJO...</p>
         </div>
       </div>
     );
@@ -247,7 +247,7 @@ const SignUpPage = () => {
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(62,39,35,0.35),transparent_60%)]" />
 
         <div className="relative z-10 w-full max-w-md space-y-8">
-          <Link href="/" className="lg:hidden block text-xl font-bold text-[#d4af37] w-fit">
+          <Link href="/" className="font-brand lg:hidden block text-xl font-bold text-[#d4af37] w-fit">
             NekkoDojo
           </Link>
 
@@ -432,7 +432,7 @@ const SignUpPage = () => {
         <RegisterArt />
         <Link
           href="/"
-          className="relative z-10 text-xl font-bold text-[#d4af37] tracking-tight w-fit ml-auto"
+          className="font-brand relative z-10 text-xl font-bold text-[#d4af37] tracking-tight w-fit ml-auto"
         >
           NekkoDojo
         </Link>

@@ -5,6 +5,7 @@ import { CompanySection } from "@/components/Company/CompanySection";
 import type { CompanyCardItem } from "@/components/Company/CompanyCarousel";
 import QuestionExplorer from "@/components/Problems/ProblemSheet";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 type LibraryCategory = {
   id: string;
@@ -87,7 +88,14 @@ export default function ProblemsPage() {
           </div>
 
           {isLoading ? (
-            <p className="text-sm text-[#a1887f]">Loading questions...</p>
+            <div
+              className="flex min-h-[40vh] items-center justify-center gap-3 text-[#d4af37]"
+              role="status"
+              aria-live="polite"
+            >
+              <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+              <span>Loading questions...</span>
+            </div>
           ) : error ? (
             <div className="space-y-3">
               <p role="alert" className="text-sm text-red-400">{error}</p>

@@ -3,11 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
-import { Trash2, Loader2, ShieldAlert } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -22,22 +20,18 @@ import {
 
 export default function DeleteProgress() {
   const router = useRouter();
-
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
   async function handleReset() {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/progress/delete", {
-        method: "DELETE",
-      });
+      const res = await fetch("/api/progress/delete", { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed");
 
-      if (!res.ok) {
-        throw new Error("Failed");
-      }
-
-      toast.success("Journey reset successfully");
+      toast.success("Progress reset");
+      setOpen(false);
       router.refresh();
     } catch {
       toast.error("Unable to reset progress");
@@ -47,74 +41,68 @@ export default function DeleteProgress() {
   }
 
   return (
-    <section className="rounded-3xl border border-red-500/20 bg-red-500/5 p-6 md:p-8">
-      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-        {/* Left */}
-        <div className="space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-red-400">
-            <ShieldAlert className="h-4 w-4" />
-            Danger Zone
-          </div>
-
-          <div>
-            <h3 className="text-xl font-bold text-white">Reset Your Progress</h3>
-
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">
-              This permanently removes solved questions, belt progress, stats, and activity history.
-              This action cannot be undone.
-            </p>
-          </div>
-        </div>
-
-        {/* Right */}
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button className="rounded-2xl border border-red-500/30 bg-red-500/10 px-6 text-red-400 hover:bg-red-500 hover:text-white">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Reset Progress
-            </Button>
-          </AlertDialogTrigger>
-
-          <AlertDialogContent className="border-zinc-800 bg-[#0f0f0f] text-white">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-xl font-bold text-red-400">
-                Confirm Reset
-              </AlertDialogTitle>
-
-              <AlertDialogDescription className="text-zinc-400">
-                You are about to erase all profile progress. This includes solved problems, rank,
-                charts, and history.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-
-            <AlertDialogFooter>
-              <AlertDialogCancel className="border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800">
-                Cancel
-              </AlertDialogCancel>
-
-              <AlertDialogAction
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (!loading) handleReset();
-                }}
-                className="bg-red-500 text-white hover:bg-red-600"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Resetting...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Yes, Reset
-                  </>
-                )}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+    <section
+      aria-labelledby="reset-heading"
+      className="flex flex-col gap-6 border-t border-[#3e2723] pt-8 md:flex-row md:items-center md:justify-between"
+    >
+      <div>
+        <h2 id="reset-heading" className="font-serif text-lg text-[#eaddcf]">
+          Reset progress
+        </h2>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#a1887f]">
+          Permanently removes your solved problems, belt, stats and activity history. This
+          can&apos;t be undone.
+        </p>
       </div>
+
+      <AlertDialog open={open} onOpenChange={(next) => !loading && setOpen(next)}>
+        <AlertDialogTrigger asChild>
+          <Button
+            variant="outline"
+            className="rounded-full border-[#8f3b31] bg-transparent px-5 text-[#d4796b] hover:bg-[#8f3b31] hover:text-[#eaddcf]"
+          >
+            Reset progress
+          </Button>
+        </AlertDialogTrigger>
+
+        <AlertDialogContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-serif text-xl text-[#eaddcf]">
+              Reset all progress?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="leading-relaxed text-[#a1887f]">
+              This erases your solved problems, belt, charts and history. You won&apos;t be able to
+              recover them.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={loading}
+              className="border-[#3e2723] bg-transparent text-[#eaddcf] hover:bg-[#0f0b0a] hover:text-[#eaddcf]"
+            >
+              Keep my progress
+            </AlertDialogCancel>
+
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                if (!loading) handleReset();
+              }}
+              className="bg-[#8f3b31] text-[#eaddcf] hover:bg-[#a6453a]"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
+                  Resetting…
+                </>
+              ) : (
+                "Reset progress"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }

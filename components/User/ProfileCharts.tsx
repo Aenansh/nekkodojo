@@ -1,23 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip as RechartsTooltip,
-  Legend,
-} from "recharts";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Trophy } from "lucide-react";
-import { getCategoryColor } from "@/constants/get-colors";
+import { SectionHeading, CatSeal } from "./Profileornaments";
 
 // Types
 interface CategoryStat {
@@ -40,12 +26,17 @@ interface DifficultyStat {
   color: string;
 }
 
+interface ActivityPoint {
+  date: string;
+  count: number;
+}
+
 interface ProfileChartsProps {
   difficultyStats: DifficultyStat[];
-  categoryStats: CategoryStat[]; // ✅ Restored Prop
+  categoryStats: CategoryStat[];
   totalSolved: number;
   companyStats: CompanyStat[];
-  activityData?: any[];
+  activityData?: ActivityPoint[];
   isCurrentUser: boolean;
 }
 
@@ -54,271 +45,292 @@ export default function ProfileCharts({
   categoryStats,
   totalSolved,
   companyStats,
+  activityData = [],
   isCurrentUser,
 }: ProfileChartsProps) {
   const [expandCategories, setExpandCategories] = useState(false);
   const [expandCompanies, setExpandCompanies] = useState(false);
 
-  // Logic for expanding lists
-  const visibleCategories = expandCategories ? categoryStats : categoryStats.slice(0, 3);
-  const visibleCompanies = expandCompanies ? companyStats : companyStats.slice(0, 5);
-
-  const hasSolvedAny = totalSolved > 0;
+  const visibleCategories = expandCategories ? categoryStats : categoryStats.slice(0, 6);
+  const visibleCompanies = expandCompanies ? companyStats : companyStats.slice(0, 6);
 
   // --- EMPTY STATE ---
-  if (!hasSolvedAny) {
+  if (totalSolved <= 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 border border-dashed border-[#3e2723] rounded-xl bg-[#1a110d]/30 text-center">
-        <div className="bg-[#3e2723]/30 p-4 rounded-full mb-4">
-          <Trophy className="w-8 h-8 text-[#5d4037]" />
-        </div>
+      <section className="flex flex-col items-center border-y border-[#3e2723] px-4 py-16 text-center">
+        <CatSeal className="size-12 text-[#5d4037]" />
         {isCurrentUser ? (
-          <div className="space-y-2">
-            <h3 className="text-[#eaddcf] font-bold text-lg">Your journey begins now</h3>
-            <p className="text-[#a1887f] text-sm max-w-md mx-auto">
-              You haven't solved any katas yet. The dojo awaits your first contribution.
+          <>
+            <h2 className="mt-6 font-serif text-2xl text-[#eaddcf]">No problems solved yet</h2>
+            <p className="mt-2 max-w-sm text-sm leading-relaxed text-[#a1887f]">
+              Solve your first problem to start earning belts and filling in your training log.
             </p>
-            <Button asChild className="mt-4 bg-[#d4af37] text-black hover:bg-[#b5952f]">
-              <Link href="/problems">Start Training</Link>
+            <Button
+              asChild
+              className="mt-6 rounded-full bg-[#d4af37] px-6 text-[#0f0b0a] hover:bg-[#b5952f]"
+            >
+              <Link href="/problems">Start practicing</Link>
             </Button>
-          </div>
+          </>
         ) : (
-          <div>
-            <h3 className="text-[#a1887f] font-medium">
-              This Ronin has not started their training yet.
-            </h3>
-          </div>
+          <h2 className="mt-6 font-serif text-xl text-[#a1887f]">No problems solved yet</h2>
         )}
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* --- SECTION 1: DIFFICULTY MASTERY (Big Chart) --- */}
-      <section className="space-y-6">
-        <h3 className="text-xl font-bold text-[#eaddcf]">Dojo Mastery</h3>
+    <div className="space-y-16 md:space-y-20">
+      {/* --- DIFFICULTY --- */}
+      <section aria-labelledby="difficulty-heading">
+        <SectionHeading id="difficulty-heading" title="Difficulty" kanji="難易度" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* CHART CARD */}
-          <Card className="bg-[#1a110d] border-[#3e2723] p-6 flex flex-col items-center justify-center relative min-h-[300px]">
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={difficultyStats}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={80}
-                  outerRadius={100}
-                  paddingAngle={5}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {difficultyStats.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <RechartsTooltip
-                  contentStyle={{
-                    backgroundColor: "#1a110d",
-                    borderColor: "#3e2723",
-                    color: "#eaddcf",
-                    borderRadius: "8px",
-                  }}
-                  itemStyle={{ color: "#eaddcf" }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-4xl font-black text-[#eaddcf]">{totalSolved}</span>
-              <span className="text-xs text-[#a1887f] uppercase tracking-widest font-bold">
-                Solved
-              </span>
-            </div>
-          </Card>
-
-          {/* LEGEND CARD */}
-          <Card className="bg-[#1a110d] border-[#3e2723] p-6 flex flex-col justify-center space-y-6">
-            {difficultyStats.map((stat) => (
-              <div key={stat.name} className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 font-bold text-[#eaddcf]">
-                    <span
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: stat.color }}
-                    />
-                    {stat.name}
-                  </span>
-                  <span className="text-[#a1887f] font-mono">{stat.value} Solved</span>
-                </div>
-                <div className="h-2 w-full bg-[#0f0b0a] rounded-full overflow-hidden border border-[#3e2723]">
-                  <div
-                    className="h-full rounded-full transition-all duration-1000"
-                    style={{
-                      width: `${totalSolved > 0 ? (stat.value / totalSolved) * 100 : 0}%`,
-                      backgroundColor: stat.color,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </Card>
-        </div>
-      </section>
-
-      {/* --- SECTION 2: CATEGORIES (Restored) --- */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-[#eaddcf]">Mastery by Category</h3>
-          {categoryStats.length > 3 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setExpandCategories(!expandCategories)}
-              className="text-[#d4af37] hover:bg-[#3e2723]/20"
-            >
-              {expandCategories ? (
-                <>
-                  <ChevronUp className="w-4 h-4 mr-1" /> Show Less
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="w-4 h-4 mr-1" /> Show More
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {visibleCategories.map((cat, idx) => {
-            const percentage = Math.round((cat.solved / cat.total) * 100) || 0;
-            const color = getCategoryColor(idx);
-
-            return (
-              <Card
-                key={cat.name}
-                className="bg-[#1a110d] border-[#3e2723] p-4 flex items-center gap-4"
-              >
-                <div className="relative w-16 h-16 shrink-0">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[{ value: cat.solved }, { value: cat.total - cat.solved }]}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={22}
-                        outerRadius={30}
-                        startAngle={90}
-                        endAngle={-270}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        <Cell fill={color} />
-                        <Cell fill="#3e2723" />
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#eaddcf]">
-                    {percentage}%
-                  </div>
-                </div>
-
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-[#eaddcf]">{cat.name}</span>
-                  <span className="text-xs text-[#a1887f]">
-                    {cat.solved} / {cat.total} Solved
-                  </span>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* --- SECTION 3: COMPANIES --- */}
-      {companyStats.length > 0 && (
-        <section className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-[#eaddcf]">Great Houses Challenged</h3>
-            {companyStats.length > 5 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setExpandCompanies(!expandCompanies)}
-                className="text-[#d4af37] hover:bg-[#3e2723]/20"
-              >
-                {expandCompanies ? (
-                  <>
-                    <ChevronUp className="w-4 h-4 mr-1" /> Show Less
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="w-4 h-4 mr-1" /> Show More
-                  </>
-                )}
-              </Button>
-            )}
+        <div className="mt-8 grid gap-10 md:grid-cols-[auto_minmax(0,1fr)] md:items-end md:gap-16">
+          <div>
+            <p className="font-serif text-6xl tabular-nums leading-none text-[#eaddcf]">
+              {totalSolved}
+            </p>
+            <p className="mt-2 text-sm text-[#a1887f]">problems solved</p>
           </div>
 
-          <Card className="bg-[#1a110d] border-[#3e2723] p-6 pr-0 overflow-hidden">
+          <div>
             <div
-              style={{ height: `${visibleCompanies.length * 60}px` }}
-              className="w-full transition-all duration-500"
+              role="img"
+              aria-label={difficultyStats.map((s) => `${s.name}: ${s.value}`).join(", ")}
+              className="flex h-2 w-full gap-0.5 overflow-hidden rounded-full bg-[#3e2723]"
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={visibleCompanies}
-                  margin={{ top: 0, right: 30, left: 40, bottom: 0 }}
-                  barSize={20}
-                >
-                  <XAxis type="number" hide />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={<CustomCompanyTick data={visibleCompanies} />}
-                    width={150}
-                    interval={0}
-                  />
-                  <RechartsTooltip
-                    cursor={{ fill: "#3e2723", opacity: 0.2 }}
-                    contentStyle={{
-                      backgroundColor: "#1a110d",
-                      borderColor: "#3e2723",
-                      color: "#eaddcf",
+              {difficultyStats
+                .filter((s) => s.value > 0)
+                .map((s) => (
+                  <span
+                    key={s.name}
+                    style={{
+                      width: `${(s.value / totalSolved) * 100}%`,
+                      backgroundColor: s.color,
                     }}
-                    itemStyle={{ color: "#d4af37" }}
                   />
-                  <Bar dataKey="total" fill="#3e2723" radius={[0, 4, 4, 0]} stackId="a" />
-                  <Bar dataKey="solved" fill="#d4af37" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+                ))}
             </div>
-          </Card>
+
+            <dl className="mt-5 grid grid-cols-3 gap-4">
+              {difficultyStats.map((s) => (
+                <div key={s.name}>
+                  <dt className="flex items-center gap-2 text-sm text-[#a1887f]">
+                    <span
+                      aria-hidden
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: s.color }}
+                    />
+                    {s.name}
+                  </dt>
+                  <dd className="mt-1 font-serif text-2xl tabular-nums text-[#eaddcf]">
+                    {s.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      {/* --- TRAINING LOG --- */}
+      {activityData.length > 0 && (
+        <section aria-labelledby="log-heading">
+          <SectionHeading id="log-heading" title="Training log" kanji="稽古" />
+          <TrainingLog data={activityData} />
+        </section>
+      )}
+
+      {/* --- CATEGORIES --- */}
+      {categoryStats.length > 0 && (
+        <section aria-labelledby="category-heading">
+          <SectionHeading id="category-heading" title="Categories" kanji="分野" />
+          <ul className="mt-2 grid md:grid-cols-2 md:gap-x-16">
+            {visibleCategories.map((cat) => (
+              <LedgerRow key={cat.name} label={cat.name} solved={cat.solved} total={cat.total} />
+            ))}
+          </ul>
+          {categoryStats.length > 6 && (
+            <ToggleButton
+              expanded={expandCategories}
+              count={categoryStats.length}
+              onClick={() => setExpandCategories((v) => !v)}
+            />
+          )}
+        </section>
+      )}
+
+      {/* --- COMPANIES --- */}
+      {companyStats.length > 0 && (
+        <section aria-labelledby="company-heading">
+          <SectionHeading id="company-heading" title="Companies" kanji="企業" />
+          <ul className="mt-2 grid md:grid-cols-2 md:gap-x-16">
+            {visibleCompanies.map((company) => (
+              <LedgerRow
+                key={company.id}
+                label={company.name}
+                solved={company.solved}
+                total={company.total}
+                leading={
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={company.logo}
+                    alt=""
+                    className="size-5 shrink-0 rounded-full bg-[#eaddcf]/10 object-contain"
+                  />
+                }
+              />
+            ))}
+          </ul>
+          {companyStats.length > 6 && (
+            <ToggleButton
+              expanded={expandCompanies}
+              count={companyStats.length}
+              onClick={() => setExpandCompanies((v) => !v)}
+            />
+          )}
         </section>
       )}
     </div>
   );
 }
 
-const CustomCompanyTick = ({ x, y, payload, data }: any) => {
-  const company = data[payload.index];
+// --- LEDGER ROW: label, count, one thin line ---
+
+function LedgerRow({
+  label,
+  solved,
+  total,
+  leading,
+}: {
+  label: string;
+  solved: number;
+  total: number;
+  leading?: ReactNode;
+}) {
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+
   return (
-    <g transform={`translate(${x},${y})`}>
-      <foreignObject x="-40" y="-12" width="24" height="24">
-        <div className="w-6 h-6 rounded-full overflow-hidden relative">
-          <img
-            src={company.logo}
-            alt={company.name}
-            className="object-contain w-full h-full p-0.5"
-          />
-        </div>
-      </foreignObject>
-      <text x="-50" y="4" dy="0" textAnchor="end" fill="#a1887f" fontSize="12px" fontWeight="500">
-        {company.name}
-      </text>
-    </g>
+    <li className="border-b border-[#3e2723]/70 py-4">
+      <div className="flex items-center justify-between gap-4">
+        <span className="flex min-w-0 items-center gap-3 text-[#eaddcf]">
+          {leading}
+          <span className="truncate">{label}</span>
+        </span>
+        <span className="shrink-0 text-sm tabular-nums text-[#a1887f]">
+          {solved} of {total}
+        </span>
+      </div>
+      <div
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`${label} progress`}
+        className="mt-3 h-[3px] rounded-full bg-[#3e2723]"
+      >
+        <div className="h-full rounded-full bg-[#d4af37]" style={{ width: `${pct}%` }} />
+      </div>
+    </li>
   );
-};
+}
+
+function ToggleButton({
+  expanded,
+  count,
+  onClick,
+}: {
+  expanded: boolean;
+  count: number;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-expanded={expanded}
+      className="mt-4 text-sm text-[#d4af37] underline-offset-4 hover:underline"
+    >
+      {expanded ? "Show fewer" : `Show all ${count}`}
+    </button>
+  );
+}
+
+// --- TRAINING LOG (last 26 weeks) ---
+
+const WEEKS = 26;
+const pad = (n: number) => String(n).padStart(2, "0");
+const dayKey = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+function levelClass(count: number) {
+  if (count <= 0) return "bg-[#3e2723]/50";
+  if (count === 1) return "bg-[#d4af37]/30";
+  if (count <= 3) return "bg-[#d4af37]/60";
+  return "bg-[#d4af37]";
+}
+
+function TrainingLog({ data }: { data: ActivityPoint[] }) {
+  const { cells, sum } = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const point of data) {
+      const k = point.date.slice(0, 10);
+      counts.set(k, (counts.get(k) ?? 0) + point.count);
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = new Date(today);
+    start.setDate(today.getDate() - today.getDay() - (WEEKS - 1) * 7);
+
+    let sum = 0;
+    const cells: ({ key: string; count: number } | null)[] = [];
+    for (let w = 0; w < WEEKS; w++) {
+      for (let d = 0; d < 7; d++) {
+        const date = new Date(start);
+        date.setDate(start.getDate() + w * 7 + d);
+        if (date > today) {
+          cells.push(null);
+          continue;
+        }
+        const key = dayKey(date);
+        const count = counts.get(key) ?? 0;
+        sum += count;
+        cells.push({ key, count });
+      }
+    }
+    return { cells, sum };
+  }, [data]);
+
+  return (
+    <div className="mt-6">
+      <p className="text-sm text-[#a1887f]">
+        <span className="tabular-nums text-[#eaddcf]">{sum}</span> {sum === 1 ? "solve" : "solves"}{" "}
+        in the past six months
+      </p>
+
+      <div className="mt-4 overflow-x-auto pb-2">
+        <div className="grid w-max grid-flow-col grid-rows-7 gap-1">
+          {cells.map((cell, i) =>
+            cell ? (
+              <span
+                key={cell.key}
+                title={`${cell.count} ${cell.count === 1 ? "solve" : "solves"} on ${cell.key}`}
+                className={`size-3 rounded-[2px] ${levelClass(cell.count)}`}
+              />
+            ) : (
+              <span key={`empty-${i}`} className="size-3" aria-hidden />
+            )
+          )}
+        </div>
+      </div>
+
+      <div className="mt-3 flex items-center gap-2 text-xs text-[#8d6e63]" aria-hidden>
+        Fewer
+        {[0, 1, 2, 4].map((n) => (
+          <span key={n} className={`size-3 rounded-[2px] ${levelClass(n)}`} />
+        ))}
+        More
+      </div>
+    </div>
+  );
+}

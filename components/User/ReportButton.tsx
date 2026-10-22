@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Flag, AlertTriangle, Loader2, CheckCircle2, UserRoundXIcon } from "lucide-react";
+import { AlertTriangle, Loader2, CheckCircle2, UserRoundXIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -81,8 +81,8 @@ export default function ReportButton({ targetUserId, targetUserName, variant = "
         setSelectedCategory("");
         setCustomText("");
       }, 2000);
-    } catch (error: any) {
-      toast.error(error.message || "Something went wrong.");
+    } catch (error: unknown) {
+      if (error instanceof Error) toast.error(error.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }

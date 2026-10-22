@@ -54,8 +54,8 @@ export default function CompanyClient() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center gap-3 py-20 text-[#d4af37]">
-        <Loader2 className="size-5 animate-spin" />
+      <div className="flex min-h-[55vh] items-center justify-center gap-3 text-[#d4af37]" role="status" aria-live="polite">
+        <Loader2 className="size-5 animate-spin" aria-hidden="true" />
         <span>Loading companies...</span>
       </div>
     );

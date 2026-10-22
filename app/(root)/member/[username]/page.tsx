@@ -7,6 +7,7 @@ import { UserDetails } from "@/components/User/UserDetails";
 import { ProfileActivityTabs } from "@/components/User/ProfileActivityTabs";
 import DeleteProgress from "@/components/User/DeleteProgress";
 import ProfileCharts from "@/components/User/ProfileCharts";
+import { Loader2 } from "lucide-react";
 
 type ProfileData = {
   user: {
@@ -100,24 +101,27 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0f0b0a] text-[#a1887f] py-12 items-center justify-center">
-        <div className="container mx-auto px-4 max-w-6xl">Loading profile...</div>
+      <div className="flex min-h-screen items-center justify-center bg-[#0f0b0a] py-12 text-[#d4af37]">
+        <div className="flex items-center gap-3" role="status" aria-live="polite">
+          <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+          <span>Loading profile…</span>
+        </div>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-[#0f0b0a] text-[#eaddcf] py-12">
-        <div className="container mx-auto px-4 max-w-6xl space-y-3">
-          <p role="alert" className="text-red-400">
+      <div className="min-h-screen bg-[#0f0b0a] py-12 text-[#eaddcf]">
+        <div className="container mx-auto max-w-5xl space-y-4 px-5 md:px-8">
+          <p role="alert" className="text-[#d4796b]">
             {error ?? "Unable to load this profile."}
           </p>
           {error !== "User not found." && (
             <button
               type="button"
               onClick={() => setRetryCount((count) => count + 1)}
-              className="rounded-md border border-[#3e2723] px-4 py-2 text-sm hover:bg-[#1a110d]"
+              className="rounded-full border border-[#3e2723] px-5 py-2 text-sm transition-colors hover:border-[#d4af37] hover:text-[#d4af37]"
             >
               Try again
             </button>
@@ -142,8 +146,8 @@ export default function ProfilePage() {
   }));
 
   return (
-    <div className="min-h-screen bg-[#0f0b0a] text-[#eaddcf] py-8 md:py-12">
-      <div className="container mx-auto px-4 max-w-6xl space-y-8 md:space-y-16">
+    <main className="min-h-screen py-10 text-[#eaddcf] md:py-16">
+      <div className="container mx-auto max-w-5xl space-y-16 px-5 md:space-y-24 md:px-8">
         <UserDetails user={user} stats={data.stats} isOwnProfile={data.isOwnProfile} />
         <BeltProgress totalSolved={data.totalSolved} />
         <ProfileCharts
@@ -161,6 +165,6 @@ export default function ProfilePage() {
         />
         {data.isOwnProfile && <DeleteProgress />}
       </div>
-    </div>
+    </main>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { ShieldAlert, Users, ScrollText, Sword, Lock, ArrowLeft, Flame } from "lucide-react";
 
@@ -9,51 +10,56 @@ export default function BushidoRulesPage() {
       kanji: "礼",
       romaji: "REI",
       meaning: "Respect",
+      meaningJa: "敬意",
       icon: <Users size={24} className="text-[#0f0b0a]" />,
       rules: [
-        "Bow to your peers. Treat every Ronin with dignity.",
-        "Harassment creates disharmony and is strictly forbidden.",
-        "Critique the technique (code), never the warrior.",
-        "Patience is a weapon; use it with beginners.",
+        { text: "Bow to your peers. Treat every Ronin with dignity.", translation: "仲間に敬意を払い、すべての浪人を大切にする。" },
+        { text: "Harassment creates disharmony and is strictly forbidden.", translation: "嫌がらせは和を乱すため、固く禁ずる。" },
+        { text: "Critique the technique (code), never the warrior.", translation: "批評するのは技（コード）であり、使い手ではない。" },
+        { text: "Patience is a weapon; use it with beginners.", translation: "忍耐は力なり。初心者には寛容であれ。" },
       ],
     },
     {
       kanji: "誠",
       romaji: "MAKOTO",
       meaning: "Honesty",
+      meaningJa: "誠実",
       icon: <ScrollText size={24} className="text-[#0f0b0a]" />,
       rules: [
-        "Do not steal honor. Plagiarism is a stain on your name.",
-        "Seek knowledge, not just answers. Do not beg for solutions.",
-        "Show your path (code) when asking for guidance.",
-        "Deception in code or intent is unworthy of this Dojo.",
+        { text: "Do not steal honor. Plagiarism is a stain on your name.", translation: "名誉を盗むな。盗用は己の名を汚す。" },
+        { text: "Seek knowledge, not just answers. Do not beg for solutions.", translation: "答えだけでなく知恵を求めよ。解答を乞うな。" },
+        { text: "Show your path (code) when asking for guidance.", translation: "導きを求めるときは、自らの道（コード）を示せ。" },
+        { text: "Deception in code or intent is unworthy of this Dojo.", translation: "コードにも心にも偽りを持ち込むべからず。" },
       ],
     },
     {
       kanji: "名誉",
       romaji: "MEIYO",
       meaning: "Honor",
+      meaningJa: "名誉",
       icon: <Sword size={24} className="text-[#0f0b0a]" />,
       rules: [
-        "Search first. To repeat a question is to waste the Clan's time.",
-        "Speak clearly. Use descriptive titles and Markdown.",
-        "No spam or merchants. We are here to train, not to sell.",
-        "Uphold the reputation of the NekoDojo in all posts.",
+        { text: "Search first. To repeat a question is to waste the Clan's time.", translation: "まず調べよ。同じ問いを重ね、仲間の時を奪うな。" },
+        { text: "Speak clearly. Use descriptive titles and Markdown.", translation: "明快に伝えよ。内容がわかる題名と Markdown を使う。" },
+        { text: "No spam or merchants. We are here to train, not to sell.", translation: "宣伝や商売は禁ずる。ここは鍛錬の場であり、売買の場ではない。" },
+        { text: "Uphold the reputation of the NekoDojo in all posts.", translation: "すべての投稿で、猫道場の名誉を守れ。" },
       ],
     },
     {
       kanji: "忠義",
       romaji: "CHUUGI",
       meaning: "Loyalty",
+      meaningJa: "忠義",
       icon: <Lock size={24} className="text-[#0f0b0a]" />,
       rules: [
-        "Protect the Clan. Never leak keys, secrets, or data.",
-        "Guard your identity and the privacy of others.",
-        "Report cracks in the armor (bugs) to the admins.",
-        "Malice and malware result in immediate exile.",
+        { text: "Protect the Clan. Never leak keys, secrets, or data.", translation: "仲間を守れ。鍵・秘密・個人情報を決して漏らすな。" },
+        { text: "Guard your identity and the privacy of others.", translation: "己の身元と他者のプライバシーを守れ。" },
+        { text: "Report cracks in the armor (bugs) to the admins.", translation: "鎧のほころび（バグ）を見つけたら管理者に報告せよ。" },
+        { text: "Malice and malware result in immediate exile.", translation: "悪意ある行為やマルウェアは、即刻の追放を招く。" },
       ],
     },
   ];
+  const [revealedVirtue, setRevealedVirtue] = useState<number | null>(null);
 
   return (
     <div className="min-h-screen bg-[#0a0807] text-[#eaddcf] relative overflow-hidden font-sans selection:bg-[#d4af37]/30">
@@ -99,7 +105,17 @@ export default function BushidoRulesPage() {
           {virtues.map((virtue, idx) => (
             <div
               key={idx}
-              className="group relative bg-[#14100e] border border-[#3e2723] p-1 transition-transform duration-300 hover:-translate-y-1"
+              role="button"
+              tabIndex={0}
+              aria-pressed={revealedVirtue === idx}
+              onClick={() => setRevealedVirtue(revealedVirtue === idx ? null : idx)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setRevealedVirtue(revealedVirtue === idx ? null : idx);
+                }
+              }}
+              className={`group relative cursor-pointer bg-[#14100e] border border-[#3e2723] p-1 transition-transform duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37] ${revealedVirtue === idx ? "is-revealed" : ""}`}
             >
               {/* Corner Accents (Gold Leaf Style) */}
               <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#d4af37] opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -124,7 +140,7 @@ export default function BushidoRulesPage() {
                         {virtue.romaji}
                       </h2>
                       <p className="text-[#d4af37] font-medium tracking-widest text-sm">
-                        {virtue.meaning}
+                        {virtue.meaning} <span className="ml-1 text-[#e2c45a]">{virtue.meaningJa}</span>
                       </p>
                     </div>
                   </div>
@@ -134,10 +150,33 @@ export default function BushidoRulesPage() {
                     {virtue.rules.map((rule, i) => (
                       <li
                         key={i}
-                        className="flex items-start gap-4 text-[#a1887f] group-hover:text-[#cfb096] transition-colors"
+                        className="flex items-start gap-4 text-[#a1887f] transition-colors group-hover:text-[#cfb096]"
                       >
                         <span className="mt-1.5 w-1.5 h-1.5 bg-[#d4af37] rotate-45 shrink-0" />
-                        <span className="text-sm md:text-base leading-relaxed">{rule}</span>
+                        <span className="min-w-0 flex-1">
+                          <span
+                            className="text-sm leading-relaxed line-through decoration-1 transition-[text-decoration-color] duration-500 ease-out md:text-base"
+                            style={{
+                              textDecorationColor:
+                                revealedVirtue === idx ? "#d4af37" : "transparent",
+                              transitionDelay: `${revealedVirtue === idx ? i * 90 : 0}ms`,
+                            }}
+                          >
+                            {rule.text}
+                          </span>
+                          <span
+                            lang="ja"
+                            className="block overflow-hidden text-sm leading-relaxed text-[#d4af37] transition-all duration-500 ease-out"
+                            style={{
+                              maxHeight: revealedVirtue === idx ? "6rem" : "0",
+                              opacity: revealedVirtue === idx ? 1 : 0,
+                              transform: revealedVirtue === idx ? "translateY(0)" : "translateY(-0.35rem)",
+                              transitionDelay: `${revealedVirtue === idx ? i * 90 + 180 : 0}ms`,
+                            }}
+                          >
+                            {rule.translation}
+                          </span>
+                        </span>
                       </li>
                     ))}
                   </ul>
