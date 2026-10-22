@@ -57,25 +57,33 @@ export default function ProfileCharts({
   // --- EMPTY STATE ---
   if (totalSolved <= 0) {
     return (
-      <section className="flex flex-col items-center border-y border-[#3e2723] px-4 py-16 text-center">
-        <CatSeal className="size-12 text-[#5d4037]" />
-        {isCurrentUser ? (
-          <>
-            <h2 className="mt-6 font-serif text-2xl text-[#eaddcf]">No problems solved yet</h2>
-            <p className="mt-2 max-w-sm text-sm leading-relaxed text-[#a1887f]">
-              Solve your first problem to start earning belts and filling in your training log.
-            </p>
-            <Button
-              asChild
-              className="mt-6 rounded-full bg-[#d4af37] px-6 text-[#0f0b0a] hover:bg-[#b5952f]"
-            >
-              <Link href="/problems">Start practicing</Link>
-            </Button>
-          </>
-        ) : (
-          <h2 className="mt-6 font-serif text-xl text-[#a1887f]">No problems solved yet</h2>
+      <div className="space-y-16 md:space-y-20">
+        <section className="flex flex-col items-center border-y border-[#3e2723] px-4 py-16 text-center">
+          <CatSeal className="size-12 text-[#5d4037]" />
+          {isCurrentUser ? (
+            <>
+              <h2 className="mt-6 font-serif text-2xl text-[#eaddcf]">No problems solved yet</h2>
+              <p className="mt-2 max-w-sm text-sm leading-relaxed text-[#a1887f]">
+                Solve your first problem to start earning belts and filling in your training log.
+              </p>
+              <Button
+                asChild
+                className="mt-6 rounded-full bg-[#d4af37] px-6 text-[#0f0b0a] hover:bg-[#b5952f]"
+              >
+                <Link href="/problems">Start practicing</Link>
+              </Button>
+            </>
+          ) : (
+            <h2 className="mt-6 font-serif text-xl text-[#a1887f]">No problems solved yet</h2>
+          )}
+        </section>
+        {activityData.length > 0 && (
+          <section aria-labelledby="log-heading">
+            <SectionHeading id="log-heading" title="Training log" kanji="稽古" />
+            <TrainingLog data={activityData} />
+          </section>
         )}
-      </section>
+      </div>
     );
   }
 
@@ -260,7 +268,8 @@ function ToggleButton({
 
 const WEEKS = 26;
 const pad = (n: number) => String(n).padStart(2, "0");
-const dayKey = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const dayKey = (d: Date) =>
+  `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 
 function levelClass(count: number) {
   if (count <= 0) return "bg-[#3e2723]/50";
@@ -278,16 +287,16 @@ function TrainingLog({ data }: { data: ActivityPoint[] }) {
     }
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
     const start = new Date(today);
-    start.setDate(today.getDate() - today.getDay() - (WEEKS - 1) * 7);
+    start.setUTCDate(today.getUTCDate() - today.getUTCDay() - (WEEKS - 1) * 7);
 
     let sum = 0;
     const cells: ({ key: string; count: number } | null)[] = [];
     for (let w = 0; w < WEEKS; w++) {
       for (let d = 0; d < 7; d++) {
         const date = new Date(start);
-        date.setDate(start.getDate() + w * 7 + d);
+        date.setUTCDate(start.getUTCDate() + w * 7 + d);
         if (date > today) {
           cells.push(null);
           continue;
@@ -315,6 +324,8 @@ function TrainingLog({ data }: { data: ActivityPoint[] }) {
               <span
                 key={cell.key}
                 title={`${cell.count} ${cell.count === 1 ? "solve" : "solves"} on ${cell.key}`}
+                role="img"
+                aria-label={`${cell.count} ${cell.count === 1 ? "solve" : "solves"} on ${cell.key}`}
                 className={`size-3 rounded-[2px] ${levelClass(cell.count)}`}
               />
             ) : (

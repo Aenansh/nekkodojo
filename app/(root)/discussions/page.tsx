@@ -64,7 +64,7 @@ export default function DiscussionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0b0a] pb-20">
+    <div className="min-h-screen pb-20">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#3e2723] pb-6">
           <div>

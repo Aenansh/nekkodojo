@@ -1,13 +1,14 @@
 import { Badge } from "../ui/badge";
-import { BeltRanks } from "@/constants/belts";
+import { BeltRanks, BELTS } from "@/constants/belts";
 
 const BeltBadge = ({ belt }: { belt: string }) => {
   const beltValue = BeltRanks.find((b) => b.key === belt)?.value || "Unknown Belt";
+  const beltColor = BELTS.find((b) => b.key === belt)?.color || "Unknown Belt";
   return (
     <>
       <Badge
         variant={"outline"}
-        className="text-[10px] uppercase tracking-wider text-[#5d4037] border-[#3e2723]"
+        className={`${beltColor} text-[10px] capitalize tracking-wider`}
       >
         {beltValue}
       </Badge>

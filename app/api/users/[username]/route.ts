@@ -93,20 +93,26 @@ export async function GET(
       Hard: solvedQuestions.filter(({ question }) => question.difficulty === "Hard").length,
     };
 
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const activityStart = new Date(today);
+    activityStart.setUTCDate(
+      today.getUTCDate() - today.getUTCDay() - (26 - 1) * 7,
+    );
+
     const activityMap = new Map<string, number>();
-    for (let daysAgo = 29; daysAgo >= 0; daysAgo--) {
-      const date = new Date();
-      date.setDate(date.getDate() - daysAgo);
-      activityMap.set(date.toISOString().split("T")[0], 0);
+    for (
+      const date = new Date(activityStart);
+      date <= today;
+      date.setUTCDate(date.getUTCDate() + 1)
+    ) {
+      activityMap.set(date.toISOString().slice(0, 10), 0);
     }
     solvedQuestions.forEach(({ updatedAt }) => {
-      const date = updatedAt.toISOString().split("T")[0];
+      const date = updatedAt.toISOString().slice(0, 10);
       if (activityMap.has(date)) activityMap.set(date, (activityMap.get(date) ?? 0) + 1);
     });
-    const activityData = Array.from(activityMap, ([date, count]) => ({
-      date: date.slice(5),
-      count,
-    }));
+    const activityData = Array.from(activityMap, ([date, count]) => ({ date, count }));
 
     const categoryStats = categories
       .map((category) => ({
