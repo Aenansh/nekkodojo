@@ -67,5 +67,5 @@ export async function POST(request: Request) {
 /**
  * /api/users/report
  * @description
- * serves a report action by an user, prevents self reprt and multiple reports by a user.
+ * submits a report on another user and prevents duplicate reports from the same reporter.
  */

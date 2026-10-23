@@ -26,6 +26,11 @@ export async function GET() {
     return NextResponse.json("Failed to fetch discussion tags", { status: 500 });
   }
 }
+/**
+ * /api/discussions/tag
+ * @description
+ * fetches all discussion tags with discussion counts for administrators.
+ */
 
 export async function POST(request: Request) {
   try {

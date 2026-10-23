@@ -14,8 +14,8 @@ import { TagSelector } from "@/components/Discussion/Create/Tags";
 import attFromKit from "@/lib/actions/removeAtt";
 import Link from "next/link";
 import { ensureUserStatus } from "./_actions";
+import Image from "next/image";
 
-export const metadata = { title: "Create Discussion" };
 
 export default function CreateDiscussionPage() {
   const router = useRouter();
@@ -230,7 +230,7 @@ export default function CreateDiscussionPage() {
                       </div>
                     ) : (
                       <>
-                        <img
+                        <Image
                           src={file.postUrl}
                           alt="Attachment"
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"

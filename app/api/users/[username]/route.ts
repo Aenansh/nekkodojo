@@ -178,5 +178,5 @@ export async function GET(
 /**
  * /api/users/:id
  * @description
- * fetches user's profile by id.
+ * fetches a user's profile by display name.
  */

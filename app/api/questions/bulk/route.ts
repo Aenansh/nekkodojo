@@ -346,7 +346,6 @@ export async function POST(request: Request) {
               });
             }
           }
-
           if (question.codestubs !== undefined) {
             const resolvedCodestubs = question.codestubs.map((codestub) => {
               const language = globallySupportedLanguages.find(
@@ -490,3 +489,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Server crashed during upload." }, { status: 500 });
   }
 }
+/**
+ * /api/questions/bulk
+ * @description
+ * creates or updates multiple questions and their optional categories, companies, languages, testcases, codestubs, and custom checkers for administrators.
+ */

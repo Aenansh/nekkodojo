@@ -82,6 +82,11 @@ export async function GET(request: Request, { params }: RouteContext) {
     return NextResponse.json("Failed to fetch codestubs", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/codestub
+ * @description
+ * fetches code stubs for a question, optionally filtered by languageId; includes driver code only for administrators.
+ */
 
 export async function POST(request: Request, { params }: RouteContext) {
   try {
@@ -153,6 +158,11 @@ export async function POST(request: Request, { params }: RouteContext) {
     return NextResponse.json("Failed to create codestub", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/codestub
+ * @description
+ * creates a code stub with its user snippet and driver code for administrators.
+ */
 
 export async function PATCH(request: Request, { params }: RouteContext) {
   try {
@@ -208,6 +218,11 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     return NextResponse.json("Failed to update codestub", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/codestub
+ * @description
+ * updates the user snippet or driver code for a question's language-specific code stub.
+ */
 
 export async function DELETE(request: Request, { params }: RouteContext) {
   try {
@@ -233,3 +248,8 @@ export async function DELETE(request: Request, { params }: RouteContext) {
     return NextResponse.json("Failed to delete codestub", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/codestub
+ * @description
+ * deletes a question's code stub selected by the languageId query parameter.
+ */

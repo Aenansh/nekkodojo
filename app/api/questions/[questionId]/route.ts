@@ -114,3 +114,8 @@ export async function GET(
     return NextResponse.json("Failed to fetch question", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]
+ * @description
+ * fetches question details, public testcases, supported languages, codestubs, and the current user's progress.
+ */

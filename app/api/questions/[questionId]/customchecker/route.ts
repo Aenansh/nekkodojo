@@ -81,6 +81,11 @@ export async function GET(request: Request, { params }: RouteContext) {
     return NextResponse.json("Failed to fetch custom checker", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/customchecker
+ * @description
+ * fetches custom checker versions for a question, optionally filtered by languageId or version.
+ */
 
 export async function POST(request: Request, { params }: RouteContext) {
   try {
@@ -151,6 +156,11 @@ export async function POST(request: Request, { params }: RouteContext) {
     return NextResponse.json("Failed to create custom checker", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/customchecker
+ * @description
+ * creates a versioned custom checker script for a question and language.
+ */
 
 export async function PATCH(request: Request, { params }: RouteContext) {
   try {
@@ -221,3 +231,8 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     return NextResponse.json("Failed to update custom checker", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/customchecker
+ * @description
+ * updates a custom checker script or timeout by question and version.
+ */

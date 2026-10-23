@@ -87,3 +87,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unable to load dojo metrics" }, { status: 500 });
   }
 }
+/**
+ * /api/metrics
+ * @description
+ * fetches daily practice activity, recently active users, total completed katas, and the top five sensei.
+ */

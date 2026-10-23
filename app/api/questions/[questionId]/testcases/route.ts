@@ -49,6 +49,11 @@ export async function GET(
     return NextResponse.json("Failed to fetch testcases", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/testcases
+ * @description
+ * fetches a question's testcases, including hidden cases for administrators.
+ */
 
 export async function POST(
   request: Request,
@@ -130,6 +135,11 @@ export async function POST(
     return NextResponse.json("Failed to add testcases", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/testcases
+ * @description
+ * adds one or more testcases to a question for administrators.
+ */
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ questionId: string }> }) {
   try {
@@ -190,6 +200,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ qu
     return NextResponse.json("Failed to update testcase", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/testcases
+ * @description
+ * updates the input, expected output, or hidden status of a question testcase for administrators.
+ */
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ questionId: string }> }) {
   try {
@@ -216,3 +231,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ q
     return NextResponse.json("Failed to delete testcase", { status: 500 });
   }
 }
+/**
+ * /api/questions/[questionId]/testcases
+ * @description
+ * deletes a question testcase selected by testcaseId for administrators.
+ */

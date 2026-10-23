@@ -54,3 +54,8 @@ export async function POST(request: Request) {
     );
   }
 }
+/**
+ * /api/questions/attempt/run
+ * @description
+ * validates an authenticated user's code-run request and queues it for execution with the supplied input.
+ */

@@ -53,3 +53,8 @@ export async function POST(request: Request) {
     );
   }
 }
+/**
+ * /api/questions/attempt/submit
+ * @description
+ * validates an authenticated user's solution submission and queues it for judging against the question testcases.
+ */

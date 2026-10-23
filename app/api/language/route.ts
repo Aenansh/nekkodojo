@@ -69,6 +69,11 @@ export async function GET() {
     return NextResponse.json("Failed to fetch languages", { status: 500 });
   }
 }
+/**
+ * /api/language
+ * @description
+ * fetches supported languages for users and all language settings for administrators.
+ */
 
 export async function POST(request: Request) {
   try {
@@ -119,6 +124,11 @@ export async function POST(request: Request) {
     return NextResponse.json("Failed to create language", { status: 500 });
   }
 }
+/**
+ * /api/language
+ * @description
+ * creates a language configuration for administrators.
+ */
 
 export async function PATCH(request: Request) {
   try {
@@ -224,3 +234,8 @@ export async function PATCH(request: Request) {
     return NextResponse.json("Failed to update language", { status: 500 });
   }
 }
+/**
+ * /api/language
+ * @description
+ * updates a language configuration selected by languageId for administrators.
+ */
