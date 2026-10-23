@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react"; // ✅ Add useEffect
+import { useState, useEffect } from "react";                   
 import Image from "next/image";
 import { UserCircle, X } from "lucide-react";
 import { toast } from "sonner";

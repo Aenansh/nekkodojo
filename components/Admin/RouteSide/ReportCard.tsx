@@ -25,11 +25,9 @@ import Link from "next/link";
 export function ReportCard({ report }: { report: ReportProps }) {
   const [isPending, startTransition] = useTransition();
 
-  // Determine type
   const isDiscussion = !!report.discussion;
   const contentId = isDiscussion ? report.discussion?.id : report.comment?.id;
 
-  // ✅ FIX: Use 'description' because that is what DB returns
   const displayContent = report.comment?.description || "No content";
 
   const handleDismiss = () => {
@@ -63,7 +61,6 @@ export function ReportCard({ report }: { report: ReportProps }) {
     });
   };
 
-  // Resolved UI
   if (report.status !== "PENDING") {
     return (
       <Card className="flex items-center justify-between p-4 bg-[#1a110d]/50 border border-[#3e2723]/50 opacity-70">
@@ -82,7 +79,7 @@ export function ReportCard({ report }: { report: ReportProps }) {
 
   return (
     <Card className="group relative overflow-hidden bg-[#1a110d] border border-[#3e2723] p-5 transition-all hover:border-red-500/30">
-      {/* Header */}
+      {            }
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8 border border-[#3e2723]">
@@ -111,7 +108,7 @@ export function ReportCard({ report }: { report: ReportProps }) {
         )}
       </div>
 
-      {/* Reason */}
+      {            }
       <div className="mb-4 rounded-lg bg-[#0f0b0a] border border-[#3e2723] p-3">
         <span className="text-xs font-bold text-red-400 uppercase tracking-wider mb-1 block">
           Reason
@@ -119,7 +116,7 @@ export function ReportCard({ report }: { report: ReportProps }) {
         <p className="text-sm text-[#eaddcf] italic">&quot;{report.reason}&quot;</p>
       </div>
 
-      {/* Content Preview */}
+      {                     }
       <div className="mb-6 pl-4 border-l-2 border-[#3e2723]">
         <p className="text-xs text-[#a1887f] mb-1">Target Content:</p>
         {isDiscussion ? (
@@ -153,7 +150,7 @@ export function ReportCard({ report }: { report: ReportProps }) {
         )}
       </div>
 
-      {/* Actions */}
+      {             }
       <div className="grid grid-cols-2 gap-3">
         <Button
           variant="outline"

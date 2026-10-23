@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 export default function GlobalLoading() {
   return (
     <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-[#0f0b0a]">
-      {/* 1. Animated Logo / Icon */}
+      {                             }
       <motion.div
         animate={{
           scale: [1, 1.1, 1],
@@ -19,14 +19,14 @@ export default function GlobalLoading() {
         }}
         className="relative flex items-center justify-center"
       >
-        {/* Glow Effect */}
+        {                 }
         <div className="absolute inset-0 bg-[#d4af37] blur-3xl opacity-20 rounded-full" />
 
-        {/* Icon */}
+        {          }
         <Loader2 className="w-16 h-16 text-[#d4af37] animate-spin" />
       </motion.div>
 
-      {/* 2. Text */}
+      {             }
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -39,7 +39,7 @@ export default function GlobalLoading() {
         <p className="text-[#a1887f] text-sm font-mono animate-pulse">Loading assets...</p>
       </motion.div>
 
-      {/* 3. Progress Bar Line */}
+      {                          }
       <div className="absolute bottom-0 left-0 w-full h-1 bg-[#1a110d]">
         <motion.div
           className="h-full bg-[#d4af37] shadow-[0_0_10px_#d4af37]"

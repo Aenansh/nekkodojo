@@ -36,12 +36,12 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-[#0f0b0a] text-[#eaddcf] pb-20 overflow-x-hidden">
-      {/* Background Decor */}
+      {                      }
       <div className="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
       <div className="fixed top-0 inset-x-0 h-96 bg-linear-to-b from-[#3e2723]/20 to-transparent pointer-events-none" />
 
       <div className="relative z-10 container mx-auto px-4 pt-12 max-w-5xl space-y-12">
-        {/* Header */}
+        {            }
         <div className="text-center space-y-4 animate-in fade-in slide-in-from-top-8 duration-700">
           <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-[#d4af37]/30 bg-[#d4af37]/10 text-[#d4af37] text-xs font-bold uppercase tracking-widest mb-2">
             <Trophy className="w-3 h-3" />
@@ -55,7 +55,7 @@ export default function LeaderboardPage() {
           </p>
         </div>
 
-        {/* Filter Tabs */}
+        {                 }
         <div className="flex justify-center">
           <Tabs value={sortType} onValueChange={setSortType} className="w-full max-w-md">
             <TabsList className="grid w-full grid-cols-3 bg-[#1a110d] border border-[#3e2723] p-1 h-12">
@@ -88,10 +88,10 @@ export default function LeaderboardPage() {
           </div>
         ) : (
           <>
-            {/* Podium (Top 3) */}
+            {                    }
             <Podium users={top3} type={sortType} />
 
-            {/* The List (4-20) */}
+            {                     }
             <LeaderboardList users={rest} type={sortType} startIndex={4} />
           </>
         )}

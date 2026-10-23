@@ -53,12 +53,12 @@ export default function UpdateSudoPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Effects */}
+      {                        }
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-[#d4af37]/5 blur-[100px]" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[#3e2723]/10 blur-[100px]" />
 
       <div className="w-full max-w-md bg-[#1a110d] border border-[#3e2723] rounded-2xl shadow-2xl relative z-10">
-        {/* Header */}
+        {            }
         <div className="p-8 border-b border-[#3e2723] text-center">
           <div className="mx-auto w-12 h-12 bg-[#3e2723]/50 rounded-full flex items-center justify-center mb-4 text-[#d4af37]">
             <RefreshCw size={24} />
@@ -67,7 +67,7 @@ export default function UpdateSudoPage() {
           <p className="text-[#a1887f] text-sm mt-1">Change your Sudo Access password</p>
         </div>
 
-        {/* Form */}
+        {          }
         <form onSubmit={handleSubmit} className="p-8 space-y-5">
           <div className="space-y-2">
             <label className="text-xs font-bold text-[#795548] uppercase tracking-wider flex items-center gap-2">

@@ -6,7 +6,7 @@ import {
   ArrowRight,
   ShieldCheck,
   FileText,
-  MessageSquareText // Icon for comments
+  MessageSquareText                     
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
@@ -16,7 +16,6 @@ import { formatDistanceToNow } from "date-fns";
 import { ActivityChart } from "@/components/Admin/Dashboard/ActivityCharts"; 
 import { getWeeklyStats } from "@/lib/activity";
 
-// --- REUSABLE WIDGETS ---
 
 function StatCard({ title, value, icon: Icon, colorClass, subtitle }: any) {
   return (
@@ -49,7 +48,8 @@ function ActivityItem({ icon: Icon, text, time, color }: any) {
   );
 }
 
-// --- MAIN PAGE COMPONENT ---
+
+export const metadata = { title: "Moderator Dashboard" };
 
 export default async function ModeratorDashboard() {
   const user = await currentUser();
@@ -60,7 +60,6 @@ export default async function ModeratorDashboard() {
     redirect("/");
   }
 
-  // 1. Fetch Data (Parallel)
   const [
     pendingReports,
     totalScrolls,
@@ -72,14 +71,12 @@ export default async function ModeratorDashboard() {
     prisma.report?.count({ where: { status: "PENDING" } }) || 0,
     prisma.discussion.count(),
     
-    // Fetch Recent Scrolls
     prisma.discussion.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
       select: { title: true, createdAt: true, author: { select: { firstName: true } } }
     }),
 
-    // Fetch Recent Comments (Inscriptions)
     prisma.comment.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
@@ -96,7 +93,7 @@ export default async function ModeratorDashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
-      {/* HEADER */}
+      {            }
       <div className="flex items-center justify-between border-b border-[#3e2723] pb-6">
         <div>
           <h1 className="text-3xl font-black text-[#d4af37] tracking-tight flex items-center gap-3">
@@ -118,7 +115,7 @@ export default async function ModeratorDashboard() {
         </div>
       </div>
 
-      {/* STATS GRID */}
+      {                }
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <StatCard 
           title="Active Disturbances" 
@@ -143,15 +140,15 @@ export default async function ModeratorDashboard() {
         />
       </div>
 
-      {/* MAIN CONTENT AREA */}
+      {                       }
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         
-        {/* LEFT: CHART & SCROLLS (2 Cols) */}
+        {                                    }
         <div className="col-span-2 space-y-8">
-           {/* Chart */}
+           {           }
            <ActivityChart chartData={chartData} />
 
-           {/* Fresh Scrolls Feed */}
+           {                        }
            <div className="rounded-xl border border-[#3e2723] bg-[#1a110d] p-6">
              <div className="flex items-center justify-between mb-6">
                <h2 className="text-lg font-bold text-[#eaddcf]">Fresh Scrolls</h2>
@@ -178,10 +175,10 @@ export default async function ModeratorDashboard() {
            </div>
         </div>
 
-        {/* RIGHT: ACTIONS & INSCRIPTIONS (1 Col) */}
+        {                                           }
         <div className="space-y-6">
            
-           {/* Quick Actions Panel */}
+           {                         }
            <div className="rounded-xl border border-[#3e2723] bg-[#1a110d] p-6">
              <h2 className="text-lg font-bold text-[#eaddcf] mb-4">Guardian Actions</h2>
              <div className="space-y-3">
@@ -215,7 +212,7 @@ export default async function ModeratorDashboard() {
              </div>
            </div>
 
-           {/* --- NEW: FRESH INSCRIPTIONS (Fills the gap) --- */}
+           {                                                     }
            <div className="rounded-xl border border-[#3e2723] bg-[#1a110d] p-6">
              <div className="flex items-center justify-between mb-6">
                <h2 className="text-lg font-bold text-[#eaddcf]">Fresh Inscriptions</h2>
@@ -232,7 +229,7 @@ export default async function ModeratorDashboard() {
                      icon={MessageSquareText}
                      text={`"${comment.description}" by ${comment.author.firstName}`}
                      time={formatDistanceToNow(new Date(comment.createdAt)) + " ago"}
-                     color="bg-emerald-500 text-emerald-500" // Emerald Green for Inscriptions
+                     color="bg-emerald-500 text-emerald-500"                                  
                    />
                  ))
                ) : (

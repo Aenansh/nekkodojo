@@ -54,7 +54,6 @@ const CommentItem = ({
   const [isBookmarked, setIsBookmarked] = useState(comment.isBookmarked || false);
   const [deleting, setDeleting] = useState(false);
 
-  // 2. Local state to hide this component immediately
   const [isDeleted, setIsDeleted] = useState(false);
 
   const [localReplies, setLocalReplies] = useState<CommentProps[]>(comment.replies || []);
@@ -152,7 +151,6 @@ const CommentItem = ({
     e.preventDefault();
     e.stopPropagation();
 
-    // Optimistic UI: Hide immediately
     setDeleting(true);
     setIsDeleted(true);
 
@@ -165,21 +163,17 @@ const CommentItem = ({
       }
       toast.success("Comment deleted!");
 
-      // Notify parent to clean up data structure
       if (onDelete) {
         onDelete(comment.id);
       }
     } catch (error: any) {
-      // Revert Optimistic UI on error
       setIsDeleted(false);
       setDeleting(false);
       toast.error("Couldn't delete the comment!");
       console.error(error);
     }
-    // Note: We don't setDeleting(false) on success because the component is hidden/gone
   };
 
-  // 3. Helper to remove child replies locally
   const handleChildDelete = (childId: string) => {
     setLocalReplies((prev) => prev.filter((reply) => reply.id !== childId));
   };
@@ -206,7 +200,7 @@ const CommentItem = ({
   return (
     <div className="flex flex-col w-full animate-in fade-in duration-500">
       <div className="group flex gap-3 w-full py-3 relative">
-        {/* AVATAR */}
+        {            }
         <Link
           href={`/member/${handle}`}
           className="shrink-0 relative w-10 h-10 rounded-full overflow-hidden border border-[#3e2723] mt-1 bg-[#1a110d]"
@@ -219,7 +213,7 @@ const CommentItem = ({
           />
         </Link>
 
-        {/* MAIN CONTENT */}
+        {                  }
         <div className="flex-1 min-w-0">
           <div className="flex flex-col mb-1">
             <div className="flex items-center gap-2">
@@ -390,7 +384,7 @@ const CommentItem = ({
         </div>
       </div>
 
-      {/* NESTED REPLY SECTION */}
+      {                          }
       {showReplies && (
         <div className="flex w-full">
           {shouldIndent && (
@@ -424,7 +418,6 @@ const CommentItem = ({
                       currentUserId={currentUserId}
                       authorId={authorId}
                       depth={depth + 1}
-                      // 5. Pass handler to children so they can delete themselves from local state
                       onDelete={handleChildDelete}
                     />
                   ))

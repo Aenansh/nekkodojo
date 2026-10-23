@@ -32,7 +32,6 @@ export function ReportDialog({ trigger, contentId, type }: ReportDialogProps) {
   const [confirmText, setConfirmText] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  // Thematic labels and API endpoints
   const label = type === "discussion" ? "Scroll" : "Inscription";
   const apiEndpoint = type === "discussion" 
     ? `/api/discussions/${contentId}/report` 
@@ -80,7 +79,6 @@ export function ReportDialog({ trigger, contentId, type }: ReportDialogProps) {
 
         toast.success(`${label} reported to the Tribunal.`);
         setOpen(false);
-        // Reset state after closing
         setTimeout(() => {
           setStep(1);
           setReason("");
@@ -98,7 +96,6 @@ export function ReportDialog({ trigger, contentId, type }: ReportDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          // Default trigger if none provided (e.g. for standalone buttons)
           <Button variant="ghost" size="sm" className="gap-2 text-red-400 hover:text-red-500">
              <Flag size={16} /> Report
           </Button>
@@ -107,7 +104,7 @@ export function ReportDialog({ trigger, contentId, type }: ReportDialogProps) {
       
       <DialogContent className="bg-[#1a110d] border-[#3e2723] text-[#eaddcf] sm:max-w-md">
         
-        {/* --- STEP 1: SELECT REASON --- */}
+        {                                   }
         {step === 1 && (
           <>
             <DialogHeader>
@@ -160,7 +157,7 @@ export function ReportDialog({ trigger, contentId, type }: ReportDialogProps) {
           </>
         )}
 
-        {/* --- STEP 2: CONFIRMATION --- */}
+        {                                  }
         {step === 2 && (
           <>
             <DialogHeader>

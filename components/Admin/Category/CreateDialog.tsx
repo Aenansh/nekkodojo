@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import slugify from "slugify"; // You might need: npm i slugify
+import slugify from "slugify";                                 
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -36,10 +36,9 @@ export function CreateCategoryDialog({ allCategories, open, onOpenChange }: Prop
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Form State
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
-  const [order, setOrder] = useState<number | "">(""); // Start empty
+  const [order, setOrder] = useState<number | "">("");               
   const [prereqs, setPrereqs] = useState<string[]>([]);
 
   const handleNameChange = (val: string) => {
@@ -79,18 +78,16 @@ export function CreateCategoryDialog({ allCategories, open, onOpenChange }: Prop
       }
 
       toast.success("Category created successfully!");
-      router.refresh(); // Refresh the page data
+      router.refresh();                         
       
-      // Reset Form
       setName("");
       setSlug("");
       setOrder("");
       setPrereqs([]);
-      onOpenChange(false); // Close dialog
+      onOpenChange(false);                
 
     } catch (error: any) {
       console.error(error);
-      // Show the specific error message from the API (like "Slug exists")
       toast.error(typeof error.message === "string" ? error.message : "Something went wrong");
     } finally {
       setIsLoading(false);
@@ -108,7 +105,7 @@ export function CreateCategoryDialog({ allCategories, open, onOpenChange }: Prop
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          {/* Name & Slug Group */}
+          {                       }
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="create-name" className="text-[#a1887f]">Name</Label>
@@ -132,7 +129,7 @@ export function CreateCategoryDialog({ allCategories, open, onOpenChange }: Prop
             </div>
           </div>
 
-          {/* Order Input */}
+          {                 }
           <div className="grid gap-2">
             <Label htmlFor="create-order" className="text-[#a1887f]">Order Index</Label>
             <Input
@@ -148,7 +145,7 @@ export function CreateCategoryDialog({ allCategories, open, onOpenChange }: Prop
             </p>
           </div>
 
-          {/* Prerequisites Selector */}
+          {                            }
           <div className="grid gap-2">
             <Label className="text-[#a1887f]">Prerequisites</Label>
             <div className="h-40 overflow-y-auto border border-[#3e2723] rounded-md bg-[#0f0b0a] p-2 custom-scrollbar">

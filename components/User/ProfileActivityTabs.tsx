@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionHeading, CatSeal } from "./Profileornaments";
 
-// --- INTERFACES ---
 interface SolvedQuestion {
   id: string;
   updatedAt: Date;
@@ -67,7 +66,7 @@ export function ProfileActivityTabs({ solvedQuestions, discussions, comments }: 
           </TabsList>
         </div>
 
-        {/* --- SOLVED --- */}
+        {                    }
         <TabsContent value="solved" className="mt-0">
           <ScrollArea className="h-112 w-full">
             {solvedQuestions.length > 0 ? (
@@ -105,7 +104,7 @@ export function ProfileActivityTabs({ solvedQuestions, discussions, comments }: 
           </ScrollArea>
         </TabsContent>
 
-        {/* --- DISCUSSIONS --- */}
+        {                         }
         <TabsContent value="discussions" className="mt-0">
           <ScrollArea className="h-112 w-full">
             {discussions.length > 0 ? (
@@ -131,7 +130,7 @@ export function ProfileActivityTabs({ solvedQuestions, discussions, comments }: 
           </ScrollArea>
         </TabsContent>
 
-        {/* --- COMMENTS --- */}
+        {                      }
         <TabsContent value="comments" className="mt-0">
           <ScrollArea className="h-112 w-full">
             {comments.length > 0 ? (
@@ -163,7 +162,6 @@ export function ProfileActivityTabs({ solvedQuestions, discussions, comments }: 
   );
 }
 
-// --- HELPERS ---
 
 function TabButton({ value, label, count }: { value: string; label: string; count: number }) {
   return (

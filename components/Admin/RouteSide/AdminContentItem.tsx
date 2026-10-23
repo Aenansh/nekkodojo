@@ -64,7 +64,7 @@ export function AdminContentItem({ data }: { data: DiscussionProps }) {
   return (
     <div className="group flex flex-col md:flex-row items-start md:items-center justify-between gap-4 rounded-xl border border-[#3e2723] bg-[#1a110d] p-4 transition-all hover:border-[#d4af37]/50 hover:bg-[#1a110d]/80">
       
-      {/* LEFT: Content Info */}
+      {                        }
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-center gap-2">
           <Link 
@@ -90,7 +90,7 @@ export function AdminContentItem({ data }: { data: DiscussionProps }) {
         </div>
       </div>
 
-      {/* MIDDLE: Stats */}
+      {                   }
       <div className="flex items-center gap-4 px-4 border-l border-[#3e2723]/50 min-w-[120px]">
         <div className="flex items-center gap-1.5 text-[#a1887f] text-sm">
           <ThumbsUp size={14} />
@@ -102,7 +102,7 @@ export function AdminContentItem({ data }: { data: DiscussionProps }) {
         </div>
       </div>
 
-      {/* RIGHT: Actions with Alert Dialog */}
+      {                                      }
       <div className="pl-2">
         <AlertDialog>
           <AlertDialogTrigger asChild>

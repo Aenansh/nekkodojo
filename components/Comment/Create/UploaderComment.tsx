@@ -31,10 +31,8 @@ const UploaderComment = ({ onUploadSuccess, maxSizeInMB = 5 }: Props) => {
     };
   }, []);
 
-  // 1. Authenticator Function
   const authenticator = async () => {
     try {
-      // Ensure you have created app/api/upload-auth/route.ts
       const response = await fetch("/api/upload-auth");
 
       if (!response.ok) {
@@ -52,7 +50,6 @@ const UploaderComment = ({ onUploadSuccess, maxSizeInMB = 5 }: Props) => {
     }
   };
 
-  // 2. Main Handler using Event Object
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
 
@@ -61,17 +58,14 @@ const UploaderComment = ({ onUploadSuccess, maxSizeInMB = 5 }: Props) => {
     }
 
     const file = files[0];
-    console.log("File selected:", file.name, file.type, file.size); // Debug Log
+    console.log("File selected:", file.name, file.type, file.size);             
 
-    // Validation: Type
     if (!file.type.startsWith("image/")) {
       toast.error("Invalid file type. Only images are allowed.");
-      // Reset input so user can try again
       e.target.value = "";
       return;
     }
 
-    // Validation: Size
     if (file.size > maxSizeInMB * 1024 * 1024) {
       toast.error(`File too large. Max size is ${maxSizeInMB}MB.`);
       e.target.value = "";
@@ -103,7 +97,7 @@ const UploaderComment = ({ onUploadSuccess, maxSizeInMB = 5 }: Props) => {
       });
 
       if (response) {
-        console.log("Upload success:", response); // Debug Log
+        console.log("Upload success:", response);             
         onUploadSuccess({
           id: response.fileId!,
           postUrl: response.url,
@@ -113,7 +107,7 @@ const UploaderComment = ({ onUploadSuccess, maxSizeInMB = 5 }: Props) => {
         toast.success("Image attached");
       }
     } catch (err: any) {
-      console.error("Upload process error:", err); // Debug Log
+      console.error("Upload process error:", err);             
 
       if (err.name === "AbortError" || err instanceof ImageKitAbortError) {
         toast.info("Upload cancelled");
@@ -123,7 +117,6 @@ const UploaderComment = ({ onUploadSuccess, maxSizeInMB = 5 }: Props) => {
     } finally {
       setUploading(false);
       abortControllerRef.current = null;
-      // Reset input value to allow selecting the same file again if needed
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }

@@ -3,13 +3,14 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import QuestionsAdminClient from "@/components/Admin/Questions/QuestionsAdminClient";
 
+export const metadata = { title: "Question Management" };
+
 export default async function QuestionsAdminPage() {
   const user = await currentUser();
   if (!user || user.publicMetadata.role !== "admin") {
     redirect("/");
   }
 
-  // 1. Fetch Data
   const categoriesData = await prisma.category.findMany({
     orderBy: { categoryOrder: "asc" },
     select: { id: true, name: true, slug: true },

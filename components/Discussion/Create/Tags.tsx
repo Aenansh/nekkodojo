@@ -85,7 +85,7 @@ export function TagSelector({ value, onChange }: Props) {
                   .map((tag) => (
                     <CommandItem
                       key={tag.slug}
-                      value={tag.name} // Search by name
+                      value={tag.name}                  
                       onSelect={() => {
                         onChange(tag);
                         setOpen(false);
@@ -101,7 +101,7 @@ export function TagSelector({ value, onChange }: Props) {
                   ))}
               </CommandGroup>
 
-              {/* Group 2: Technical Topics */}
+              {                               }
               <CommandGroup heading="Technical Topics" className="text-[#a1887f]">
                 {tags
                   .filter((t) => technicalSlugs.includes(t.slug))
@@ -124,7 +124,7 @@ export function TagSelector({ value, onChange }: Props) {
                   ))}
               </CommandGroup>
 
-              {/* Group 3: Languages */}
+              {                        }
               <CommandGroup heading="Languages and Stack" className="text-[#a1887f]">
                 {tags
                   .filter((t) => languageSlugs.includes(t.slug))
@@ -147,7 +147,7 @@ export function TagSelector({ value, onChange }: Props) {
                   ))}
               </CommandGroup>
 
-              {/* Group 4: Career */}
+              {                     }
               <CommandGroup heading="Career" className="text-[#a1887f]">
                 {tags
                   .filter((t) => careerSlugs.includes(t.slug))

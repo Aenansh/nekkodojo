@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import CreateQuestionPageClient from "@/components/Admin/Questions/CreateQuestionPageClient";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Create Question" };
 
 export default async function CreateQuestionPage() {
   const user = await currentUser();
@@ -11,13 +12,11 @@ export default async function CreateQuestionPage() {
     redirect("/");
   }
 
-  // 1. Fetch Categories for Dropdown
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" },
     select: { name: true, slug: true },
   });
 
-  // Format categories for the MultiSelect component.
   const categoryOptions = categories.map((c) => ({
     label: c.name,
     value: c.slug,

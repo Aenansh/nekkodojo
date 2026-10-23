@@ -78,7 +78,6 @@ const SearchDiscussion = ({ inputValue, setInputValue }: Props) => {
     if (lastWord.startsWith(":") || lastWord.startsWith("#")) {
       const searchTerm = lastWord.slice(1).toLowerCase();
 
-      // 3. FIX: Filter from 'allTags', not 'filteredTags'
       const matches = allTags.filter(
         (t) =>
           t.name.toLowerCase().replace(/\s+/g, "").includes(searchTerm) ||
@@ -95,7 +94,6 @@ const SearchDiscussion = ({ inputValue, setInputValue }: Props) => {
   };
 
   const selectTag = (tagConfig: TagProps) => {
-    // 4. Use the slug for the input value to ensure uniqueness and match your regex logic
     const formattedTag = `:${tagConfig.slug}`;
 
     const newValue = inputValue.replace(triggerWord, formattedTag);
@@ -138,30 +136,25 @@ const SearchDiscussion = ({ inputValue, setInputValue }: Props) => {
 
   const performSearch = useCallback(
     (searchValue: string) => {
-      // Guard: Don't search if we don't have tags yet (prevents race conditions)
       if (allTags.length === 0) return;
 
       let finalQuery = searchValue;
       let finalTag: string | null = null;
 
-      // Allow :tagname or tag:tagname
       const tagRegex = /(?::|#|tag:)([a-zA-Z0-9_+\-']+)/i;
       const match = searchValue.match(tagRegex);
 
       if (match) {
         const capturedTag = match[1].toLowerCase();
 
-        // 5. FIX: Look inside 'allTags'
         const foundTag = allTags.find((t) => {
           const normalizedLabel = t.name.replace(/\s+/g, "").toLowerCase();
           const normalizedValue = t.slug.toLowerCase();
-          // Check both name and slug
           return normalizedLabel === capturedTag || normalizedValue === capturedTag;
         });
 
         if (foundTag) {
           finalTag = foundTag.slug;
-          // Remove the tag text from the query string sent to the server
           finalQuery = finalQuery.replace(match[0], "").trim();
         }
       }
@@ -173,19 +166,17 @@ const SearchDiscussion = ({ inputValue, setInputValue }: Props) => {
       const currentSort = searchParams.get("sort");
       if (currentSort) params.set("sort", currentSort);
 
-      // Reset pagination on new search
       params.set("page", "1");
       params.set("limit", "10");
 
       const currentQuery = searchParams.get("query") || "";
       const currentTag = searchParams.get("tag");
 
-      // Only push if something actually changed
       if (currentQuery !== finalQuery || currentTag !== (finalTag || null)) {
         router.push(`/discussions?${params.toString()}`);
       }
     },
-    [router, searchParams, allTags] // Added allTags dependency
+    [router, searchParams, allTags]                            
   );
 
   useEffect(() => {
@@ -239,12 +230,10 @@ const SearchDiscussion = ({ inputValue, setInputValue }: Props) => {
                     : "text-[#eaddcf] hover:bg-[#3e2723]/20 hover:text-[#d4af37]"
                 )}
               >
-                {/* 6. Safer color logic: use the whole string or parse carefully */}
+                {                                                                   }
                 <span
                   className={cn(
                     "w-2 h-2 rounded-full",
-                    // Simple hack: apply the whole string. The 'bg-...' part will work.
-                    // The text/border parts will just be ignored on an empty span.
                     tag.color
                   )}
                 />

@@ -7,6 +7,8 @@ import { checkRole } from "@/utils/roles";
 import { AdminCommentItem } from "@/components/Admin/RouteSide/AdminCommentItem"; 
 import PaginationControls from "@/components/Admin/RouteSide/PaginationControls"; 
 
+export const metadata = { title: "Comment Moderation" };
+
 export default async function AdminCommentsPage(props: {
   searchParams: Promise<{ page?: string }>;
 }) {
@@ -17,10 +19,9 @@ export default async function AdminCommentsPage(props: {
 
   const params = await props.searchParams;
   const page = Number(params.page) || 1;
-  const limit = 20; // Show more comments per page than users
+  const limit = 20;                                          
   const skip = (page - 1) * limit;
 
-  // Fetch Comments
   const [comments, totalCount] = await prisma.$transaction([
     prisma.comment.findMany({
       take: limit,
@@ -43,7 +44,7 @@ export default async function AdminCommentsPage(props: {
   return (
     <div className="space-y-6">
       
-      {/* HEADER */}
+      {            }
       <div className="flex items-center gap-3 border-b border-[#3e2723] pb-6">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#3e2723]/30 text-[#d4af37]">
           <MessageSquareText size={24} />
@@ -56,7 +57,7 @@ export default async function AdminCommentsPage(props: {
         </div>
       </div>
 
-      {/* COMMENTS LIST */}
+      {                   }
       <div className="space-y-4">
         {comments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -73,7 +74,7 @@ export default async function AdminCommentsPage(props: {
         )}
       </div>
 
-      {/* PAGINATION */}
+      {                }
       {totalPages > 1 && (
         <div className="border-t border-[#3e2723] pt-4 flex justify-center">
           <PaginationControls currentPage={page} totalPages={totalPages} />

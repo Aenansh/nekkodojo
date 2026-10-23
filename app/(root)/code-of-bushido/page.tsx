@@ -63,22 +63,22 @@ export default function BushidoRulesPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0807] text-[#eaddcf] relative overflow-hidden font-sans selection:bg-[#d4af37]/30">
-      {/* --- Atmospheric Background --- */}
+      {                                    }
       <div className="fixed inset-0 pointer-events-none">
-        {/* Paper Texture Overlay */}
+        {                           }
         <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/black-linen.png')]" />
 
-        {/* The Red Sun (Rising) */}
+        {                          }
         <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#5d1a1a] rounded-full blur-[100px] opacity-40 mix-blend-screen" />
 
-        {/* Ink Smoke (Bottom) */}
+        {                        }
         <div className="absolute bottom-0 left-0 w-full h-[500px] bg-linear-to-t from-black to-transparent z-10" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
-        {/* --- Header: The Decree --- */}
+        {                                }
         <div className="text-center mb-24 relative">
-          {/* Vertical Japanese Text Decor */}
+          {                                  }
           <div className="absolute top-0 left-10 hidden md:block text-[#d4af37]/10 text-9xl font-black opacity-50 select-none writing-vertical-rl">
             武士道
           </div>
@@ -100,7 +100,7 @@ export default function BushidoRulesPage() {
           </p>
         </div>
 
-        {/* --- The Virtues Grid --- */}
+        {                              }
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto mb-24">
           {virtues.map((virtue, idx) => (
             <div
@@ -117,20 +117,20 @@ export default function BushidoRulesPage() {
               }}
               className={`group relative cursor-pointer bg-[#14100e] border border-[#3e2723] p-1 transition-transform duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37] ${revealedVirtue === idx ? "is-revealed" : ""}`}
             >
-              {/* Corner Accents (Gold Leaf Style) */}
+              {                                      }
               <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#d4af37] opacity-50 group-hover:opacity-100 transition-opacity" />
               <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-[#d4af37] opacity-50 group-hover:opacity-100 transition-opacity" />
               <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-[#d4af37] opacity-50 group-hover:opacity-100 transition-opacity" />
               <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#d4af37] opacity-50 group-hover:opacity-100 transition-opacity" />
 
               <div className="relative h-full bg-[#0a0807] p-8 overflow-hidden">
-                {/* Giant Kanji Background Watermark */}
+                {                                      }
                 <span className="absolute -right-4 -bottom-8 text-9xl text-[#3e2723]/20 font-black z-0 pointer-events-none group-hover:scale-110 transition-transform duration-500">
                   {virtue.kanji}
                 </span>
 
                 <div className="relative z-10">
-                  {/* Header */}
+                  {            }
                   <div className="flex items-center gap-6 mb-8 border-b border-[#3e2723] pb-6">
                     <div className="w-14 h-14 bg-[#d4af37] rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.2)] text-[#0f0b0a]">
                       {virtue.icon}
@@ -145,7 +145,7 @@ export default function BushidoRulesPage() {
                     </div>
                   </div>
 
-                  {/* Rules List */}
+                  {                }
                   <ul className="space-y-4">
                     {virtue.rules.map((rule, i) => (
                       <li
@@ -186,7 +186,7 @@ export default function BushidoRulesPage() {
           ))}
         </div>
 
-        {/* --- Footer: The Consequence --- */}
+        {                                     }
         <div className="max-w-3xl mx-auto text-center relative">
           <div className="absolute inset-0 bg-linear-to-r from-transparent via-[#5d1a1a]/10 to-transparent blur-xl" />
 

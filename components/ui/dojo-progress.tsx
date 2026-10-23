@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 interface Props {
-  value: number; // 0 to 100
+  value: number;            
   className?: string;
 }
 

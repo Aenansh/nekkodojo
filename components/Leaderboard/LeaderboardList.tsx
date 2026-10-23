@@ -42,7 +42,7 @@ export function LeaderboardList({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Table Header */}
+      {                  }
       <div className="grid grid-cols-12 px-4 py-2 text-xs font-bold text-[#5d4037] uppercase tracking-widest border-b border-[#3e2723]/50 mb-2">
         <div className="col-span-2 md:col-span-1 text-center">Rank</div>
         <div className="col-span-7 md:col-span-6">Ronin</div>
@@ -64,12 +64,12 @@ export function LeaderboardList({
           >
             <Link href={`/member/${user.name}`}>
               <div className="group grid grid-cols-12 items-center bg-[#1a110d] hover:bg-[#251814] border border-[#3e2723] hover:border-[#d4af37]/50 rounded-xl p-3 md:p-4 transition-all duration-300">
-                {/* Rank */}
+                {          }
                 <div className="col-span-2 md:col-span-1 text-center font-mono text-[#5d4037] group-hover:text-[#d4af37] font-bold text-lg">
                   #{rank}
                 </div>
 
-                {/* Profile */}
+                {             }
                 <div className="col-span-7 md:col-span-6 flex items-center gap-3 md:gap-4">
                   <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border border-[#3e2723] group-hover:border-[#d4af37] shrink-0">
                     {user.profileUrl ? (
@@ -84,7 +84,7 @@ export function LeaderboardList({
                     <h4 className="text-[#eaddcf] font-bold truncate group-hover:text-[#d4af37] transition-colors">
                       {user.name}
                     </h4>
-                    {/* Mobile Belt display */}
+                    {                         }
                     <span
                       className={cn(
                         "md:hidden text-[10px] px-1.5 py-0.5 rounded border mt-1 inline-block",
@@ -96,7 +96,7 @@ export function LeaderboardList({
                   </div>
                 </div>
 
-                {/* Belt (Desktop) */}
+                {                    }
                 <div className="hidden md:block col-span-3 text-right">
                   <span
                     className={cn(
@@ -108,7 +108,7 @@ export function LeaderboardList({
                   </span>
                 </div>
 
-                {/* Score */}
+                {           }
                 <div className="col-span-3 md:col-span-2 text-right">
                   <span className="font-mono font-bold text-[#eaddcf] text-lg group-hover:text-white group-hover:scale-105 inline-block transition-transform">
                     {getScore(user).toLocaleString()}

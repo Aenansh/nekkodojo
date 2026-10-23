@@ -10,6 +10,8 @@ import {
   MessageSquareText,
 } from "lucide-react";
 
+export const metadata = { title: "Moderator Home" };
+
 export default async function ModeratorWelcomePage() {
   const user = await currentUser();
   const role = user?.publicMetadata.role as string;
@@ -58,7 +60,7 @@ export default async function ModeratorWelcomePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      {/* Hero Section */}
+      {                  }
       <div className="max-w-4xl w-full text-center space-y-6 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="inline-flex items-center justify-center p-4 rounded-full bg-[#3e2723]/30 border border-[#3e2723] mb-4">
           <ShieldCheck size={48} className="text-[#d4af37]" />
@@ -71,7 +73,7 @@ export default async function ModeratorWelcomePage() {
         </p>
       </div>
 
-      {/* Navigation Grid */}
+      {                     }
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl w-full animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
         {moderatorModules.map((module) => (
           <Link
@@ -91,7 +93,7 @@ export default async function ModeratorWelcomePage() {
             </h3>
             <p className="text-[#a1887f] text-sm leading-relaxed">{module.description}</p>
 
-            {/* Hover Gradient Overlay */}
+            {                            }
             <div
               className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none bg-linear-to-br from-current to-transparent ${module.color}`}
             />

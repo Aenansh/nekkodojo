@@ -21,8 +21,6 @@ import {
 import { removeRole, setRole } from "@/app/(admin)/(protected)/_actions";
 import { toast } from "sonner";
 
-// We only need the Logic and the Dropdown. 
-// The Parent component handles the visual row layout.
 export function AdminUserCard({ user }: { user: UserProps }) {
   const [optimisticRole, setOptimisticRole] = useOptimistic(
     user.role,
@@ -88,7 +86,7 @@ export function AdminUserCard({ user }: { user: UserProps }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-[#3e2723]" />
 
-        {/* 1. PROMOTE TO ADMIN */}
+        {                         }
         <DropdownMenuItem
           disabled={optimisticRole === "admin" || isPending}
           onClick={() => handleSetRole("admin")}
@@ -106,7 +104,7 @@ export function AdminUserCard({ user }: { user: UserProps }) {
           </div>
         </DropdownMenuItem>
 
-        {/* 2. PROMOTE TO MODERATOR */}
+        {                             }
         <DropdownMenuItem
           disabled={optimisticRole === "moderator" || isPending}
           onClick={() => handleSetRole("moderator")}
@@ -124,7 +122,7 @@ export function AdminUserCard({ user }: { user: UserProps }) {
           </div>
         </DropdownMenuItem>
 
-        {/* 3. REVOKE ROLE */}
+        {                    }
         {optimisticRole !== "user" && (
           <>
             <DropdownMenuSeparator className="bg-[#3e2723]" />

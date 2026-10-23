@@ -16,9 +16,6 @@ interface SearchUser {
   email: string;
 }
 
-/* ================================================================
-   Page
-   ================================================================ */
 export default function MemberSearchPage() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchUser[]>([]);
@@ -27,7 +24,6 @@ export default function MemberSearchPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // `cancelled` stops a slow, older request from overwriting a newer one
     let cancelled = false;
 
     const delayDebounceFn = setTimeout(async () => {
@@ -72,7 +68,7 @@ export default function MemberSearchPage() {
     <div className="relative min-h-screen overflow-x-hidden pb-24 text-[#eaddcf]">
       <Seigaiha />
 
-      {/* vertical kanji, left margin, large screens only: 道場 = dojo */}
+      {                                                                }
       <div
         aria-hidden="true"
         style={{ writingMode: "vertical-rl" }}
@@ -81,7 +77,7 @@ export default function MemberSearchPage() {
         道場
       </div>
 
-      {/* ---------- Header ---------- */}
+      {                                  }
       <header className="relative z-20 mx-auto max-w-3xl space-y-6 px-4 pt-20 text-center">
         <div className="animate-in fade-in slide-in-from-top-4 space-y-4 duration-700">
           <div className="mx-auto flex size-14 items-center justify-center rounded-md border border-[#d4af37]/40 bg-[#2c1810] text-[#d4af37] shadow-[0_0_0_3px_#120c0a,0_0_0_4px_rgba(212,175,55,0.2)]">
@@ -102,7 +98,7 @@ export default function MemberSearchPage() {
           </p>
         </div>
 
-        {/* ---------- Search ---------- */}
+        {                                  }
         <div className="animate-in fade-in slide-in-from-bottom-4 mx-auto max-w-2xl duration-700 [animation-delay:200ms]">
           <div className="group relative">
             <div className="pointer-events-none absolute inset-y-0 left-4 z-10 flex items-center">
@@ -145,7 +141,7 @@ export default function MemberSearchPage() {
         </div>
       </header>
 
-      {/* ---------- Body ---------- */}
+      {                                }
       <main className="relative z-10 mx-auto mt-6 min-h-[400px] max-w-6xl px-4">
         {showResults ? (
           <section aria-live="polite" className="animate-in fade-in duration-500">
@@ -197,10 +193,6 @@ export default function MemberSearchPage() {
   );
 }
 
-/* ================================================================
-   User card: a name plate. Fixed avatar, left-aligned text that
-   truncates, arrow pinned right, so every card lines up in the grid.
-   ================================================================ */
 function UserCard({ user }: { user: SearchUser }) {
   const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.name || "Ninja";
   const initials = fullName
@@ -216,16 +208,16 @@ function UserCard({ user }: { user: SearchUser }) {
       className="group relative block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]"
     >
       <article className="relative flex h-full min-h-[88px] items-center gap-4 overflow-hidden rounded-lg border border-[#3e2723] bg-linear-to-br from-[#1a110d] to-[#120c0a] py-4 pl-5 pr-4 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-[#d4af37]/50 group-hover:shadow-[0_10px_24px_-12px_rgba(0,0,0,0.9)]">
-        {/* gold marker drawn from the centre of the left edge */}
+        {                                                        }
         <span
           aria-hidden="true"
           className="absolute inset-y-3 left-0 w-0.5 origin-center scale-y-0 bg-[#d4af37] transition-transform duration-300 ease-out group-hover:scale-y-100 group-focus-visible:scale-y-100"
         />
 
-        {/* paw watermark, revealed on hover */}
+        {                                      }
         <Paw className="pointer-events-none absolute -bottom-2 right-8 size-14 rotate-[-18deg] text-[#d4af37] opacity-0 transition-opacity duration-500 group-hover:opacity-[0.07]" />
 
-        {/* avatar in a square seal frame */}
+        {                                   }
         <div className="relative size-14 shrink-0 overflow-hidden rounded-md border border-[#5d4037] bg-[#0f0b0a] shadow-[0_0_0_2px_#120c0a,0_0_0_3px_rgba(212,175,55,0.15)] transition-all duration-300 group-hover:border-[#d4af37]/70">
           {user.profileUrl ? (
             <Image
@@ -270,9 +262,6 @@ function UserCardSkeleton() {
   );
 }
 
-/* ================================================================
-   Idle state: the dojo image in a wooden frame, with a cat peeking over it
-   ================================================================ */
 function DojoGrounds() {
   return (
     <div className="animate-in fade-in zoom-in mx-auto mt-6 flex w-full max-w-4xl flex-col items-center space-y-8 pb-10 duration-1000">
@@ -291,7 +280,7 @@ function DojoGrounds() {
             <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#0f0b0a]/50 via-transparent to-transparent" />
           </div>
 
-          {/* gold corner brackets */}
+          {                          }
           <span className="pointer-events-none absolute left-5 top-5 size-5 border-l-2 border-t-2 border-[#d4af37]/70" />
           <span className="pointer-events-none absolute right-5 top-5 size-5 border-r-2 border-t-2 border-[#d4af37]/70" />
           <span className="pointer-events-none absolute bottom-5 left-5 size-5 border-b-2 border-l-2 border-[#d4af37]/70" />
@@ -314,11 +303,7 @@ function DojoGrounds() {
   );
 }
 
-/* ================================================================
-   Graphics
-   ================================================================ */
 
-/* Seigaiha: the traditional overlapping-wave pattern, faded out toward the bottom */
 function Seigaiha() {
   const mask = "linear-gradient(to bottom, black 0%, transparent 100%)";
   return (
@@ -345,7 +330,6 @@ function Seigaiha() {
   );
 }
 
-/* A cat's head in outline: used as a seal mark */
 function CatMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" fill="none" className={className} aria-hidden="true">
@@ -368,11 +352,10 @@ function CatMark({ className }: { className?: string }) {
   );
 }
 
-/* A cat peeking over the top of the frame, blinking now and then */
 function CatPeek({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 120 64" className={className} aria-hidden="true">
-      {/* ears */}
+      {          }
       <polygon
         points="24,40 28,6 56,28"
         fill="#2c1810"
@@ -389,9 +372,9 @@ function CatPeek({ className }: { className?: string }) {
       />
       <polygon points="31,30 33,15 46,26" fill="#5d4037" opacity="0.7" />
       <polygon points="89,30 87,15 74,26" fill="#5d4037" opacity="0.7" />
-      {/* head */}
+      {          }
       <ellipse cx="60" cy="48" rx="40" ry="26" fill="#2c1810" stroke="#5d4037" strokeWidth="2" />
-      {/* eyes */}
+      {          }
       {[44, 76].map((cx) => (
         <g key={cx}>
           <ellipse cx={cx} cy="44" rx="7" ry="7.5" fill="#d4af37">
@@ -406,9 +389,9 @@ function CatPeek({ className }: { className?: string }) {
           <rect x={cx - 1.4} y="37" width="2.8" height="14" rx="1.4" fill="#0f0b0a" />
         </g>
       ))}
-      {/* nose */}
+      {          }
       <polygon points="56,53 64,53 60,58" fill="#a1887f" />
-      {/* paws resting on the frame */}
+      {                               }
       <rect
         x="30"
         y="56"

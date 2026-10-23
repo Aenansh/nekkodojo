@@ -19,7 +19,6 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
   const fileInputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Clean up abort controller on unmount
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
@@ -28,7 +27,6 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
     };
   }, []);
 
-  // 1. Authenticator (Same as your comment uploader)
   const authenticator = async () => {
     try {
       const response = await fetch("/api/upload-auth");
@@ -41,14 +39,12 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
     }
   };
 
-  // 2. File Change Handler
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     const file = files[0];
 
-    // Validation
     if (!file.type.startsWith("image/")) {
       toast.error("Invalid file type. Only images allowed.");
       e.target.value = "";
@@ -56,7 +52,6 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      // 5MB limit
       toast.error("File too large. Max size is 5MB.");
       e.target.value = "";
       return;
@@ -75,7 +70,7 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
         file,
         fileName: file.name,
         useUniqueFileName: true,
-        tags: ["company-logo"], // Specific tag for logos
+        tags: ["company-logo"],                          
         expire: authParams.expire,
         token: authParams.token,
         signature: authParams.signature,
@@ -116,7 +111,7 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
 
   return (
     <div className="w-full">
-      {/* Hidden Input */}
+      {                  }
       <input
         type="file"
         accept="image/*"
@@ -126,9 +121,9 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
         disabled={uploading}
       />
 
-      {/* --- UI STATES --- */}
+      {                       }
 
-      {/* 1. UPLOADING STATE */}
+      {                        }
       {uploading ? (
         <div className="border border-[#d4af37]/30 bg-[#d4af37]/5 rounded-lg h-32 w-full flex flex-col items-center justify-center gap-2 relative">
           <Loader2 className="w-8 h-8 animate-spin text-[#d4af37]" />
@@ -144,11 +139,10 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
           </button>
         </div>
       ) : currentLogoUrl ? (
-        // 2. PREVIEW STATE (Logo Exists)
         <div className="relative h-32 w-full border border-[#3e2723] rounded-lg bg-[#0f0b0a] overflow-hidden group">
           <Image src={currentLogoUrl} alt="Logo Preview" fill className="object-contain p-4" />
 
-          {/* Remove Button Overlay */}
+          {                           }
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <button
               onClick={onRemove}
@@ -161,7 +155,6 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
           </div>
         </div>
       ) : (
-        // 3. IDLE STATE (Upload Trigger)
         <div
           onClick={() => fileInputRef.current?.click()}
           className="border border-dashed border-[#3e2723] rounded-lg h-32 w-full flex flex-col items-center justify-center gap-3 bg-[#0f0b0a]/30 transition-all cursor-pointer hover:bg-[#3e2723]/20 hover:border-[#d4af37]/50 group"

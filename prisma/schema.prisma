@@ -388,7 +388,6 @@ model CustomChecker {
   @@unique([questionId, version])
 }
 
-//enums
 enum ShelfType {
   later
   revisit

@@ -28,7 +28,7 @@ export function EditTagDialog({ tag, open, onOpenChange, onSuccess }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
   const [name, setName] = useState("");
-  const [slug, setSlug] = useState(""); // Assuming you allow slug editing (be careful with SEO)
+  const [slug, setSlug] = useState("");                                                         
   const [color, setColor] = useState("");
 
   useEffect(() => {

@@ -29,18 +29,15 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: Props) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Form State
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
 
-  // Logo State
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoId, setLogoId] = useState<string | null>(null);
 
   const handleNameChange = (val: string) => {
     setName(val);
-    // Auto-generate slug (slugify handles special chars better than manual regex)
     setSlug(slugify(val, { lower: true, strict: true }));
   };
 
@@ -73,7 +70,6 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: Props) {
       router.refresh();
       onSuccess?.();
 
-      // Reset Form
       setName("");
       setSlug("");
       setWebsiteUrl("");
@@ -100,7 +96,7 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: Props) {
 
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
-            {/* Name Input */}
+            {                }
             <div className="grid gap-2">
               <Label htmlFor="create-name" className="text-[#a1887f]">
                 Name
@@ -113,7 +109,7 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: Props) {
                 className="bg-[#0f0b0a] border-[#3e2723] text-[#eaddcf] py-2"
               />
             </div>
-            {/* Slug Input */}
+            {                }
             <div className="grid gap-2">
               <Label htmlFor="create-slug" className="text-[#a1887f]">
                 Slug
@@ -128,7 +124,7 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: Props) {
             </div>
           </div>
 
-          {/* Website Input */}
+          {                   }
           <div className="grid gap-2">
             <Label htmlFor="create-web" className="text-[#a1887f]">
               Website URL
@@ -142,7 +138,7 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: Props) {
             />
           </div>
 
-          {/* Logo Upload */}
+          {                 }
           <div className="grid gap-2">
             <Label className="text-[#a1887f]">Logo</Label>
             <LogoUploader

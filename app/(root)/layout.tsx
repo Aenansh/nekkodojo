@@ -5,6 +5,14 @@ import Navbar from "@/components/Landing Page/Navbar";
 import { getIsOnboarded } from "../(auth)/_action";
 import DoorOpen from "@/components/Landing Page/DoorOpen";
 import { ClerkProvider } from "@clerk/nextjs";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    default: "Home",
+    template: "%s | NekkoDojo",
+  },
+};
 
 const layout = async ({ children }: Readonly<{ children: ReactNode }>) => {
   const user = await currentUser();
@@ -16,7 +24,7 @@ const layout = async ({ children }: Readonly<{ children: ReactNode }>) => {
     <>
       <ClerkProvider>
         <DoorOpen />
-        <div className="min-h-screen bg-[#0f0b0a] text-[#eaddcf] selection:bg-[#d4af37] selection:text-[#1a110d] flex flex-col relative overflow-x-hidden">
+        <div className="min-h-screen bg-[#0f0b0a] text-[#eaddcf] selection:bg-[#d4af37] selection:text-[#1a110d] flex flex-col relative overflow-x-clip">
           <div className="fixed inset-0 z-0 pointer-events-none">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#2c1810_0%,#0f0b0a_50%)] opacity-60" />
             <div

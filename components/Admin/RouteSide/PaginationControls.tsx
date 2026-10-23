@@ -19,25 +19,21 @@ interface PaginationProps {
 export default function PaginationControls({ currentPage, totalPages }: PaginationProps) {
   const searchParams = useSearchParams();
 
-  // Helper to construct the URL while keeping existing search params (like ?search=...)
   const createPageURL = (pageNumber: number | string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", pageNumber.toString());
     return `?${params.toString()}`;
   };
 
-  // Helper to determine which page numbers to show
   const getPageNumbers = () => {
     const pages = [];
-    const maxVisible = 5; // How many numbers to show before ellipsis
+    const maxVisible = 5;                                            
 
     if (totalPages <= maxVisible) {
-      // Show all pages if total is small
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Complex logic for Ellipsis
       if (currentPage <= 3) {
         pages.push(1, 2, 3, "ellipsis", totalPages);
       } else if (currentPage >= totalPages - 2) {
@@ -53,7 +49,7 @@ export default function PaginationControls({ currentPage, totalPages }: Paginati
     <Pagination>
       <PaginationContent>
         
-        {/* PREVIOUS BUTTON */}
+        {                     }
         <PaginationItem>
           <PaginationPrevious 
             href={currentPage > 1 ? createPageURL(currentPage - 1) : "#"}
@@ -65,7 +61,7 @@ export default function PaginationControls({ currentPage, totalPages }: Paginati
           />
         </PaginationItem>
 
-        {/* PAGE NUMBERS */}
+        {                  }
         {getPageNumbers().map((page, index) => (
           <PaginationItem key={index}>
             {page === "ellipsis" ? (
@@ -88,7 +84,7 @@ export default function PaginationControls({ currentPage, totalPages }: Paginati
           </PaginationItem>
         ))}
 
-        {/* NEXT BUTTON */}
+        {                 }
         <PaginationItem>
           <PaginationNext 
             href={currentPage < totalPages ? createPageURL(currentPage + 1) : "#"}

@@ -23,9 +23,7 @@ export default function ReportButton({ targetUserId, targetUserName, variant = "
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // State for the selected category
   const [selectedCategory, setSelectedCategory] = useState("");
-  // State for the custom text input
   const [customText, setCustomText] = useState("");
 
   const [success, setSuccess] = useState(false);
@@ -39,10 +37,8 @@ export default function ReportButton({ targetUserId, targetUserName, variant = "
   ];
 
   const handleReport = async () => {
-    // Determine the final reason string to send
     let finalReason = selectedCategory;
 
-    // If "Other" is selected, we validate and use the custom text
     if (selectedCategory === "Other Violation") {
       if (!customText.trim()) {
         toast.error("Please describe the violation.");
@@ -50,7 +46,6 @@ export default function ReportButton({ targetUserId, targetUserName, variant = "
       }
       finalReason = `Other: ${customText}`;
     } else {
-      // If no category selected at all
       if (!selectedCategory) {
         toast.error("Please select a reason for the report.");
         return;
@@ -144,7 +139,7 @@ export default function ReportButton({ targetUserId, targetUserName, variant = "
               </DialogDescription>
             </DialogHeader>
 
-            {/* Scrollable container for reasons if list gets long */}
+            {                                                        }
             <div className="space-y-2 py-4 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
               {reasons.map((r) => (
                 <div key={r} className="flex flex-col gap-2">
@@ -162,7 +157,7 @@ export default function ReportButton({ targetUserId, targetUserName, variant = "
                     {r}
                   </button>
 
-                  {/* Conditionally Render Text Area */}
+                  {                                    }
                   {r === "Other Violation" && selectedCategory === "Other Violation" && (
                     <div className="animate-in fade-in slide-in-from-top-2 duration-200 pl-4 border-l-2 border-[#d4af37]">
                       <textarea

@@ -15,9 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MultiSelect } from "@/components/ui/multi-select"; // Import from step 1
+import { MultiSelect } from "@/components/ui/multi-select";                      
 
-// Types for props passed from server
 interface Option {
   label: string;
   value: string;
@@ -37,14 +36,12 @@ export default function CreateQuestionForm({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Form State
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState("Medium");
   const [externalUrl, setExternalUrl] = useState("");
   const [solutionUrl, setSolutionUrl] = useState("");
 
-  // Multi-Select State (Stores Array of Slugs)
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
@@ -65,8 +62,8 @@ export default function CreateQuestionForm({
           difficulty,
           externalPlatformUrl: externalUrl,
           solutionUrl,
-          categories: selectedCategories, // Sends array of slugs
-          companyTag: selectedCompanies, // Sends array of slugs
+          categories: selectedCategories,                        
+          companyTag: selectedCompanies,                        
           supportedLanguageIds: selectedLanguages,
         }),
       });
@@ -79,7 +76,7 @@ export default function CreateQuestionForm({
       }
 
       toast.success("Question created successfully!");
-      router.push("/admin/questions"); // Redirect back to list
+      router.push("/admin/questions");                         
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -91,7 +88,7 @@ export default function CreateQuestionForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-3xl">
-      {/* 1. Basic Info */}
+      {                   }
       <div className="space-y-4 p-6 rounded-xl border border-[#3e2723] bg-[#1a110d]/40">
         <h3 className="text-lg font-semibold text-[#eaddcf] border-b border-[#3e2723] pb-2">
           Problem Details
@@ -157,7 +154,7 @@ export default function CreateQuestionForm({
         </div>
       </div>
 
-      {/* 2. Links */}
+      {              }
       <div className="space-y-4 p-6 rounded-xl border border-[#3e2723] bg-[#1a110d]/40">
         <h3 className="text-lg font-semibold text-[#eaddcf] border-b border-[#3e2723] pb-2">
           Resources
@@ -192,7 +189,7 @@ export default function CreateQuestionForm({
         </div>
       </div>
 
-      {/* 3. Tags (Multi-Selects) */}
+      {                             }
       <div className="space-y-4 p-6 rounded-xl border border-[#3e2723] bg-[#1a110d]/40">
         <h3 className="text-lg font-semibold text-[#eaddcf] border-b border-[#3e2723] pb-2">
           Tags & Categories
@@ -234,7 +231,7 @@ export default function CreateQuestionForm({
         </div>
       </div>
 
-      {/* Submit Button */}
+      {                   }
       <div className="flex justify-end">
         <Button
           type="submit"

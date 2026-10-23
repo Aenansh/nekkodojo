@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -15,6 +14,8 @@ import { TagSelector } from "@/components/Discussion/Create/Tags";
 import attFromKit from "@/lib/actions/removeAtt";
 import Link from "next/link";
 import { ensureUserStatus } from "./_actions";
+
+export const metadata = { title: "Create Discussion" };
 
 export default function CreateDiscussionPage() {
   const router = useRouter();
@@ -89,12 +90,8 @@ export default function CreateDiscussionPage() {
 
       const data = await response.json();
 
-      // ✅ SUCCESS HANDLER
-      // Whether real or shadowbanned (fake), we show success.
       toast.success("Discussion created successfully!");
 
-      // If data contains an ID (even if hidden), go there.
-      // If shadowbanned logic returns no ID, go to list.
       if (data && typeof data === "string") {
         router.push(`/discussions/${data}`);
       } else {
@@ -128,7 +125,7 @@ export default function CreateDiscussionPage() {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 w-full items-start">
-            {/* LEFT SIDE: Title (Takes up 3/4 of the space) */}
+            {                                                  }
             <div className="md:col-span-3 space-y-3">
               <div className="flex justify-between items-center">
                 <Label

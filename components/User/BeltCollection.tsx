@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { SectionHeading } from "./Profileornaments";
 import { BELTS } from "@/constants/belts";
 
-/** Looks up the swatch colour and kanji for a belt by its display name. */
 export function getBeltVisual(name: string) {
   const key = name.toLowerCase().split(" ")[0];
   const belt = BELTS.find((b) => b.name.toLowerCase().startsWith(key));

@@ -13,7 +13,7 @@ const CategoryManagementPage = async () => {
 
   const categories = await prisma.category.findMany({
     orderBy: {
-      categoryOrder: "asc", // Crucial for roadmap view
+      categoryOrder: "asc",                            
     },
     include: {
       prerequisiteArray: {
@@ -36,5 +36,7 @@ const CategoryManagementPage = async () => {
     </div>
   );
 };
+
+export const metadata = { title: "Category Management" };
 
 export default CategoryManagementPage;

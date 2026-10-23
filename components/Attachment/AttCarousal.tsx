@@ -180,7 +180,6 @@ export function AttachmentCarousel({ attachments }: { attachments: Attachment[] 
                   className="max-w-full max-h-[85vh] object-contain shadow-2xl my-auto mx-auto"
                 />
               ) : (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={selectedFile.postUrl}
                   alt="Full view"

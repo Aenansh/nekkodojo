@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Unlock, Loader2, UserX } from "lucide-react";
 import { toast } from "sonner";
-import { unbanUser } from "@/app/(admin)/(protected)/_actions"; // Import your actions
+import { unbanUser } from "@/app/(admin)/(protected)/_actions";                       
 
 interface BannedUserProps {
   user: {
@@ -41,7 +41,7 @@ export function BannedUserCard({ user }: BannedUserProps) {
   return (
     <div className="flex items-center justify-between p-4 bg-[#1a110d] border border-red-900/30 rounded-xl group hover:border-red-900/60 transition-all">
       <div className="flex items-center gap-4">
-        {/* Avatar with Banned Overlay */}
+        {                                }
         <div className="relative w-12 h-12 rounded-full overflow-hidden border border-[#3e2723]">
           {user.profileUrl ? (
             <Image src={user.profileUrl} alt={fullName} fill className="object-cover grayscale" />

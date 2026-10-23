@@ -2,7 +2,7 @@
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw"; // Import this
+import rehypeRaw from "rehype-raw";               
 import { ExternalLink } from "lucide-react";
 
 interface Props {
@@ -14,16 +14,14 @@ export default function MarkdownViewer({ content }: Props) {
     <article className="prose prose-invert max-w-none leading-relaxed">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]} // Required to render <u> tags
+        rehypePlugins={[rehypeRaw]}                               
         components={{
-          // Underline Component
           u: ({ children }) => (
             <u className="decoration-[#d4af37] decoration-2 underline-offset-4 text-[#eaddcf]">
               {children}
             </u>
           ),
 
-          // Existing Components...
           a: ({ node, children, href, ...props }) => {
             return (
               <a
@@ -51,7 +49,6 @@ export default function MarkdownViewer({ content }: Props) {
           ),
           p: ({ children }) => <p className="mb-4 text-[#eaddcf]/90">{children}</p>,
 
-          // ... (Rest of your existing components: code, blockquote, ul, ol, table, etc.)
           code: ({ node, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "");
             const isInline = !match && !String(children).includes("\n");

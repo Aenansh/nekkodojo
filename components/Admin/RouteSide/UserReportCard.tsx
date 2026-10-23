@@ -15,7 +15,6 @@ import {
 export function UserReportCard({ report }: UserReportProps) {
   const [loading, setLoading] = useState(false);
 
-  // Derive display names
   const reporterName = report.reporter.firstName
     ? `${report.reporter.firstName} ${report.reporter.lastName || ""}`
     : "Unknown Ronin";
@@ -45,7 +44,6 @@ export function UserReportCard({ report }: UserReportProps) {
           else toast.error(res?.message || "Action failed");
           break;
         case "shadowban":
-          // Default to 7 days
           res = await shadowbanUser(report.reported.id, report.id, 7);
           if (res?.success) toast.success(res.message);
           else toast.error(res?.message || "Action failed");
@@ -61,7 +59,7 @@ export function UserReportCard({ report }: UserReportProps) {
 
   return (
     <div className="bg-[#1a110d] border border-[#3e2723] rounded-xl p-5 shadow-lg group hover:border-[#d4af37]/30 transition-all relative overflow-hidden">
-      {/* STATUS BADGES (Visual indicators if they are already punished) */}
+      {                                                                    }
       <div className="absolute top-2 right-2 flex gap-1">
         {report.reported.isBanned && (
           <div className="bg-red-900/40 text-red-500 text-[10px] font-bold px-2 py-0.5 rounded border border-red-900 flex items-center gap-1">
@@ -75,9 +73,9 @@ export function UserReportCard({ report }: UserReportProps) {
         )}
       </div>
 
-      {/* HEADER: Reporter vs Reported */}
+      {                                  }
       <div className="flex flex-col gap-3 mb-4 pb-4 border-b border-[#3e2723]">
-        {/* REPORTED USER (The Target) */}
+        {                                }
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full overflow-hidden bg-[#d4af37]/10 border border-[#d4af37]/30 shrink-0">
             {report.reported.profileUrl ? (
@@ -100,7 +98,7 @@ export function UserReportCard({ report }: UserReportProps) {
           </div>
         </div>
 
-        {/* CONNECTION LINE */}
+        {                     }
         <div className="flex items-center gap-2 text-[10px] text-[#5d4037] font-mono uppercase tracking-widest pl-4 border-l border-[#3e2723]">
           <span>Reported by</span>
           <span className="text-[#8d6e63] font-bold">{reporterName}</span>
@@ -109,7 +107,7 @@ export function UserReportCard({ report }: UserReportProps) {
         </div>
       </div>
 
-      {/* REASON BODY */}
+      {                 }
       <div className="bg-[#0f0b0a] p-3 rounded-lg border border-[#3e2723] mb-6">
         <div className="flex items-start gap-2">
           <ShieldAlert size={16} className="text-[#d4af37] mt-0.5 shrink-0" />
@@ -117,9 +115,9 @@ export function UserReportCard({ report }: UserReportProps) {
         </div>
       </div>
 
-      {/* ACTION GRID */}
+      {                 }
       <div className="grid grid-cols-2 gap-2">
-        {/* Dismiss */}
+        {             }
         <button
           disabled={loading}
           onClick={() => handleAction("dismiss")}
@@ -129,7 +127,7 @@ export function UserReportCard({ report }: UserReportProps) {
           Dismiss Report
         </button>
 
-        {/* Shadowban (7 Days) */}
+        {                        }
         <button
           disabled={loading}
           onClick={() => handleAction("shadowban")}
@@ -140,7 +138,7 @@ export function UserReportCard({ report }: UserReportProps) {
           <span className="font-bold">7d Shadow</span>
         </button>
 
-        {/* Ban / Unban Logic */}
+        {                       }
         {report.reported.isBanned ? (
           <button
             disabled={loading}

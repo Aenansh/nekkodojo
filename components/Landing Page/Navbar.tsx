@@ -27,12 +27,6 @@ const tatamiStyle: React.CSSProperties = {
   backdropFilter: "blur(12px)",
 };
 
-/*
-  Tab behaviour:
-  - hover: the tab presses down into the mat (inset shadow) and a gold
-    stripe is drawn out from the centre, like a belt being pulled taut
-  - active: the stripe stays drawn
-*/
 const tabBase =
   "relative px-4 py-2 rounded-sm text-sm font-medium transition-all duration-300 ease-out " +
   "after:absolute after:left-3 after:right-3 after:bottom-0.5 after:h-0.5 after:origin-center " +
@@ -43,7 +37,6 @@ const tabClass = (active: boolean) =>
   `${tabBase} ${active ? "text-[#d4af37] after:scale-x-100" : "text-[#c4ab9c] after:scale-x-0"}`;
 
 const Navbar = () => {
-  // Extract isLoaded to prevent hydration flashes
   const { user, isLoaded } = useUser();
   const pathname = usePathname();
   const userAvatarSrc = user?.imageUrl?.trim() ? user.imageUrl : null;
@@ -77,7 +70,7 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* --- DESKTOP NAV --- */}
+        {                         }
         <nav className="hidden lg:flex flex-1 justify-center items-center">
           <div className="flex gap-1">
             {NavLinks.map((navLink) => {
@@ -100,7 +93,7 @@ const Navbar = () => {
         </nav>
 
         <div className="shrink-0 flex items-center gap-3">
-          {/* --- SIGNED OUT --- */}
+          {                        }
           {isLoaded && (
             <Show when="signed-out">
               <SignInButton mode="redirect">
@@ -116,7 +109,7 @@ const Navbar = () => {
             </Show>
           )}
 
-          {/* --- SIGNED IN --- */}
+          {                       }
           {isLoaded && (
             <Show when="signed-in">
               <div className="flex items-center gap-4" suppressHydrationWarning={true}>
@@ -146,7 +139,7 @@ const Navbar = () => {
             </Show>
           )}
 
-          {/* --- MOBILE NAV --- */}
+          {                        }
           <div className="block lg:hidden">
             <Menubar className="border-none bg-transparent p-0">
               <MenubarMenu>

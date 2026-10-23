@@ -6,9 +6,8 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, ExternalLink, Layers, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { DojoProgress } from "@/components/ui/dojo-progress"; // Ensure this path is correct
+import { DojoProgress } from "@/components/ui/dojo-progress";                               
 
-// Updated Interface: We need the list of questions (IDs) to calculate progress
 export interface CompanyCardItem {
   id: string;
   name: string;
@@ -18,12 +17,12 @@ export interface CompanyCardItem {
   _count: {
     questions: number;
   };
-  questions: { id: string }[]; // Minimal data needed for calculation
+  questions: { id: string }[];                                       
 }
 
 interface Props {
   items: CompanyCardItem[];
-  userProgress: Record<string, string>; // Maps QuestionID -> Status
+  userProgress: Record<string, string>;                             
 }
 
 export function CompanyCarousel({ items, userProgress }: Props) {
@@ -32,7 +31,7 @@ export function CompanyCarousel({ items, userProgress }: Props) {
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const { current } = scrollRef;
-      const scrollAmount = 340; // Card width + gap
+      const scrollAmount = 340;                    
       if (direction === "left") {
         current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
       } else {
@@ -43,7 +42,7 @@ export function CompanyCarousel({ items, userProgress }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* --- Header Row --- */}
+      {                        }
       <div className="flex items-end justify-between px-1">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2 text-[#d4af37] uppercase tracking-widest text-xs font-bold">
@@ -53,7 +52,7 @@ export function CompanyCarousel({ items, userProgress }: Props) {
           <h2 className="text-2xl font-bold text-[#eaddcf]">Practice by Company</h2>
         </div>
 
-        {/* Styled Arrows */}
+        {                   }
         <div className="flex gap-2">
           <button
             onClick={() => scroll("left")}
@@ -70,7 +69,7 @@ export function CompanyCarousel({ items, userProgress }: Props) {
         </div>
       </div>
 
-      {/* --- Scroll Container --- */}
+      {                              }
       <div
         ref={scrollRef}
         className="flex gap-5 overflow-x-auto pb-8 pt-2 px-1 snap-x snap-mandatory scrollbar-hide"
@@ -80,7 +79,7 @@ export function CompanyCarousel({ items, userProgress }: Props) {
           <CompanyCard 
             key={company.id} 
             company={company} 
-            userProgress={userProgress} // Pass progress down
+            userProgress={userProgress}                      
           />
         ))}
       </div>
@@ -88,7 +87,6 @@ export function CompanyCarousel({ items, userProgress }: Props) {
   );
 }
 
-// --- THE REVAMPED CARD COMPONENT ---
 function CompanyCard({
   company,
   userProgress,
@@ -104,7 +102,7 @@ function CompanyCard({
 
   return (
     <div className="relative w-[320px] h-[220px] shrink-0 rounded-2xl overflow-hidden border border-[#3e2723] bg-[#1a110d] group snap-start transition-all hover:border-[#d4af37]/50 hover:shadow-lg hover:shadow-[#d4af37]/5 flex flex-col">
-      {/* Background Glow */}
+      {                     }
       {company.logo && (
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <Image
@@ -117,10 +115,10 @@ function CompanyCard({
         </div>
       )}
 
-      {/* Card Content */}
+      {                  }
       <div className="relative z-10 p-5 h-full flex flex-col justify-between">
         
-        {/* Top Section */}
+        {                 }
         <div className="flex justify-between items-start">
           <div>
             <h3 className="text-xl font-bold text-[#eaddcf] leading-tight group-hover:text-white transition-colors">
@@ -144,7 +142,7 @@ function CompanyCard({
           </div>
         </div>
 
-        {/* Middle Section: Progress Bar */}
+        {                                  }
         <div className="mt-auto mb-4 space-y-1.5">
            <div className="flex justify-between items-end">
              <span className="text-[10px] text-[#a1887f] font-mono uppercase tracking-wider">Progress</span>
@@ -155,7 +153,7 @@ function CompanyCard({
            <DojoProgress value={percent} className="h-1.5" />
         </div>
 
-        {/* Bottom Row: Actions */}
+        {                         }
         <div className="flex gap-3">
           <Link href={`/problems/sheet/${company.slug}`} className="flex-1">
             <Button className="w-full bg-[#eaddcf] text-[#1a110d] hover:bg-white hover:scale-[1.02] transition-all font-semibold h-8 text-xs">

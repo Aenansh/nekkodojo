@@ -11,14 +11,14 @@ import {
   Quote,
   Eye,
   Edit3,
-  Heading1, // New
-  Heading2, // New
-  Heading3, // New
-  Underline, // New
+  Heading1,       
+  Heading2,       
+  Heading3,       
+  Underline,       
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw"; // Import this to preview underlines in the "Preview" tab
+import rehypeRaw from "rehype-raw";                                                          
 
 interface Props {
   value: string;
@@ -92,7 +92,7 @@ export default function RichTextEditor({ value, onChange, placeholder, label }: 
       <div className="border border-[#3e2723] rounded-xl overflow-hidden bg-[#0f0b0a]/50 focus-within:border-[#d4af37] focus-within:ring-1 focus-within:ring-[#d4af37]/50 transition-all">
         {activeTab === "write" && (
           <div className="flex items-center gap-1 p-2 border-b border-[#3e2723] bg-[#1a110d]/50 overflow-x-auto custom-scrollbar">
-            {/* Headers Group */}
+            {                   }
             <ToolbarButton
               icon={<Heading1 size={16} />}
               onClick={() => insertFormat("# ")}
@@ -110,7 +110,7 @@ export default function RichTextEditor({ value, onChange, placeholder, label }: 
             />
             <div className="w-px h-5 bg-[#3e2723] mx-1" />
 
-            {/* Formatting Group */}
+            {                      }
             <ToolbarButton
               icon={<Bold size={16} />}
               onClick={() => insertFormat("**", "**")}
@@ -169,20 +169,17 @@ export default function RichTextEditor({ value, onChange, placeholder, label }: 
               className="w-full h-full min-h-[250px] p-4 bg-transparent text-[#eaddcf] placeholder:text-[#5d4037] resize-y focus:outline-none font-mono text-sm"
             />
           ) : (
-            // Updated Internal Preview to handle HTML (for underline)
             <div className="p-4 prose prose-invert prose-p:text-[#eaddcf] prose-headings:text-[#d4af37] prose-a:text-[#d4af37] prose-code:text-[#d4af37] max-w-none min-h-[250px] overflow-y-auto">
               {value ? (
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeRaw]} // Enable HTML parsing for <u>
+                  rehypePlugins={[rehypeRaw]}                               
                   components={{
-                    // Pass specific styling for 'u' tag in preview
                     u: ({ children }) => (
                       <u className="decoration-[#d4af37] decoration-2 underline-offset-4">
                         {children}
                       </u>
                     ),
-                    // ... (Keep existing ul, ol, a, etc. from your code if you wish, or rely on prose defaults for preview)
                   }}
                 >
                   {value}

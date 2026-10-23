@@ -16,7 +16,6 @@ import { useSignIn } from "@clerk/nextjs";
 
 type ClerkErr = { errors?: { message?: string }[] };
 
-/* ---------- Left panel artwork ---------- */
 function DojoArt() {
   return (
     <svg
@@ -39,11 +38,11 @@ function DojoArt() {
 
       <rect width="800" height="1000" fill="url(#sky)" />
 
-      {/* moon + glow */}
+      {                 }
       <circle cx="540" cy="360" r="260" fill="url(#moonGlow)" />
       <circle cx="540" cy="360" r="120" fill="#d4af37" opacity="0.9" />
 
-      {/* mountain ridges, back to front */}
+      {                                    }
       <path
         d="M0 640 L120 560 L220 620 L340 520 L470 620 L600 540 L720 610 L800 570 L800 1000 L0 1000Z"
         fill="#3e2723"
@@ -59,7 +58,7 @@ function DojoArt() {
         fill="#1a110d"
       />
 
-      {/* torii gate */}
+      {                }
       <g fill="#0f0b0a" stroke="#d4af37" strokeOpacity="0.55" strokeWidth="1.5">
         <rect x="290" y="560" width="26" height="300" />
         <rect x="484" y="560" width="26" height="300" />
@@ -67,7 +66,7 @@ function DojoArt() {
         <path d="M240 545 Q400 575 560 545 L572 518 Q400 552 228 518 Z" />
       </g>
 
-      {/* ground line */}
+      {                 }
       <rect x="0" y="860" width="800" height="140" fill="#0f0b0a" />
       <line x1="0" y1="860" x2="800" y2="860" stroke="#d4af37" strokeOpacity="0.25" />
     </svg>
@@ -161,7 +160,7 @@ const SignInPage = () => {
 
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-2 bg-[#0f0b0a] text-[#eaddcf]">
-      {/* ---------- Left: graphics ---------- */}
+      {                                          }
       <aside className="relative hidden lg:flex flex-col justify-between overflow-hidden border-r border-[#3e2723] p-12">
         <DojoArt />
         <Link
@@ -180,12 +179,12 @@ const SignInPage = () => {
         </div>
       </aside>
 
-      {/* ---------- Right: auth ---------- */}
+      {                                       }
       <main className="relative flex items-center justify-center px-6 py-12 sm:px-12">
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_right,rgba(62,39,35,0.35),transparent_60%)]" />
 
         <div className="relative z-10 w-full max-w-md space-y-8">
-          {/* mobile brand, since the art panel is hidden */}
+          {                                                 }
           <Link href="/" className="font-brand lg:hidden block text-xl font-bold text-[#d4af37] w-fit">
             NekkoDojo
           </Link>

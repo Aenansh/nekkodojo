@@ -46,7 +46,6 @@ declare interface Props {
   isOwnProfile?: boolean;
 }
 
-// --- CLERK THEME CONFIGURATION ---
 const clerkAppearance = {
   baseTheme: dark,
   variables: {
@@ -77,7 +76,6 @@ const DEFAULT_BIO = "Training one problem at a time.";
 export function UserDetails({ user, stats, isOwnProfile }: Props) {
   const router = useRouter();
 
-  // --- BIO EDITING STATE ---
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [savedBio, setSavedBio] = useState(user.bio || DEFAULT_BIO);
   const [bioText, setBioText] = useState(savedBio);
@@ -120,7 +118,7 @@ export function UserDetails({ user, stats, isOwnProfile }: Props) {
 
   return (
     <header>
-      {/* --- ACTIONS --- */}
+      {                     }
       <div className="flex items-center justify-between gap-3">
         <div>
           {!isOwnProfile && <ReportButton targetUserId={user.id} targetUserName={user.name!} />}
@@ -160,9 +158,9 @@ export function UserDetails({ user, stats, isOwnProfile }: Props) {
         </div>
       </div>
 
-      {/* --- IDENTITY --- */}
+      {                      }
       <div className="mt-6 flex flex-col items-center gap-8 text-center md:mt-8 md:flex-row md:items-start md:gap-14 md:text-left">
-        {/* Avatar inside an open enso */}
+        {                                }
         <div className="relative size-40 shrink-0 text-[#d4af37] md:size-52">
           <EnsoRing />
           <div className="absolute inset-[9%] overflow-hidden rounded-full bg-[#1a110d]">
@@ -214,7 +212,7 @@ export function UserDetails({ user, stats, isOwnProfile }: Props) {
             )}
           </p>
 
-          {/* --- BIO --- */}
+          {                 }
           <div className="mt-8 max-w-prose">
             {isOwnProfile && isEditingBio ? (
               <div className="space-y-3 text-left">
@@ -267,7 +265,7 @@ export function UserDetails({ user, stats, isOwnProfile }: Props) {
         </div>
       </div>
 
-      {/* --- STATS: one ruled strip --- */}
+      {                                    }
       <dl className="mt-12 grid grid-cols-2 border-y border-[#3e2723] md:mt-16 md:grid-cols-4">
         <Stat label="Solved" value={stats.solved} />
         <Stat label="Discussions" value={stats.discussions} />

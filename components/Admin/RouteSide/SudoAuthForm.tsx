@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldAlert, Loader2, KeyRound, UserCog } from "lucide-react";
-import { toast } from "sonner"; // Assuming you use Sonner or standard toast
+import { toast } from "sonner";                                             
 
 export default function SudoAuthForm() {
   const [password, setPassword] = useState("");
@@ -60,11 +60,11 @@ export default function SudoAuthForm() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      {/* Visual Decoration */}
+      {                       }
       <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-[#3e2723] via-[#d4af37] to-[#3e2723] opacity-50" />
 
       <div className="w-full max-w-md bg-[#1a110d] border border-[#3e2723] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
-        {/* Header */}
+        {            }
         <div className="bg-[#1f1512] p-8 text-center border-b border-[#3e2723]">
           <div className="mx-auto bg-[#d4af37]/10 w-16 h-16 rounded-full flex items-center justify-center mb-4 text-[#d4af37]">
             <ShieldAlert size={32} />
@@ -73,9 +73,9 @@ export default function SudoAuthForm() {
           <p className="text-[#a1887f] text-sm mt-2">Verify your Sudo credentials to proceed.</p>
         </div>
 
-        {/* Form */}
+        {          }
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          {/* Role Selection */}
+          {                    }
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-[#795548] flex items-center gap-2">
               <UserCog size={14} /> Claim Role
@@ -106,7 +106,7 @@ export default function SudoAuthForm() {
             </div>
           </div>
 
-          {/* Password Input */}
+          {                    }
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-[#795548] flex items-center gap-2">
               <KeyRound size={14} /> Sudo Password
@@ -120,14 +120,14 @@ export default function SudoAuthForm() {
             />
           </div>
 
-          {/* Error Message */}
+          {                   }
           {error && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center animate-in fade-in slide-in-from-top-2">
               {error}
             </div>
           )}
 
-          {/* Submit Button */}
+          {                   }
           <button
             type="submit"
             disabled={loading || !password}

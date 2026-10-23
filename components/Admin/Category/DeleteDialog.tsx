@@ -45,7 +45,7 @@ export function DeleteCategoryDialog({ category, open, onOpenChange, onSuccess }
 
       toast.success("Category deleted!");
       router.refresh();
-      onSuccess(); // Close dialog
+      onSuccess();                
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong");
@@ -73,7 +73,7 @@ export function DeleteCategoryDialog({ category, open, onOpenChange, onSuccess }
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
-              e.preventDefault(); // Prevent auto-close so we can show loading state
+              e.preventDefault();                                                   
               handleDelete();
             }}
             className="bg-red-900/50 text-red-200 border border-red-900 hover:bg-red-900"

@@ -11,7 +11,6 @@ import { sendSudoPasswordEmail } from "@/utils/roleEmail";
 export async function setRole(formData: FormData) {
   const client = await clerkClient();
 
-  // Check that the user trying to set the Role is an admin
   if (!checkRole("admin")) {
     return { message: "Not Authorized" };
   }

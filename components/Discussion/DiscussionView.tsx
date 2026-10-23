@@ -43,10 +43,9 @@ export default function DiscussionViewer({ discussion }: { discussion: Discussio
               <div className="mt-2">
                 <Badge
                   variant="outline"
-                  // CHANGE 2: Use 'color' instead of 'style'
                   className={`px-2 py-0.5 rounded text-[10px] font-mono whitespace-nowrap border ${postTag.color} hover:bg-transparent`}
                 >
-                  {/* CHANGE 3: Use 'name' instead of 'label' */}
+                  {                                             }
                   {postTag.name}
                 </Badge>
               </div>

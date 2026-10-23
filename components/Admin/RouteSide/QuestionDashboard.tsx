@@ -92,7 +92,7 @@ export default function QuestionsDashboard({ initialCategories }: Props) {
 
   return (
     <div className="space-y-8 w-full">
-      {/* --- 1. TOP NAVIGATION CARDS --- */}
+      {                                     }
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-5">
         {[
           {
@@ -139,7 +139,7 @@ export default function QuestionsDashboard({ initialCategories }: Props) {
       </div>
 
       <div className="flex flex-col gap-6">
-        {/* --- 2. FILTER HEADER --- */}
+        {                              }
         <div className="rounded-xl border border-[#3e2723] bg-[#1a110d] overflow-hidden">
           <div className="p-4 flex items-center justify-between border-b border-[#3e2723]">
             <h2 className="text-base md:text-lg font-semibold text-[#eaddcf] flex items-center gap-2">
@@ -201,7 +201,7 @@ export default function QuestionsDashboard({ initialCategories }: Props) {
           </div>
         </div>
 
-        {/* --- 3. SEARCH & TABLE --- */}
+        {                               }
         <div className="space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5d4037]" />
@@ -213,7 +213,7 @@ export default function QuestionsDashboard({ initialCategories }: Props) {
             />
           </div>
 
-          {/* Table Wrapper */}
+          {                   }
           <div className="rounded-xl border border-[#3e2723] bg-[#1a110d]/40 overflow-hidden min-h-[300px] w-full">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm whitespace-nowrap">
@@ -262,7 +262,7 @@ export default function QuestionsDashboard({ initialCategories }: Props) {
                           >
                             {q.title}
                           </Link>
-                          {/* Mobile-only tags */}
+                          {                      }
                           <div className="md:hidden mt-1 flex gap-1">
                             {q.categories.slice(0, 2).map((c) => (
                               <span key={c.slug} className="text-[10px] text-[#a1887f]">
@@ -320,7 +320,7 @@ export default function QuestionsDashboard({ initialCategories }: Props) {
                         </td>
                         <td className="p-4 text-right">
                           {" "}
-                          {/* ✅ Removed sticky classes */}
+                          {                              }
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild onClick={(event) => event.stopPropagation()}>
                               <Button

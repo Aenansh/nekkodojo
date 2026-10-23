@@ -29,22 +29,18 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Form State
   const [name, setName] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
   
-  // Logic: "Include Logo" Checkbox
   const [includeLogo, setIncludeLogo] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoId, setLogoId] = useState<string | null>(null);
 
-  // Load data on open
   useEffect(() => {
     if (company) {
       setName(company.name);
       setWebsiteUrl(company.websiteUrl || "");
       
-      // Checkbox Logic: If DB has a logo, check the box.
       if (company.logo) {
         setIncludeLogo(true);
         setLogoUrl(company.logo);
@@ -57,11 +53,9 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
     }
   }, [company]);
 
-  // Handle Checkbox Toggle
   const handleCheckboxChange = (checked: boolean) => {
     setIncludeLogo(checked);
     if (!checked) {
-      // If unchecked, we intend to delete the logo
       setLogoUrl(null);
       setLogoId(null);
     }
@@ -70,7 +64,6 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
   const handleUpdate = async () => {
     if (!company) return;
     
-    // Validation: If checked, must have a file
     if (includeLogo && !logoUrl) {
       toast.error("Please upload a logo or uncheck the 'Has Logo' option.");
       return;
@@ -78,8 +71,6 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
 
     setIsLoading(true);
 
-    // Prepare payload
-    // If !includeLogo, send nulls to trigger deletion in API
     const finalLogoUrl = includeLogo ? logoUrl : null;
     const finalLogoId = includeLogo ? logoId : null;
 
@@ -91,7 +82,6 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
           websiteUrl,
           logo: finalLogoUrl,
           logoId: finalLogoId,
-          // Note: We do NOT send slug update here to avoid breaking links
         }),
       });
 
@@ -119,7 +109,7 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          {/* Name Input */}
+          {                }
           <div className="grid gap-2">
             <Label htmlFor="edit-name" className="text-[#a1887f]">Name</Label>
             <Input
@@ -130,7 +120,7 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
             />
           </div>
 
-          {/* Read-Only Slug */}
+          {                    }
           <div className="grid gap-2">
             <Label className="text-[#a1887f]">Slug (Read-only)</Label>
             <div className="px-3 py-2 rounded-md bg-[#0f0b0a]/50 border border-[#3e2723] text-[#5d4037] font-mono text-sm">
@@ -138,7 +128,7 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
             </div>
           </div>
 
-          {/* Website Input */}
+          {                   }
           <div className="grid gap-2">
             <Label htmlFor="edit-web" className="text-[#a1887f]">Website URL</Label>
             <Input
@@ -149,7 +139,7 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
             />
           </div>
 
-          {/* Checkbox Logic */}
+          {                    }
           <div className="flex items-center space-x-2 border border-[#3e2723] p-3 rounded-md bg-[#0f0b0a]/30 mt-2">
             <Checkbox 
               id="has-logo" 
@@ -162,7 +152,7 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
             </Label>
           </div>
 
-          {/* Uploader (Conditionally Rendered) */}
+          {                                       }
           {includeLogo && (
             <div className="grid gap-2 animate-in fade-in zoom-in-95 duration-200">
               <LogoUploader 
@@ -174,8 +164,6 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
                 onRemove={() => {
                   setLogoUrl(null);
                   setLogoId(null);
-                  // Note: We don't uncheck the box here automatically, 
-                  // keeping it checked allows user to upload a different one.
                 }}
               />
             </div>

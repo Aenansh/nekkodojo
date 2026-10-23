@@ -11,7 +11,7 @@ interface PodiumUser {
   id: string;
   name: string;
   profileUrl: string | null;
-  beltRank: string; // Add Belt Rank
+  beltRank: string;                 
   stats: {
     reputation: number;
     companies: number;
@@ -20,7 +20,6 @@ interface PodiumUser {
 }
 
 export function Podium({ users, type }: { users: PodiumUser[]; type: string }) {
-  // Sort for display logic: 2nd, 1st, 3rd
   const first = users[0];
   const second = users[1];
   const third = users[2];
@@ -61,7 +60,6 @@ function PodiumStep({
       ? "border-slate-400"
       : "border-[#8d6e63]";
 
-  // Find Belt Color
   const beltInfo =
     BELTS.find((b) => b.name.toLowerCase().replace(" ", "_") === user.beltRank) || BELTS[0];
 
@@ -82,7 +80,7 @@ function PodiumStep({
         </motion.div>
       )}
 
-      {/* Avatar */}
+      {            }
       <div className="relative mb-3 md:mb-4">
         <Link href={`/member/${user.name}`}>
           <div
@@ -101,7 +99,7 @@ function PodiumStep({
               </div>
             )}
           </div>
-          {/* Belt Badge */}
+          {                }
           <div
             className={cn(
               "absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1.5 rounded-full shadow-sm",
@@ -123,7 +121,7 @@ function PodiumStep({
         <p className="text-[#d4af37] font-mono font-bold">{score.toLocaleString()}</p>
       </div>
 
-      {/* Pedestal with Gradient */}
+      {                            }
       <div
         className={cn(
           "w-24 md:w-40 bg-linear-to-t from-[#1a110d] to-[#2d211e] rounded-t-lg border-x border-t relative flex items-start justify-center pt-4 shadow-2xl",

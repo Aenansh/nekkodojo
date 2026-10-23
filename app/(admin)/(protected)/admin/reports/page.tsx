@@ -15,11 +15,12 @@ import { UserReportCard } from "@/components/Admin/RouteSide/UserReportCard";
 import { BannedUserCard } from "@/components/Admin/RouteSide/BannedUserCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+export const metadata = { title: "Moderation Reports" };
+
 export default async function AdminReportsPage() {
   const user = await currentUser();
   if (!user || (!checkRole("admin") && !checkRole("moderator"))) redirect("/");
 
-  // 1. Fetch PENDING User Reports
   const userReports = await prisma.report.findMany({
     where: { status: "PENDING", reportedId: { not: null } },
     include: {
@@ -57,7 +58,6 @@ export default async function AdminReportsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // 2. Fetch ALL Banned Users
   const bannedUsers = await prisma.user.findMany({
     where: { isBanned: true },
     select: {
@@ -71,7 +71,6 @@ export default async function AdminReportsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // 3. Fetch History
   const oneDayAgo = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
   const resolvedReports = await prisma.report.findMany({
     where: { status: { not: "PENDING" }, createdAt: { gte: oneDayAgo } },
@@ -99,7 +98,7 @@ export default async function AdminReportsPage() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* HEADER */}
+      {            }
       <div className="flex items-center gap-3 border-b border-[#3e2723] pb-6">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-900/20 text-red-500 border border-red-900/50">
           <MessageSquareWarning size={24} />

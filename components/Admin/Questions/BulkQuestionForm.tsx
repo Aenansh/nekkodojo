@@ -82,7 +82,7 @@ export default function BulkQuestionForm() {
   return (
     <div className="space-y-6 p-1">
       <div className="bg-[#1a110d]/40 p-6 rounded-xl border border-[#3e2723] space-y-4">
-        {/* Template Download */}
+        {                       }
         <div className="flex items-center justify-between p-4 bg-[#0f0b0a] rounded-lg border border-[#3e2723]">
           <div className="text-sm text-[#a1887f]">
             <p className="font-bold text-[#eaddcf]">Need the format?</p>
@@ -103,7 +103,7 @@ export default function BulkQuestionForm() {
           </Button>
         </div>
 
-        {/* File Input */}
+        {                }
         <div className="space-y-4">
           <Input
             type="file"
@@ -126,7 +126,7 @@ export default function BulkQuestionForm() {
           </Button>
         </div>
 
-        {/* Stats */}
+        {           }
         {stats && (
           <>
             <Alert

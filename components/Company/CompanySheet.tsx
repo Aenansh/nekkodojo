@@ -17,7 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { SHELF_BUTTONS } from "@/constants/shelfs";
 
-// Types
 type QuestionStatus = "unvisited" | "attempted" | "completed";
 type ShelfType = "later" | "revisit" | "important" | "stuck";
 
@@ -47,12 +46,10 @@ export interface QuestionItem {
 interface Props {
   questions: QuestionItem[];
   companyName: string;
-  // ✅ NEW PROP: Receive the progress map directly
   userProgress: Record<string, string>;
 }
 
 export function CompanyQuestionsSheet({ questions, companyName, userProgress }: Props) {
-  // ✅ Initialize state immediately from props (No loading flicker!)
   const [progress, setProgress] = useState<Record<string, QuestionStatus>>(
     userProgress as Record<string, QuestionStatus>
   );
@@ -63,7 +60,6 @@ export function CompanyQuestionsSheet({ questions, companyName, userProgress }: 
   useEffect(() => {
     const syncShelfData = async () => {
       try {
-        // We ONLY fetch shelf data now, since progress is already here.
         const shelfRes = await fetch("/api/shelf");
         if (shelfRes.ok) {
           const shelfData: unknown = await shelfRes.json();
@@ -216,7 +212,7 @@ export function CompanyQuestionsSheet({ questions, companyName, userProgress }: 
               )}
             >
               <div className="flex items-center w-full">
-                {/* Checkbox Section */}
+                {                      }
                 <div className="pl-5 py-4 flex items-center justify-center">
                   <Checkbox
                     checked={isSolved}
@@ -229,7 +225,7 @@ export function CompanyQuestionsSheet({ questions, companyName, userProgress }: 
                   />
                 </div>
 
-                {/* Trigger Area */}
+                {                  }
                 <AccordionTrigger className="hover:no-underline py-4 px-5 flex-1">
                   <div className="flex items-center gap-4 w-full">
                     <span className="font-mono text-xs text-[#5d4037] w-6">
@@ -289,7 +285,7 @@ export function CompanyQuestionsSheet({ questions, companyName, userProgress }: 
                 </AccordionTrigger>
               </div>
 
-              {/* Content Area */}
+              {                  }
               <AccordionContent className="border-t border-[#3e2723]/50 bg-[#0f0b0a]/30">
                 <div className="px-6 py-6 space-y-6">
                   <div className="relative pl-4 border-l-2 border-[#d4af37]/20">
@@ -342,7 +338,7 @@ export function CompanyQuestionsSheet({ questions, companyName, userProgress }: 
                     </div>
 
                     <div className="flex items-center gap-3">
-                      {/* --- SHELF BUTTONS SECTION --- */}
+                      {                                   }
                       <div className="hidden sm:flex flex-col items-end mr-1">
                         <span className="text-[10px] text-[#5d4037] font-bold tracking-widest uppercase">
                           Shelf

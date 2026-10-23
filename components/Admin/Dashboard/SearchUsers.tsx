@@ -16,7 +16,6 @@ export const SearchUsers = () => {
     const formData = new FormData(form);
     const queryTerm = formData.get("search") as string;
     
-    // Construct new URL parameters
     const params = new URLSearchParams(searchParams);
     if (queryTerm) {
       params.set("search", queryTerm);
@@ -31,7 +30,7 @@ export const SearchUsers = () => {
     <div className="w-full max-w-sm">
       <form onSubmit={handleSubmit} className="relative group">
         
-        {/* Search Icon (Absolute positioned inside input) */}
+        {                                                    }
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5d4037] group-focus-within:text-[#d4af37] transition-colors duration-300">
           <Search size={18} />
         </div>
@@ -54,7 +53,7 @@ export const SearchUsers = () => {
           "
         />
 
-        {/* Submit Button (Inside the input on the right) */}
+        {                                                   }
         <Button 
           type="submit" 
           size="sm"

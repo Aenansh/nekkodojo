@@ -9,7 +9,7 @@ export default function BookmarksHub() {
       <Seigaiha />
 
       <div className="relative mx-auto w-full max-w-5xl space-y-10 p-6 md:py-14">
-        {/* ---------- Header ---------- */}
+        {                                  }
         <header className="animate-in fade-in slide-in-from-top-4 space-y-4 text-center duration-700">
           <div className="mx-auto flex size-14 items-center justify-center rounded-md border border-[#d4af37]/40 bg-[#2c1810] text-[#d4af37] shadow-[0_0_0_3px_#120c0a,0_0_0_4px_rgba(212,175,55,0.2)]">
             <CatMark className="size-8" />
@@ -29,7 +29,7 @@ export default function BookmarksHub() {
           </p>
         </header>
 
-        {/* ---------- Cards ---------- */}
+        {                                 }
         <div className="grid gap-6 md:grid-cols-2">
           <ArchiveCard
             href="/archives/shelf"
@@ -53,7 +53,7 @@ export default function BookmarksHub() {
           />
         </div>
 
-        {/* ---------- Paw trail ---------- */}
+        {                                     }
         <div className="flex items-center justify-center gap-6 pt-2" aria-hidden="true">
           <span className="h-px w-20 bg-linear-to-r from-transparent to-[#3e2723]" />
           <div className="flex items-center gap-3 text-[#d4af37]">
@@ -68,9 +68,6 @@ export default function BookmarksHub() {
   );
 }
 
-/* ================================================================
-   Card: an illustrated panel on top, text below
-   ================================================================ */
 function ArchiveCard({
   href,
   scene,
@@ -97,13 +94,13 @@ function ArchiveCard({
       style={{ animationDelay: `${delay}ms` }}
     >
       <article className="relative flex h-full flex-col overflow-hidden rounded-xl border border-[#3e2723] bg-[#14100d] transition-all duration-500 group-hover:-translate-y-1 group-hover:border-[#d4af37]/60 group-hover:shadow-[0_24px_48px_-24px_rgba(212,175,55,0.25)]">
-        {/* gold line drawn from the centre of the top edge */}
+        {                                                     }
         <span
           aria-hidden="true"
           className="absolute inset-x-6 top-0 z-20 h-0.5 origin-center scale-x-0 bg-[#d4af37] transition-transform duration-500 ease-out group-hover:scale-x-100"
         />
 
-        {/* illustration */}
+        {                  }
         <div className="relative h-52 overflow-hidden border-b border-[#3e2723] bg-linear-to-b from-[#2c1810] to-[#14100d]">
           <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-105">
             {scene}
@@ -111,7 +108,7 @@ function ArchiveCard({
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#14100d]/70 via-transparent to-transparent" />
         </div>
 
-        {/* text */}
+        {          }
         <div className="relative flex flex-1 flex-col p-7">
           <span
             aria-hidden="true"
@@ -141,9 +138,6 @@ function ArchiveCard({
   );
 }
 
-/* ================================================================
-   Scene 1: a shelf of scrolls with a cat keeping watch
-   ================================================================ */
 function ShelfScene() {
   const heights = [70, 62, 72, 58, 68, 64, 70, 60];
   const fills = ["#3e2723", "#5d4037", "#2c1810", "#6d4c41"];
@@ -163,11 +157,11 @@ function ShelfScene() {
       </defs>
       <circle cx="200" cy="110" r="160" fill="url(#shelfGlow)" />
 
-      {/* back panels */}
+      {                 }
       <rect x="64" y="38" width="272" height="76" fill="#0f0b0a" opacity="0.65" />
       <rect x="64" y="121" width="272" height="77" fill="#0f0b0a" opacity="0.65" />
 
-      {/* frame */}
+      {           }
       <g fill="#4a2f25" stroke="#3e2723" strokeWidth="1">
         <rect x="56" y="34" width="8" height="172" />
         <rect x="336" y="34" width="8" height="172" />
@@ -176,7 +170,7 @@ function ShelfScene() {
         <rect x="50" y="198" width="300" height="8" rx="1" />
       </g>
 
-      {/* lower shelf: standing scrolls */}
+      {                                   }
       {heights.map((h, i) => {
         const x = 80 + i * 22;
         const y = 198 - h;
@@ -197,19 +191,19 @@ function ShelfScene() {
         );
       })}
 
-      {/* lower shelf: scrolls lying down */}
+      {                                     }
       <rect x="262" y="182" width="66" height="16" rx="8" fill="#4a2f25" stroke="#5d4037" />
       <rect x="268" y="166" width="54" height="16" rx="8" fill="#6d4c41" stroke="#5d4037" />
       <rect x="292" y="182" width="4" height="16" fill="#d4af37" opacity="0.8" />
       <rect x="292" y="166" width="4" height="16" fill="#d4af37" opacity="0.8" />
 
-      {/* upper shelf: scrolls lying down */}
+      {                                     }
       <rect x="80" y="100" width="80" height="14" rx="7" fill="#5d4037" stroke="#3e2723" />
       <rect x="86" y="86" width="64" height="14" rx="7" fill="#4a2f25" stroke="#5d4037" />
       <rect x="116" y="100" width="4" height="14" fill="#d4af37" opacity="0.8" />
       <rect x="112" y="86" width="4" height="14" fill="#d4af37" opacity="0.8" />
 
-      {/* the cat */}
+      {             }
       <path
         d="M290 112 C 318 112, 322 84, 304 78"
         fill="none"
@@ -257,9 +251,6 @@ function ShelfScene() {
   );
 }
 
-/* ================================================================
-   Scene 2: a hanging scroll with a bookmark ribbon, cat tail and paw prints
-   ================================================================ */
 function ScrollScene() {
   return (
     <svg
@@ -276,7 +267,7 @@ function ScrollScene() {
       </defs>
       <circle cx="200" cy="110" r="160" fill="url(#scrollGlow)" />
 
-      {/* paw prints walking toward the scroll */}
+      {                                          }
       <g fill="#d4af37" opacity="0.22">
         <PawShape x={62} y={188} r={-15} s={1.1} />
         <PawShape x={92} y={158} r={10} s={1.1} />
@@ -284,7 +275,7 @@ function ScrollScene() {
         <PawShape x={96} y={98} r={10} s={1.1} />
       </g>
 
-      {/* the cat's tail, curling out from behind the scroll */}
+      {                                                        }
       <path
         d="M254 196 C 300 196, 312 150, 294 128"
         fill="none"
@@ -300,11 +291,11 @@ function ScrollScene() {
         strokeLinecap="round"
       />
 
-      {/* hanging cord */}
+      {                  }
       <path d="M150 26 L200 4 L250 26" fill="none" stroke="#8d6e63" strokeWidth="1.5" />
       <circle cx="200" cy="4" r="3" fill="#d4af37" />
 
-      {/* top rod, mounting, paper */}
+      {                              }
       <rect x="140" y="22" width="120" height="8" rx="4" fill="#5d4037" />
       <rect x="148" y="30" width="104" height="160" fill="#3e2723" stroke="#5d4037" />
       <rect
@@ -317,7 +308,7 @@ function ScrollScene() {
         strokeOpacity="0.3"
       />
 
-      {/* brushed columns of text */}
+      {                             }
       <g
         stroke="#d4af37"
         strokeOpacity="0.45"
@@ -330,26 +321,23 @@ function ScrollScene() {
         <line x1="220" y1="58" x2="220" y2="124" />
       </g>
 
-      {/* hanko seal */}
+      {                }
       <rect x="212" y="146" width="18" height="18" rx="2" fill="#d4af37" />
       <text x="221" y="159.5" textAnchor="middle" fontSize="13" fill="#1a110d" fontFamily="serif">
         猫
       </text>
 
-      {/* bottom roller */}
+      {                   }
       <rect x="140" y="190" width="120" height="8" rx="4" fill="#5d4037" />
       <circle cx="140" cy="194" r="6" fill="#d4af37" stroke="#5d4037" />
       <circle cx="260" cy="194" r="6" fill="#d4af37" stroke="#5d4037" />
 
-      {/* bookmark ribbon */}
+      {                     }
       <polygon points="228,30 240,30 240,74 234,67 228,74" fill="#d4af37" opacity="0.95" />
     </svg>
   );
 }
 
-/* ================================================================
-   Shared graphics
-   ================================================================ */
 function Seigaiha() {
   const mask = "linear-gradient(to bottom, black 0%, transparent 100%)";
   return (
@@ -410,7 +398,6 @@ function Paw({ className }: { className?: string }) {
   );
 }
 
-/* A paw print placed inside another SVG, centred on (x, y) */
 function PawShape({ x, y, r, s }: { x: number; y: number; r: number; s: number }) {
   return (
     <g transform={`translate(${x} ${y}) rotate(${r}) scale(${s}) translate(-12 -12)`}>

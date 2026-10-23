@@ -2,6 +2,8 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import LanguageManagementClient from "@/components/Admin/Questions/LanguageManagementClient";
 
+export const metadata = { title: "Language Management" };
+
 export default async function LanguageManagementPage() {
   const user = await currentUser();
   if (!user || user.publicMetadata.role !== "admin") {

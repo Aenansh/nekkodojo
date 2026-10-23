@@ -40,7 +40,6 @@ const DiscussionDropDown = ({ discussion, authorId }: Props) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // 1. OPTIMISTIC STATE: Initialize with prop value
   const [isBookmarked, setIsBookmarked] = useState(discussion.isBookmarked || false);
 
   if (!user) return null;
@@ -53,7 +52,7 @@ const DiscussionDropDown = ({ discussion, authorId }: Props) => {
     setIsBookmarked(!previousState);
 
     const action = !previousState ? "Bookmarked" : "Removed bookmark";
-    toast.success(action); // Instant feedback
+    toast.success(action);                    
 
     try {
       const res = await fetch(`/api/discussions/${discussion.id}/bookmark`, {
@@ -115,7 +114,7 @@ const DiscussionDropDown = ({ discussion, authorId }: Props) => {
           >
             <MoreHorizontal size={20} />
 
-            {/* Visual Marker: A small bookmark badge if active */}
+            {                                                     }
             {isBookmarked && (
               <span className="absolute -top-1 -right-1">
                 <BookmarkCheck size={12} className="text-[#d4af37] fill-[#d4af37]" />
@@ -133,7 +132,7 @@ const DiscussionDropDown = ({ discussion, authorId }: Props) => {
           </DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-[#3e2723]/50" />
 
-          {/* Bookmark Option (Optimistic) */}
+          {                                  }
           <DropdownMenuItem
             className="cursor-pointer focus:bg-[#d4af37]/10 focus:text-[#d4af37] gap-2 py-2"
             onClick={handleBookmark}
@@ -174,7 +173,7 @@ const DiscussionDropDown = ({ discussion, authorId }: Props) => {
                 type="discussion"
                 trigger={
                   <DropdownMenuItem
-                    onSelect={(e) => e.preventDefault()} // CRITICAL: Prevents dropdown from closing
+                    onSelect={(e) => e.preventDefault()}                                            
                     className="cursor-pointer focus:bg-[#d4af37]/10 focus:text-[#d4af37] gap-2 py-2 w-full"
                   >
                     <Flag size={16} />
@@ -194,7 +193,7 @@ const DiscussionDropDown = ({ discussion, authorId }: Props) => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Delete Dialog (Unchanged) */}
+      {                               }
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="bg-[#1a110d] border border-[#d4af37]/30 text-[#eaddcf] sm:max-w-md shadow-2xl">
           <DialogHeader>

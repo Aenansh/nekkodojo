@@ -21,7 +21,6 @@ import Image from "next/image";
 
 type ClerkErr = { errors?: { message?: string }[] };
 
-/* ---------- Left panel artwork: enso circle, blossom branch, falling petals ---------- */
 const PETALS = [
   { x: 120, y: 180, r: 20, s: 1 },
   { x: 260, y: 90, r: -35, s: 0.8 },
@@ -83,7 +82,7 @@ function RegisterArt() {
       <rect width="800" height="1000" fill="#150e0b" />
       <circle cx="400" cy="560" r="420" fill="url(#glow)" />
 
-      {/* enso: an open brush circle */}
+      {                                }
       <path
         d="M 400 330 A 230 230 0 1 1 250 400"
         fill="none"
@@ -101,7 +100,7 @@ function RegisterArt() {
         strokeLinecap="round"
       />
 
-      {/* blossom branch from the top-right corner */}
+      {                                              }
       <path
         d="M 800 30 C 700 70, 600 130, 520 190 S 400 260, 340 300"
         fill="none"
@@ -120,7 +119,7 @@ function RegisterArt() {
         <Blossom key={i} {...b} />
       ))}
 
-      {/* falling petals */}
+      {                    }
       {PETALS.map((p, i) => (
         <g key={i} transform={`translate(${p.x} ${p.y}) rotate(${p.r})`} opacity="0.55">
           <Petal s={p.s} />
@@ -242,7 +241,7 @@ const SignUpPage = () => {
 
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-2 bg-[#0f0b0a] text-[#eaddcf]">
-      {/* ---------- Left: auth ---------- */}
+      {                                      }
       <main className="relative flex items-center justify-center px-6 py-12 sm:px-12">
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(62,39,35,0.35),transparent_60%)]" />
 
@@ -427,7 +426,7 @@ const SignUpPage = () => {
         </div>
       </main>
 
-      {/* ---------- Right: graphics ---------- */}
+      {                                           }
       <aside className="relative hidden lg:flex flex-col justify-between overflow-hidden border-l border-[#3e2723] bg-[#150e0b] p-12">
         <RegisterArt />
         <Link

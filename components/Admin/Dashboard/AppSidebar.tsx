@@ -63,7 +63,6 @@ export function AppSidebar() {
   const basePath = isModeratorPath ? "/moderator" : "/admin";
   const userRole = (user?.publicMetadata.role as string) || "user";
 
-  // --- CONFIGURATION ---
   const items = [
     {
       title: "Dashboard",
@@ -97,10 +96,9 @@ export function AppSidebar() {
     },
     {
       title: "Katas",
-      url: `${basePath}/questions`, // Parent URL (optional if using sub-items)
+      url: `${basePath}/questions`,                                            
       icon: Feather,
       allowedRoles: ["admin"],
-      // 1. NESTED SUB-ITEMS
       subItems: [
         {
           title: "All Questions",
@@ -138,7 +136,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-r border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
-      {/* --- HEADER --- */}
+      {                    }
       <SidebarHeader className="border-b border-[#3e2723] p-4 bg-[#1a110d]">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3e2723]/30 text-[#d4af37]">
@@ -153,7 +151,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      {/* --- CONTENT --- */}
+      {                     }
       <SidebarContent className="bg-[#1a110d]">
         <SidebarGroup>
           <SidebarGroupLabel className="text-[#5d4037] uppercase tracking-wider text-xs font-bold mt-2">
@@ -162,20 +160,16 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
-                // Permission Check
                 if (!item.allowedRoles.includes(userRole)) return null;
 
-                // 2. CHECK IF PARENT IS ACTIVE
-                // Used to keep the collapsible open if we are visiting a sub-route
                 const isParentActive = pathname.startsWith(item.url);
 
-                // --- RENDER NESTED ITEM (KATAS) ---
                 if (item.subItems) {
                   return (
                     <Collapsible
                       key={item.title}
                       asChild
-                      defaultOpen={isParentActive} // Auto-open if we are in this section
+                      defaultOpen={isParentActive}                                       
                       className="group/collapsible"
                     >
                       <SidebarMenuItem>
@@ -217,7 +211,7 @@ export function AppSidebar() {
                                     `}
                                   >
                                     <Link href={subItem.url} className="flex items-center gap-2">
-                                      {/* Optional: Show small icons for sub-items too */}
+                                      {                                                  }
                                       {subItem.icon && <subItem.icon className="w-3 h-3 opacity-70" />}
                                       <span>{subItem.title}</span>
                                     </Link>
@@ -232,7 +226,6 @@ export function AppSidebar() {
                   );
                 }
 
-                // --- RENDER STANDARD ITEM ---
                 const isActive = pathname === item.url || pathname.startsWith(item.url + "/");
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -262,7 +255,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-[#3e2723] bg-[#1a110d] p-4">
-        {/* ... Footer logic remains exactly the same ... */}
+        {                                                   }
         <SidebarMenu>
           {isLoaded && user && (
             <SidebarMenuItem>

@@ -13,9 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Import your EXISTING component
 import CreateQuestionForm from "./CreateQuestionForm";
-// Import the NEW component
 import BulkQuestionForm from "./BulkQuestionForm";
 
 interface Option {
@@ -44,7 +42,7 @@ export default function QuestionCreationManager({
         </Button>
       </SheetTrigger>
 
-      {/* Wide sheet to fit your form comfortably */}
+      {                                             }
       <SheetContent className="w-full sm:max-w-3xl p-4 bg-[#0f0b0a] border-l border-[#3e2723] overflow-y-auto text-[#eaddcf]">
         <SheetHeader className="mb-6">
           <SheetTitle className="text-[#eaddcf] text-2xl font-black uppercase">
@@ -72,7 +70,7 @@ export default function QuestionCreationManager({
           </TabsList>
 
           <TabsContent value="single">
-            {/* Using your existing form here */}
+            {                                   }
             <CreateQuestionForm
               categoryOptions={categoryOptions}
               companyOptions={companyOptions}

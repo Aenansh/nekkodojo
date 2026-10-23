@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionHeading, CatSeal } from "./Profileornaments";
 
-// Types
 interface CategoryStat {
   name: string;
   solved: number;
@@ -54,7 +53,6 @@ export default function ProfileCharts({
   const visibleCategories = expandCategories ? categoryStats : categoryStats.slice(0, 6);
   const visibleCompanies = expandCompanies ? companyStats : companyStats.slice(0, 6);
 
-  // --- EMPTY STATE ---
   if (totalSolved <= 0) {
     return (
       <div className="space-y-16 md:space-y-20">
@@ -89,7 +87,7 @@ export default function ProfileCharts({
 
   return (
     <div className="space-y-16 md:space-y-20">
-      {/* --- DIFFICULTY --- */}
+      {                        }
       <section aria-labelledby="difficulty-heading">
         <SectionHeading id="difficulty-heading" title="Difficulty" kanji="難易度" />
 
@@ -141,7 +139,7 @@ export default function ProfileCharts({
         </div>
       </section>
 
-      {/* --- TRAINING LOG --- */}
+      {                          }
       {activityData.length > 0 && (
         <section aria-labelledby="log-heading">
           <SectionHeading id="log-heading" title="Training log" kanji="稽古" />
@@ -149,7 +147,7 @@ export default function ProfileCharts({
         </section>
       )}
 
-      {/* --- CATEGORIES --- */}
+      {                        }
       {categoryStats.length > 0 && (
         <section aria-labelledby="category-heading">
           <SectionHeading id="category-heading" title="Categories" kanji="分野" />
@@ -168,7 +166,7 @@ export default function ProfileCharts({
         </section>
       )}
 
-      {/* --- COMPANIES --- */}
+      {                       }
       {companyStats.length > 0 && (
         <section aria-labelledby="company-heading">
           <SectionHeading id="company-heading" title="Companies" kanji="企業" />
@@ -180,7 +178,6 @@ export default function ProfileCharts({
                 solved={company.solved}
                 total={company.total}
                 leading={
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={company.logo}
                     alt=""
@@ -203,7 +200,6 @@ export default function ProfileCharts({
   );
 }
 
-// --- LEDGER ROW: label, count, one thin line ---
 
 function LedgerRow({
   label,
@@ -264,7 +260,6 @@ function ToggleButton({
   );
 }
 
-// --- TRAINING LOG (last 26 weeks) ---
 
 const WEEKS = 26;
 const pad = (n: number) => String(n).padStart(2, "0");

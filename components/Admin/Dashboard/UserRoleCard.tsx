@@ -11,8 +11,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { removeRole, setRole } from "@/app/(admin)/(protected)/_actions"; // Import your server actions directly
-import { toast } from "sonner"; // Optional: For success/error feedback
+import { removeRole, setRole } from "@/app/(admin)/(protected)/_actions";                                       
+import { toast } from "sonner";                                        
 
 interface UserProps {
   id: string;
@@ -24,9 +24,6 @@ interface UserProps {
 }
 
 export function UserRoleCard({ user }: { user: UserProps }) {
-  // 1. Setup Optimistic State
-  // 'optimisticRole' is what we show immediately. 
-  // It reverts to 'user.initialRole' if the server action fails or hasn't run yet.
   const [optimisticRole, setOptimisticRole] = useOptimistic(
     user.initialRole,
     (state, newRole: string) => newRole
@@ -34,28 +31,24 @@ export function UserRoleCard({ user }: { user: UserProps }) {
 
   const [isPending, startTransition] = useTransition();
 
-  // 2. Action Handlers
   const handleSetRole = async (formData: FormData) => {
     const newRole = formData.get("role") as string;
     
-    // A. Optimistically update UI instantly
     startTransition(async () => {
       setOptimisticRole(newRole);
       
-      // B. Call Server Action
       try {
         await setRole(formData);
         toast.success(`Role updated to ${newRole}`);
       } catch (error) {
         toast.error("Failed to update role");
-        // The optimistic state automatically reverts on next render if revalidation fails
       }
     });
   };
 
   const handleRemoveRole = async (formData: FormData) => {
     startTransition(async () => {
-      setOptimisticRole("user"); // Default role
+      setOptimisticRole("user");                
       try {
         await removeRole(formData);
         toast.success("Role revoked");
@@ -68,7 +61,7 @@ export function UserRoleCard({ user }: { user: UserProps }) {
   return (
     <Card className="bg-[#1a110d] border border-[#3e2723] hover:border-[#d4af37]/50 transition-colors group flex flex-col overflow-hidden">
       
-      {/* HEADER */}
+      {            }
       <CardContent className="p-6 flex flex-col items-center text-center space-y-4 flex-1">
         <div className="relative w-20 h-20 rounded-full border-2 border-[#3e2723] overflow-hidden bg-black group-hover:border-[#d4af37] transition-colors">
           <Image 
@@ -89,7 +82,7 @@ export function UserRoleCard({ user }: { user: UserProps }) {
           </div>
         </div>
 
-        {/* ROLE BADGE (Uses optimisticRole) */}
+        {                                      }
         <div className="pt-2">
           <Badge variant="outline" className={`
             capitalize px-3 py-1 font-mono tracking-wide transition-colors duration-300
@@ -102,10 +95,10 @@ export function UserRoleCard({ user }: { user: UserProps }) {
         </div>
       </CardContent>
 
-      {/* FOOTER ACTIONS */}
+      {                    }
       <CardFooter className="p-3 bg-[#0f0b0a] border-t border-[#3e2723] grid grid-cols-3 gap-2">
         
-        {/* Make Admin */}
+        {                }
         <form action={handleSetRole} className="w-full">
           <input type="hidden" value={user.id} name="id" />
           <input type="hidden" value="admin" name="role" />
@@ -121,7 +114,7 @@ export function UserRoleCard({ user }: { user: UserProps }) {
           </Button>
         </form>
 
-        {/* Make Mod */}
+        {              }
         <form action={handleSetRole} className="w-full">
           <input type="hidden" value={user.id} name="id" />
           <input type="hidden" value="moderator" name="role" />
@@ -137,7 +130,7 @@ export function UserRoleCard({ user }: { user: UserProps }) {
           </Button>
         </form>
 
-        {/* Revoke */}
+        {            }
         <form action={handleRemoveRole} className="w-full">
           <input type="hidden" value={user.id} name="id" />
           <Button 

@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { SHELF_BUTTONS, SHELF_TABS } from "@/constants/shelfs";
 
-// Types
 type ShelfType = "later" | "revisit" | "important" | "stuck";
 
 interface ShelfItem {
@@ -29,13 +28,10 @@ export default function ShelfPage() {
   const [items, setItems] = useState<ShelfItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Helper to remove or move an item from the list *after* API success
   const updateLocalState = (questionId: string, newType: ShelfType | null) => {
     if (newType === null) {
-      // Remove item
       setItems((prev) => prev.filter((i) => i.question.id !== questionId));
     } else {
-      // Move item to new tab
       setItems((prev) =>
         prev.map((i) => (i.question.id === questionId ? { ...i, type: newType } : i))
       );
@@ -127,7 +123,6 @@ export default function ShelfPage() {
   );
 }
 
-// --- CARD SUB-COMPONENT ---
 function ShelfCard({
   item,
   onUpdate,
@@ -148,10 +143,8 @@ function ShelfCard({
         : "text-red-400 bg-red-900/20 border-red-900";
 
   const toggleShelf = async (type: ShelfType) => {
-    // 1. Set Loading State
     setLoadingType(type);
 
-    // 2. Determine new action (Move or Remove)
     const newType = item.type === type ? null : type;
 
     try {
@@ -164,7 +157,6 @@ function ShelfCard({
       const msg = newType ? `Moved to ${type}` : "Removed from Shelf";
       toast.success(msg);
 
-      // 3. Update State AFTER success
       onUpdate(question.id, newType);
     } catch (error) {
       console.log(error);
@@ -191,7 +183,7 @@ function ShelfCard({
       </div>
 
       <div className="flex items-center gap-4 self-end sm:self-auto">
-        {/* SHELF BUTTONS */}
+        {                   }
         <div className="flex items-center gap-1.5 p-1.5 rounded-full border border-[#3e2723] bg-[#0f0b0a] shadow-inner">
           <TooltipProvider delayDuration={100}>
             {SHELF_BUTTONS.map((btn) => {

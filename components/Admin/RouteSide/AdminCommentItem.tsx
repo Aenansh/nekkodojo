@@ -20,7 +20,6 @@ import {
 import { deleteComment } from "@/app/(admin)/(protected)/_actions"; 
 import { toast } from "sonner";
 
-// Define the interface here if not imported
 interface CommentProps {
   id: string;
   description: string;
@@ -58,10 +57,10 @@ export function AdminCommentItem({ data }: { data: CommentProps }) {
   return (
     <div className="group flex flex-col gap-3 rounded-xl border border-[#3e2723] bg-[#1a110d] p-4 transition-all hover:border-[#d4af37]/50 hover:bg-[#1a110d]/80">
       
-      {/* Header: Wrapped for Mobile Responsiveness */}
+      {                                               }
       <div className="flex flex-wrap items-start justify-between gap-y-2 gap-x-4">
         
-        {/* Author Info */}
+        {                 }
         <div className="flex items-center gap-2 min-w-0 max-w-full">
           <Avatar className="h-6 w-6 shrink-0 border border-[#3e2723]">
             <AvatarImage src={data.author.profileUrl || ""} />
@@ -79,7 +78,7 @@ export function AdminCommentItem({ data }: { data: CommentProps }) {
           </div>
         </div>
         
-        {/* Context Link */}
+        {                  }
         <Link 
           href={`/discussions/${data.discussion.id}`} 
           target="_blank"
@@ -93,14 +92,14 @@ export function AdminCommentItem({ data }: { data: CommentProps }) {
         </Link>
       </div>
 
-      {/* The Comment Content */}
+      {                         }
       <div className="pl-0 sm:pl-8">
         <p className="text-sm text-[#a1887f] line-clamp-3 leading-relaxed wrap-break-word">
           {data.description}
         </p>
       </div>
 
-      {/* Actions with Alert Dialog */}
+      {                               }
       <div className="flex justify-end pt-2 border-t border-[#3e2723]/50 mt-1">
         <AlertDialog>
           <AlertDialogTrigger asChild>

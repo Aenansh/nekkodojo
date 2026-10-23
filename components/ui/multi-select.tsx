@@ -33,7 +33,6 @@ interface MultiSelectProps {
 
 export function MultiSelect({ options, selected, onChange, placeholder }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false);
-  // We need the width of the trigger to match the popover width perfectly
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const [triggerWidth, setTriggerWidth] = React.useState(0);
 
@@ -92,7 +91,7 @@ export function MultiSelect({ options, selected, onChange, placeholder }: MultiS
         style={{ width: triggerWidth ? `${triggerWidth}px` : 'auto' }}
       >
         <Command className="bg-transparent w-full">
-          {/* Styled Search Input */}
+          {                         }
           <div className="border-b border-[#3e2723] bg-[#0f0b0a]">
             <CommandInput 
               placeholder={`Search ${placeholder?.toLowerCase()}...`} 
@@ -113,14 +112,10 @@ export function MultiSelect({ options, selected, onChange, placeholder }: MultiS
                       : [...selected, option.value];
                     onChange(newSelected);
                   }}
-                  // UPDATED STYLING HERE
                   className={cn(
                     "cursor-pointer transition-colors my-1 rounded-md px-2 py-1.5 text-sm",
-                    // Default state
                     "text-[#a1887f] hover:bg-[#3e2723]/30 hover:text-[#eaddcf]",
-                    // Selected state (checked)
                     selected.includes(option.value) && "bg-[#3e2723]/20 text-[#d4af37]",
-                    // Focus state (keyboard navigation)
                     "aria-selected:bg-[#3e2723]/40 aria-selected:text-[#d4af37]"
                   )}
                 >

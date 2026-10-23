@@ -13,10 +13,11 @@ import {
 } from "lucide-react";
 import { checkRole } from "@/utils/roles";
 
+export const metadata = { title: "Administration" };
+
 export default async function AdminWelcomePage() {
   const user = await currentUser();
 
-  // Security Check
   if (!user || !checkRole("admin")) {
     redirect("/");
   }
@@ -80,7 +81,7 @@ export default async function AdminWelcomePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      {/* Hero Section */}
+      {                  }
       <div className="max-w-4xl w-full text-center space-y-6 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="inline-flex items-center justify-center p-4 rounded-full bg-[#3e2723]/30 border border-[#3e2723] mb-4">
           <ShieldAlert size={48} className="text-[#d4af37]" />
@@ -94,7 +95,7 @@ export default async function AdminWelcomePage() {
         </p>
       </div>
 
-      {/* Navigation Grid */}
+      {                     }
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl w-full animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
         {adminModules.map((module) => (
           <Link
@@ -114,7 +115,7 @@ export default async function AdminWelcomePage() {
             </h3>
             <p className="text-[#a1887f] text-sm leading-relaxed">{module.description}</p>
 
-            {/* Hover Gradient Overlay */}
+            {                            }
             <div
               className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none bg-linear-to-br from-current to-transparent ${module.color}`}
             />

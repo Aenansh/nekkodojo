@@ -1,10 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/**
- * Small cat face drawn as a hanko (name seal). Used as the NekkoDojo mark
- * on the avatar and in empty states. Inherits colour from `currentColor`.
- */
 export function CatSeal({ className, title }: { className?: string; title?: string }) {
   return (
     <svg
@@ -20,21 +16,18 @@ export function CatSeal({ className, title }: { className?: string; title?: stri
       strokeLinejoin="round"
     >
       <rect x="3" y="3" width="42" height="42" rx="3" />
-      {/* head and ears */}
+      {                   }
       <path d="M13 32V15l7 5h8l7-5v17c0 4.5-5 7-11 7s-11-2.5-11-7Z" />
-      {/* eyes */}
+      {          }
       <path d="M19 26v2.5M29 26v2.5" strokeWidth="2" />
-      {/* nose */}
+      {          }
       <path d="M24 31.5v1.5" />
-      {/* whiskers */}
+      {              }
       <path d="M7 28l6 1.2M7 32l6-1.2M41 28l-6 1.2M41 32l-6-1.2" strokeWidth="1" />
     </svg>
   );
 }
 
-/**
- * Open enso circle drawn around the avatar. The gap is intentional.
- */
 export function EnsoRing({ className }: { className?: string }) {
   return (
     <svg
@@ -66,10 +59,6 @@ export function EnsoRing({ className }: { className?: string }) {
   );
 }
 
-/**
- * Section title in English with its Japanese equivalent beside it,
- * sitting on a single hairline.
- */
 export function SectionHeading({
   id,
   title,

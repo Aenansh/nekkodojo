@@ -67,8 +67,8 @@ export default function DiscussionPreviewCard({ data, onRemove }: Props) {
   return (
     <div className="group relative bg-[#1a110d]/40 border border-[#3e2723] rounded-xl p-5 hover:border-[#d4af37]/50 hover:bg-[#1a110d]/60 transition-all duration-300 overflow-hidden">
       
-      {/* --- ACTIVE STATE: RIBBON (Absolute) --- */}
-      {/* Only render absolute ribbon if bookmarked */}
+      {                                             }
+      {                                               }
       {isBookmarked && (
         <div 
           className="absolute top-0 right-4 z-20 cursor-pointer" 
@@ -85,7 +85,7 @@ export default function DiscussionPreviewCard({ data, onRemove }: Props) {
       )}
 
       <div className="flex items-start justify-between gap-4">
-        {/* --- LEFT CONTENT --- */}
+        {                          }
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2 text-xs text-[#a1887f]">
             <div className="relative w-5 h-5 rounded-full overflow-hidden border border-[#3e2723]">
@@ -136,10 +136,10 @@ export default function DiscussionPreviewCard({ data, onRemove }: Props) {
           </div>
         </div>
 
-        {/* --- RIGHT ACTION COLUMN --- */}
+        {                                 }
         <div className="flex flex-col items-center gap-3">
             
-            {/* INACTIVE STATE: GRAY ICON (Stacked normally) */}
+            {                                                  }
             {!isBookmarked && (
                 <button
                     onClick={toggleBookmark}
@@ -153,13 +153,13 @@ export default function DiscussionPreviewCard({ data, onRemove }: Props) {
                 </button>
             )}
 
-            {/* OPEN ARROW (Pushed down if ribbon exists) */}
+            {                                               }
             <Link
                 href={`/discussions/${data.id}`}
                 target="_top"
                 className={cn(
                     "hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-[#3e2723] text-[#5d4037] group-hover:text-[#d4af37] group-hover:border-[#d4af37] transition-all",
-                    isBookmarked ? "mt-8" : "" // Push down only if Ribbon is present
+                    isBookmarked ? "mt-8" : ""                                       
                 )}
             >
                 <ArrowUpRight size={20} />

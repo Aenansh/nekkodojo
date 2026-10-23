@@ -23,7 +23,6 @@ const CommentSection = ({ discussionId, authorId }: { discussionId: string; auth
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
-  // --- FETCH LOGIC ---
   const fetchComments = useCallback(
     async (isLoadMore = false) => {
       try {
@@ -61,17 +60,14 @@ const CommentSection = ({ discussionId, authorId }: { discussionId: string; auth
       }
     },
     [discussionId, sort, page]
-  ); // Depend on page state
+  );                        
 
-  // --- EFFECT: Initial Load & Sort Change ---
   useEffect(() => {
     setIsInitialLoading(true);
-    setPage(1); // Reset page
-    fetchComments(false); // Fetch page 1
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [discussionId, sort]); // Don't add fetchComments to deps to avoid loops
+    setPage(1);              
+    fetchComments(false);                
+  }, [discussionId, sort]);                                                  
 
-  // --- HANDLERS ---
   const handleLoadMore = () => {
     setIsFetchingMore(true);
     fetchComments(true);
@@ -84,7 +80,7 @@ const CommentSection = ({ discussionId, authorId }: { discussionId: string; auth
   if (!user) return null;
   return (
     <div className="w-full space-y-8">
-      {/* 1. HEADER */}
+      {               }
       <div className="flex items-center justify-between border-b border-[#3e2723] pb-4">
         <h3 className="text-lg font-bold text-[#eaddcf]">{totalCount} Comments</h3>
 
@@ -122,7 +118,7 @@ const CommentSection = ({ discussionId, authorId }: { discussionId: string; auth
         />
       </div>
 
-      {/* 3. COMMENT LIST */}
+      {                     }
       <div className="w-full flex flex-col gap-6 text-left">
         {isInitialLoading ? (
           <div className="flex justify-center py-10">
@@ -141,7 +137,7 @@ const CommentSection = ({ discussionId, authorId }: { discussionId: string; auth
               />
             ))}
 
-            {/* LOAD MORE BUTTON */}
+            {                      }
             {hasMore && (
               <Button
                 variant="ghost"

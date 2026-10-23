@@ -23,9 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MultiSelect, Option } from "@/components/ui/multi-select"; // Import your reusable component
+import { MultiSelect, Option } from "@/components/ui/multi-select";                                  
 
-// Types
 interface Category {
   id: string;
   name: string;
@@ -56,18 +55,15 @@ export function EditQuestionDialog({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Form State
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState("Medium");
   const [externalUrl, setExternalUrl] = useState("");
   const [solutionUrl, setSolutionUrl] = useState("");
 
-  // Multi-Select State (Slugs)
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
 
-  // Pre-fill data when dialog opens
   useEffect(() => {
     if (question) {
       setTitle(question.title);
@@ -76,7 +72,6 @@ export function EditQuestionDialog({
       setExternalUrl(question.externalPlatformUrl || "");
       setSolutionUrl(question.solutionUrl || "");
 
-      // Map objects to slugs for MultiSelect
       setSelectedCategories(question.categories.map((c) => c.slug));
       setSelectedCompanies(question.companyTag.map((c) => c.slug));
     }
@@ -123,7 +118,7 @@ export function EditQuestionDialog({
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          {/* Title & Difficulty */}
+          {                        }
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label className="text-[#a1887f]">Title</Label>
@@ -154,7 +149,7 @@ export function EditQuestionDialog({
             </div>
           </div>
 
-          {/* Description */}
+          {                 }
           <div className="grid gap-2">
             <Label className="text-[#a1887f]">Description</Label>
             <Textarea
@@ -164,7 +159,7 @@ export function EditQuestionDialog({
             />
           </div>
 
-          {/* Links */}
+          {           }
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label className="text-[#a1887f]">Platform URL</Label>
@@ -184,7 +179,7 @@ export function EditQuestionDialog({
             </div>
           </div>
 
-          {/* Tags */}
+          {          }
           <div className="grid gap-2">
             <Label className="text-[#a1887f]">Categories</Label>
             <MultiSelect

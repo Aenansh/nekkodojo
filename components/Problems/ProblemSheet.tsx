@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import { DojoProgress } from "../ui/dojo-progress";
 import { SHELF_BUTTONS } from "@/constants/shelfs";
 
-// --- TYPES ---
 type QuestionStatus = "unvisited" | "attempted" | "completed";
 type Difficulty = "Easy" | "Medium" | "Hard";
 type ShelfType = "later" | "revisit" | "important" | "stuck";
@@ -66,31 +65,6 @@ interface Props {
   data: Category[];
 }
 
-/* Kanji numerals for the category seals; falls back to digits past twenty */
-const KANJI_NUMERALS = [
-  "一",
-  "二",
-  "三",
-  "四",
-  "五",
-  "六",
-  "七",
-  "八",
-  "九",
-  "十",
-  "十一",
-  "十二",
-  "十三",
-  "十四",
-  "十五",
-  "十六",
-  "十七",
-  "十八",
-  "十九",
-  "二十",
-];
-
-/* Difficulty drawn as a small belt (obi) */
 const BELT: Record<Difficulty, { bar: string; text: string }> = {
   Easy: { bar: "bg-green-500", text: "text-green-400" },
   Medium: { bar: "bg-yellow-500", text: "text-yellow-400" },
@@ -102,11 +76,9 @@ export default function QuestionExplorer({ data }: Props) {
   const [shelfState, setShelfState] = useState<Record<string, ShelfType | null>>({});
   const [loadingShelf, setLoadingShelf] = useState<Record<string, boolean>>({});
 
-  // 1. Fetch User Progress AND Shelf Data
   useEffect(() => {
     const syncUserData = async () => {
       try {
-        // Fetch Progress
         const progRes = await fetch("/api/progress");
         if (progRes.ok) {
           const progData: unknown = await progRes.json();
@@ -121,7 +93,6 @@ export default function QuestionExplorer({ data }: Props) {
           setProgress(progressMap);
         }
 
-        // Fetch Shelf Data
         const shelfRes = await fetch("/api/shelf");
         if (shelfRes.ok) {
           const shelfData: unknown = await shelfRes.json();
@@ -151,7 +122,6 @@ export default function QuestionExplorer({ data }: Props) {
     syncUserData();
   }, []);
 
-  // 2. Progress Handlers
   const handleAttempt = async (q: Question) => {
     const currentStatus = progress[q.id] || "unvisited";
     if (currentStatus !== "unvisited") return;
@@ -180,12 +150,10 @@ export default function QuestionExplorer({ data }: Props) {
     }
   };
 
-  // 3. Shelf Handler
   const toggleShelf = async (qId: string, type: ShelfType) => {
     const previousType = shelfState[qId];
     setLoadingShelf((prev) => ({ ...prev, [qId]: true }));
 
-    // Optimistic Update
     const newType = previousType === type ? null : type;
     setShelfState((prev) => ({ ...prev, [qId]: newType }));
 
@@ -200,7 +168,7 @@ export default function QuestionExplorer({ data }: Props) {
       toast.success(msg);
     } catch {
       toast.error("Failed to update shelf");
-      setShelfState((prev) => ({ ...prev, [qId]: previousType })); // Revert
+      setShelfState((prev) => ({ ...prev, [qId]: previousType }));          
     } finally {
       setLoadingShelf((prev) => ({ ...prev, [qId]: false }));
     }
@@ -217,7 +185,7 @@ export default function QuestionExplorer({ data }: Props) {
           const percentComplete =
             totalQuestions > 0 ? Math.round((solvedCount / totalQuestions) * 100) : 0;
           const isCategoryCompleted = percentComplete === 100;
-          const numeral = KANJI_NUMERALS[catIdx] ?? String(catIdx + 1);
+          const numeral = String(catIdx + 1);
 
           return (
             <AccordionItem
@@ -231,10 +199,10 @@ export default function QuestionExplorer({ data }: Props) {
                   : "border-[#3e2723] hover:border-[#5d4037] data-[state=open]:border-[#5d4037]"
               )}
             >
-              {/* Category Header */}
+              {                     }
               <AccordionTrigger className="group px-4 py-4 hover:no-underline sm:px-5">
                 <div className="flex w-full items-center gap-4 pr-3">
-                  {/* seal with the kanji numeral */}
+                  {                                 }
                   <div
                     className={cn(
                       "flex size-12 shrink-0 items-center justify-center rounded-md border font-serif transition-colors duration-300",
@@ -272,9 +240,9 @@ export default function QuestionExplorer({ data }: Props) {
                 </div>
               </AccordionTrigger>
 
-              {/* Content */}
+              {             }
               <AccordionContent className="relative pb-4 pt-0">
-                {/* 型 (kata, "form"): a faint watermark */}
+                {                                         }
                 <span
                   aria-hidden="true"
                   className="pointer-events-none absolute bottom-2 right-4 select-none font-serif text-8xl text-[#d4af37]/4"
@@ -292,7 +260,6 @@ export default function QuestionExplorer({ data }: Props) {
                         const isSolved = status === "completed";
                         const isAttempted = status === "attempted" || isSolved;
 
-                        // Current Shelf Status
                         const activeShelf = shelfState[q.id];
                         const isLoadingThisShelf = loadingShelf[q.id];
                         const belt = BELT[q.difficulty];
@@ -304,13 +271,13 @@ export default function QuestionExplorer({ data }: Props) {
                             className="mb-1 rounded-md border-b-0 transition-colors data-[state=open]:bg-[#0f0b0a]/50"
                           >
                             <div className="group/q relative flex w-full items-center rounded-md pr-2 transition-colors hover:bg-[#2c1810]/40">
-                              {/* gold marker drawn from the centre on hover */}
+                              {                                                }
                               <span
                                 aria-hidden="true"
                                 className="absolute inset-y-2 left-0 w-0.5 origin-center scale-y-0 bg-[#d4af37] transition-transform duration-300 ease-out group-hover/q:scale-y-100"
                               />
 
-                              {/* Checkbox */}
+                              {              }
                               <div className="flex items-center py-3 pl-4">
                                 <Checkbox
                                   checked={isSolved}
@@ -326,7 +293,7 @@ export default function QuestionExplorer({ data }: Props) {
                                 />
                               </div>
 
-                              {/* Question Header */}
+                              {                     }
                               <AccordionTrigger className="flex-1 px-4 py-3 hover:no-underline">
                                 <div className="flex w-full items-center gap-4">
                                   <span className="w-5 shrink-0 text-xs tabular-nums text-[#5d4037]">
@@ -344,7 +311,7 @@ export default function QuestionExplorer({ data }: Props) {
                                   </span>
 
                                   <div className="ml-auto flex items-center gap-3">
-                                    {/* Shelf indicator */}
+                                    {                     }
                                     {activeShelf && (
                                       <span
                                         className={cn(
@@ -357,7 +324,7 @@ export default function QuestionExplorer({ data }: Props) {
                                       />
                                     )}
 
-                                    {/* Difficulty as a belt */}
+                                    {                          }
                                     <span
                                       className={cn(
                                         "hidden items-center gap-2 text-[11px] sm:flex",
@@ -368,7 +335,7 @@ export default function QuestionExplorer({ data }: Props) {
                                       {q.difficulty}
                                     </span>
 
-                                    {/* Solved: a paw stamp */}
+                                    {                         }
                                     <span className="flex size-4 items-center justify-center">
                                       {isSolved && (
                                         <Paw className="animate-in zoom-in size-4 -rotate-12 text-[#d4af37] duration-300" />
@@ -379,15 +346,15 @@ export default function QuestionExplorer({ data }: Props) {
                               </AccordionTrigger>
                             </div>
 
-                            {/* Expanded Details */}
+                            {                      }
                             <AccordionContent className="px-4 pb-5 pt-1 sm:px-6">
                               <div className="space-y-4">
-                                {/* the kata, written out like a scroll */}
+                                {                                         }
                                 <p className="rounded-md border border-[#3e2723] border-l-2 border-l-[#d4af37]/50 bg-[#0f0b0a]/60 px-4 py-3 text-sm leading-relaxed text-[#a1887f]">
                                   {q.description}
                                 </p>
 
-                                {/* Action Buttons Row */}
+                                {                        }
                                 <div className="flex flex-wrap items-center justify-between gap-4">
                                   <div className="flex gap-3">
                                     <Button
@@ -439,7 +406,7 @@ export default function QuestionExplorer({ data }: Props) {
                                     )}
                                   </div>
 
-                                  {/* --- SHELF BUTTONS SECTION --- */}
+                                  {                                   }
                                   <div className="flex items-center gap-3">
                                     <div className="mr-1 hidden flex-col items-end sm:flex">
                                       <span className="text-[10px] font-bold uppercase tracking-widest text-[#5d4037]">
@@ -460,7 +427,7 @@ export default function QuestionExplorer({ data }: Props) {
                                       )}
                                     </div>
 
-                                    {/* Buttons Container: a small wooden rack */}
+                                    {                                            }
                                     <div className="flex items-center gap-1 rounded-lg border border-[#3e2723] bg-[#0f0b0a] p-1.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
                                       {isLoadingThisShelf ? (
                                         <Loader2 className="mx-6 size-4 animate-spin text-[#a1887f]" />
@@ -475,7 +442,7 @@ export default function QuestionExplorer({ data }: Props) {
                                                   <button
                                                     type="button"
                                                     onClick={(e) => {
-                                                      e.stopPropagation(); // Prevent accordion collapse
+                                                      e.stopPropagation();                              
                                                       toggleShelf(q.id, btn.type);
                                                     }}
                                                     className={cn(
@@ -535,7 +502,6 @@ export default function QuestionExplorer({ data }: Props) {
   );
 }
 
-/* A cat's paw print, used as the "solved" stamp */
 function Paw({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">

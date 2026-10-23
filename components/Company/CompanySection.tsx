@@ -3,12 +3,11 @@
 import { useState, useEffect } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { CompanyCarousel, CompanyCardItem } from "./CompanyCarousel"; // Check path
+import { CompanyCarousel, CompanyCardItem } from "./CompanyCarousel";              
 
-// 1. Update Interface to accept userProgress
 interface Props {
   initialData: CompanyCardItem[];
-  userProgress: Record<string, string>; // <--- ADD THIS
+  userProgress: Record<string, string>;                 
 }
 
 export function CompanySection({ initialData, userProgress }: Props) {
@@ -17,7 +16,6 @@ export function CompanySection({ initialData, userProgress }: Props) {
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    // Revert to initial data if search is empty
     if (!query.trim()) {
       setCompanies(initialData);
       setIsSearching(false);
@@ -47,7 +45,7 @@ export function CompanySection({ initialData, userProgress }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Search Bar Row */}
+      {                    }
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         
         <div className="relative w-full max-w-sm">
@@ -67,7 +65,7 @@ export function CompanySection({ initialData, userProgress }: Props) {
         </div>
       </div>
 
-      {/* Carousel */}
+      {              }
       <div className="min-h-[250px]">
         {companies.length > 0 ? (
           <CompanyCarousel 

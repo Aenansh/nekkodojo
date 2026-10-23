@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import QuestionEditor from "@/components/Admin/Questions/QuestionEditor";
 import { prisma } from "@/lib/prisma";
 
+export const metadata = { title: "Question Editor" };
+
 export default async function QuestionEditorPage({
   params,
 }: {

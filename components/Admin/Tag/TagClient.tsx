@@ -18,7 +18,6 @@ export default function TagClient() {
   const [retryCount, setRetryCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Dialog States
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [tagToDelete, setTagToDelete] = useState<TagData | null>(null);
   const [tagToEdit, setTagToEdit] = useState<TagData | null>(null);
@@ -79,7 +78,7 @@ export default function TagClient() {
 
   return (
     <div className="space-y-6">
-      {/* --- HEADER --- */}
+      {                    }
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#3e2723] pb-6">
         <div>
           <h1 className="text-3xl font-bold text-[#eaddcf]">Discussion Tags</h1>
@@ -97,7 +96,7 @@ export default function TagClient() {
         </Button>
       </div>
 
-      {/* --- SEARCH --- */}
+      {                    }
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5d4037]" />
@@ -113,7 +112,7 @@ export default function TagClient() {
         </div>
       </div>
 
-      {/* --- TABLE --- */}
+      {                   }
       <div className="rounded-xl border border-[#3e2723] bg-[#1a110d]/40 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -140,7 +139,7 @@ export default function TagClient() {
                     <td className="p-4 font-medium text-[#eaddcf]">{tag.name}</td>
                     <td className="p-4 font-mono text-xs text-[#5d4037]">{tag.slug}</td>
                     <td className="p-4">
-                      {/* Actual visual preview of the tag style */}
+                      {                                            }
                       <Badge
                         className={`px-2 py-0.5 rounded text-[10px] font-mono whitespace-nowrap border hover:bg-transparent ${tag.color}`}
                       >
@@ -183,7 +182,7 @@ export default function TagClient() {
         </div>
       </div>
 
-      {/* --- DIALOGS --- */}
+      {                     }
       <CreateTagDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}

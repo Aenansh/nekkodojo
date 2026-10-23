@@ -18,7 +18,6 @@ export default function CompanyClient() {
   const [retryCount, setRetryCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Dialog State
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [compToDelete, setCompToDelete] = useState<CompanyData | null>(null);
   const [compToEdit, setCompToEdit] = useState<CompanyData | null>(null);
@@ -49,7 +48,6 @@ export default function CompanyClient() {
     };
   }, [retryCount]);
 
-  // Filter
   const filtered = data.filter((c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   if (isLoading) {
@@ -78,7 +76,7 @@ export default function CompanyClient() {
 
   return (
     <div className="space-y-6">
-      {/* --- HEADER --- */}
+      {                    }
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#3e2723] pb-6">
         <div>
           <h1 className="text-3xl font-bold text-[#eaddcf]">Companies</h1>
@@ -95,7 +93,7 @@ export default function CompanyClient() {
         </Button>
       </div>
 
-      {/* --- SEARCH --- */}
+      {                    }
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5d4037]" />
@@ -109,7 +107,7 @@ export default function CompanyClient() {
         <div className="text-xs font-mono text-[#5d4037] uppercase">Total: {filtered.length}</div>
       </div>
 
-      {/* --- TABLE --- */}
+      {                   }
       <div className="rounded-xl border border-[#3e2723] bg-[#1a110d]/40 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -132,7 +130,7 @@ export default function CompanyClient() {
               ) : (
                 filtered.map((comp) => (
                   <tr key={comp.id} className="group hover:bg-[#3e2723]/10 transition-colors">
-                    {/* Name & Logo */}
+                    {                 }
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded bg-white/5 border border-[#3e2723] flex items-center justify-center overflow-hidden relative shrink-0">
@@ -153,10 +151,10 @@ export default function CompanyClient() {
                       </div>
                     </td>
 
-                    {/* Slug */}
+                    {          }
                     <td className="p-4 font-mono text-xs text-[#5d4037]">{comp.slug}</td>
 
-                    {/* Website */}
+                    {             }
                     <td className="p-4">
                       {comp.websiteUrl ? (
                         <Link
@@ -171,14 +169,14 @@ export default function CompanyClient() {
                       )}
                     </td>
 
-                    {/* Questions Count */}
+                    {                     }
                     <td className="p-4 text-center">
                       <Badge className="bg-[#3e2723]/50 text-[#eaddcf]">
                         {comp._count.questions}
                       </Badge>
                     </td>
 
-                    {/* Actions */}
+                    {             }
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
@@ -207,7 +205,7 @@ export default function CompanyClient() {
         </div>
       </div>
 
-      {/* --- DIALOGS --- */}
+      {                     }
       <CreateCompanyDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}

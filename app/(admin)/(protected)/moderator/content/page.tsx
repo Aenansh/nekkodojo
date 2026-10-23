@@ -2,17 +2,18 @@ import { ScrollText, FileX } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { checkRole } from "@/utils/roles"; // Ensure you have this utility
+import { checkRole } from "@/utils/roles";                                
 import { AdminContentItem } from "@/components/Admin/RouteSide/AdminContentItem";  
 import PaginationControls from "@/components/Admin/RouteSide/PaginationControls";
 import { SearchUsers } from "@/components/Admin/Dashboard/SearchUsers"; 
+
+export const metadata = { title: "Content Moderation" };
 
 export default async function AdminContentPage(props: {
   searchParams: Promise<{ page?: string; search?: string }>;
 }) {
   const user = await currentUser();
   
-  // Security Check
   if (!user || !checkRole("admin")) {
     redirect("/");
   }
@@ -23,7 +24,6 @@ export default async function AdminContentPage(props: {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  // Fetch Discussions with Filter & Pagination
   const [discussions, totalCount] = await prisma.$transaction([
     prisma.discussion.findMany({
       where: search ? {
@@ -66,7 +66,7 @@ export default async function AdminContentPage(props: {
   return (
     <div className="space-y-6">
       
-      {/* HEADER */}
+      {            }
       <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-end border-b border-[#3e2723] pb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#3e2723]/30 text-[#d4af37]">
@@ -80,20 +80,19 @@ export default async function AdminContentPage(props: {
           </div>
         </div>
 
-        {/* Search Bar (Reused) */}
+        {                         }
         <div className="w-full md:w-auto">
           <SearchUsers /> 
         </div>
       </div>
 
-      {/* CONTENT LIST */}
+      {                  }
       <div className="space-y-4">
         {discussions.length > 0 ? (
           discussions.map((item) => (
             <AdminContentItem key={item.id} data={item} />
           ))
         ) : (
-          /* Empty State */
           <div className="flex flex-col items-center justify-center py-24 border-2 border-dashed border-[#3e2723] rounded-xl bg-[#1a110d]/20">
             <FileX className="h-16 w-16 text-[#5d4037] mb-4" />
             <h3 className="text-xl font-bold text-[#a1887f]">No Scrolls Found</h3>
@@ -104,7 +103,7 @@ export default async function AdminContentPage(props: {
         )}
       </div>
 
-      {/* PAGINATION */}
+      {                }
       {totalPages > 1 && (
         <div className="border-t border-[#3e2723] pt-4 flex justify-center">
           <PaginationControls currentPage={page} totalPages={totalPages} />

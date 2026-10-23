@@ -27,7 +27,6 @@ export function CreateTagDialog({ open, onOpenChange, onSuccess }: Props) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Form State
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [color, setColor] = useState("");
@@ -61,7 +60,6 @@ export function CreateTagDialog({ open, onOpenChange, onSuccess }: Props) {
       router.refresh();
       onSuccess?.();
       
-      // Reset
       setName("");
       setSlug("");
       setColor("");
@@ -118,7 +116,7 @@ export function CreateTagDialog({ open, onOpenChange, onSuccess }: Props) {
                 placeholder="e.g. bg-blue-500 text-white"
                 className="bg-[#0f0b0a] border-[#3e2723] text-[#eaddcf]"
               />
-              {/* Live Preview */}
+              {                  }
               <div 
                 className={`w-10 h-10 rounded border border-[#3e2723] flex items-center justify-center text-xs ${color}`}
                 title="Preview"

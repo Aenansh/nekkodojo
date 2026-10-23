@@ -31,17 +31,15 @@ interface Props {
   isOwnProfile?: boolean;
 }
 
-/* Shared surface: a single ruled panel instead of a stack of separate cards */
 const panelClass =
   "w-full overflow-hidden rounded-lg border border-[#3e2723] bg-[#120c0a]/70 shadow-[inset_0_1px_0_rgba(234,221,207,0.03)]";
 
 export default function SocialsManager({
-  initialLinks, // no default value = [] here, it creates a new array each render and loops the sync effect
+  initialLinks,                                                                                            
   isOwnProfile = false,
 }: Props) {
   const router = useRouter();
 
-  // Safe fallback inside body
   const safeLinks = initialLinks || [];
 
   const [links, setLinks] = useState<SocialLink[]>(safeLinks);
@@ -49,9 +47,7 @@ export default function SocialsManager({
   const [isAdding, setIsAdding] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- 1. SYNC & FETCH DATA ---
 
-  // Fetch fresh data from DB (Only for Owner)
   const fetchSocials = useCallback(async () => {
     if (!isOwnProfile) return;
 
@@ -65,21 +61,18 @@ export default function SocialsManager({
     }
   }, [isOwnProfile]);
 
-  // Sync state when props change (Critical for visitors)
   useEffect(() => {
     if (initialLinks) {
       setLinks(initialLinks);
     }
   }, [initialLinks]);
 
-  // Fetch fresh data on mount if owner (Critical for editing consistency)
   useEffect(() => {
     if (isOwnProfile) {
       fetchSocials();
     }
   }, [isOwnProfile, fetchSocials]);
 
-  // --- CRUD OPERATIONS ---
 
   const handleCreate = async (url: string) => {
     if (!url.trim()) return setIsAdding(false);
@@ -103,7 +96,6 @@ export default function SocialsManager({
       toast.success("Connection added");
       setIsAdding(false);
 
-      // Refresh local data & Server Components
       await fetchSocials();
       router.refresh();
     } catch (error) {
@@ -154,7 +146,6 @@ export default function SocialsManager({
     const linkToDelete = links[index];
     const previousLinks = [...links];
 
-    // Optimistic Update
     setLinks(links.filter((_, i) => i !== index));
     setEditingIndex(null);
 
@@ -171,12 +162,11 @@ export default function SocialsManager({
       router.refresh();
     } catch (error) {
       console.log(error);
-      setLinks(previousLinks); // Revert
+      setLinks(previousLinks);          
       toast.error("Could not delete link");
     }
   };
 
-  // --- VISITOR VIEW (Empty State) ---
   if (!isOwnProfile && links.length === 0) {
     return (
       <section className="w-full space-y-4" aria-labelledby="social-connections-heading">
@@ -201,7 +191,7 @@ export default function SocialsManager({
       <div className={panelClass}>
         <ScrollArea className="max-h-[300px] w-full">
           <ul className="divide-y divide-[#3e2723]/70">
-            {/* --- LINKS LIST --- */}
+            {                        }
             {links.map((link, index) => (
               <li key={link.id}>
                 {isOwnProfile && editingIndex === index ? (
@@ -222,7 +212,7 @@ export default function SocialsManager({
               </li>
             ))}
 
-            {/* --- ADD ROW (Owner Only) --- */}
+            {                                  }
             {isOwnProfile && (
               <li>
                 {isAdding ? (
@@ -253,7 +243,6 @@ export default function SocialsManager({
   );
 }
 
-// --- SUB-COMPONENT: DISPLAY ITEM ---
 function SocialLinkItem({
   url,
   isOwnProfile,
@@ -264,7 +253,6 @@ function SocialLinkItem({
   onEdit: () => void;
 }) {
   const info = getPlatform(url);
-  // Ensure valid URL for href
   const href = url.startsWith("http") ? url : `https://${url}`;
 
   return (
@@ -274,7 +262,7 @@ function SocialLinkItem({
       rel="noopener noreferrer"
       className="group relative flex items-center justify-between gap-3 px-4 py-3 transition-colors duration-200 hover:bg-[#2c1810]/40 focus-visible:outline-none focus-visible:bg-[#2c1810]/40 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#d4af37]"
     >
-      {/* gold marker drawn out from the centre on hover, like a name-plate being lit */}
+      {                                                                                 }
       <span
         aria-hidden="true"
         className="absolute inset-y-2 left-0 w-0.5 origin-center scale-y-0 bg-[#d4af37] transition-transform duration-300 ease-out group-hover:scale-y-100 group-focus-visible:scale-y-100"
@@ -332,7 +320,6 @@ function SocialLinkItem({
   );
 }
 
-// --- SUB-COMPONENT: EDITOR ---
 interface EditorProps {
   initialValue: string;
   onSave: (val: string) => void;
@@ -346,7 +333,6 @@ function SocialLinkEditor({ initialValue, onSave, onCancel, onDelete, isLoading 
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Lock click outside while loading to prevent accidental cancel
     if (isLoading) return;
 
     const handleClickOutside = (event: MouseEvent) => {

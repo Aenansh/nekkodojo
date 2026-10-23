@@ -114,7 +114,7 @@ export default function AboutHero() {
               Code of Bushido
             </span>{" "}
             first
-            {/* Animated underline effect */}
+            {                               }
             <span className="absolute left-0 -bottom-1 w-0 h-px bg-[#d4af37] group-hover:w-full transition-all duration-500" />
           </span>
         </Link>

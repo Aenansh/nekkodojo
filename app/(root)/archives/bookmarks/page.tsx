@@ -62,7 +62,7 @@ export default function BookmarksPage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 md:p-6 space-y-8">
-      {/* HEADER WITH BACK LINK */}
+      {                           }
       <div className="flex items-center gap-4">
         <Link href="/archives" className="p-2 rounded-full hover:bg-[#3e2723]/20 transition-colors">
           <ChevronLeft className="text-[#a1887f]" />
@@ -75,7 +75,7 @@ export default function BookmarksPage() {
         </div>
       </div>
 
-      {/* TABS */}
+      {          }
       <Tabs defaultValue="discussions" className="w-full">
         <TabsList className="w-full justify-start rounded-none border-b border-[#3e2723] bg-transparent p-0">
           <TabsTrigger value="discussions" className={tabTriggerClass}>
@@ -94,7 +94,7 @@ export default function BookmarksPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* --- DISCUSSIONS TAB --- */}
+        {                             }
         <TabsContent
           value="discussions"
           className="mt-6 space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500"
@@ -112,7 +112,7 @@ export default function BookmarksPage() {
           )}
         </TabsContent>
 
-        {/* --- COMMENTS TAB --- */}
+        {                          }
         <TabsContent
           value="comments"
           className="mt-6 space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500"
@@ -123,7 +123,7 @@ export default function BookmarksPage() {
                 key={comment.id}
                 className="rounded-xl border border-[#3e2723] bg-[#1a110d]/40 p-4 transition-all hover:border-[#d4af37]/30"
               >
-                {/* Context Header: Links to the discussion */}
+                {                                             }
                 <Link
                   href={`/discussions/${comment.discussionId}`}
                   className="mb-3 flex items-center gap-2 text-xs font-medium text-[#a1887f] hover:text-[#d4af37] w-fit group"
@@ -135,7 +135,7 @@ export default function BookmarksPage() {
                   />
                 </Link>
 
-                {/* The Comment Component */}
+                {                           }
                 <div className="pl-2 border-l-2 border-[#3e2723]">
                   <CommentItem comment={comment} depth={0} />
                 </div>
@@ -150,7 +150,6 @@ export default function BookmarksPage() {
   );
 }
 
-// Simple Empty State Sub-component
 function EmptyState({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-[#3e2723] rounded-xl bg-[#1a110d]/20">

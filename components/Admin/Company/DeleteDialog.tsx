@@ -36,7 +36,6 @@ export function DeleteCompanyDialog({ company, open, onOpenChange, onSuccess }: 
       });
 
       if (!res.ok) {
-        // Handle constraint error
         if (res.status === 409) {
           toast.error("Cannot delete: This company has questions attached.");
           return;
