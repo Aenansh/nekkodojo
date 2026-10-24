@@ -2,11 +2,7 @@
 
 import { useTransition } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { ShieldCheck, Trash2, Loader2, ExternalLink, MessageSquare, FileText } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Check, Trash2, ArrowUpRight } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,22 +17,26 @@ import {
 import { dismissReport, deleteDiscussion, deleteComment } from "@/app/(admin)/(protected)/_actions";
 import { toast } from "sonner";
 import Link from "next/link";
+import { ActionButton, Case, ReasonQuote, Tag, statusLabel, statusTone } from "./ReportParts";
 
 export function ReportCard({ report }: { report: ReportProps }) {
   const [isPending, startTransition] = useTransition();
 
   const isDiscussion = !!report.discussion;
   const contentId = isDiscussion ? report.discussion?.id : report.comment?.id;
+  const kind = isDiscussion ? "discussion" : "comment";
 
-  const displayContent = report.comment?.description || "No content";
+  const reporterName = report.reporter.firstName || "A member";
+  const when = formatDistanceToNow(new Date(report.createdAt), { addSuffix: true });
 
   const handleDismiss = () => {
     startTransition(async () => {
       try {
         await dismissReport(report.id);
-        toast.success("Report dismissed (Absolved)");
+        toast.success("Report dismissed");
       } catch (error) {
-        toast.error("Failed to dismiss report");
+        console.error(error);
+        toast.error("Unable to dismiss report");
       }
     });
   };
@@ -54,155 +54,126 @@ export function ReportCard({ report }: { report: ReportProps }) {
         } else {
           await deleteComment(formData);
         }
-        toast.success("Content removed (Judgment Executed)");
+        toast.success(`${isDiscussion ? "Discussion" : "Comment"} removed`);
       } catch (error) {
-        toast.error("Failed to delete content");
+        console.error(error);
+        toast.error(`Unable to remove ${kind}`);
       }
     });
   };
 
+  /* ---- Closed cases: one quiet line ---- */
   if (report.status !== "PENDING") {
     return (
-      <Card className="flex items-center justify-between p-4 bg-[#1a110d]/50 border border-[#3e2723]/50 opacity-70">
-        <div className="flex items-center gap-3">
-          <Badge variant="outline" className="border-green-900 text-green-600 bg-green-900/10">
-            {report.status}
-          </Badge>
-          <span className="text-sm text-[#a1887f] line-clamp-1">{report.reason}</span>
+      <article className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-[#3e2723]/60 px-2 py-4">
+        <div className="flex min-w-0 items-baseline gap-4">
+          <Tag tone={statusTone(report.status)}>{statusLabel(report.status)}</Tag>
+          <span className="truncate text-[#a1887f]">{report.reason}</span>
         </div>
-        <span className="text-xs text-[#5d4037]">
-          {formatDistanceToNow(new Date(report.createdAt))} ago
+        <span className="text-sm text-[#8d6e63]" suppressHydrationWarning>
+          {kind === "discussion" ? "Discussion" : "Comment"}, {when}
         </span>
-      </Card>
+      </article>
     );
   }
 
+  /* ---- Open case ---- */
   return (
-    <Card className="group relative overflow-hidden bg-[#1a110d] border border-[#3e2723] p-5 transition-all hover:border-red-500/30">
-      {            }
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8 border border-[#3e2723]">
-            <AvatarImage src={report.reporter.profileUrl || ""} />
-            <AvatarFallback className="bg-[#3e2723] text-[#a1887f]">?</AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-[#eaddcf]">
-                {report.reporter.firstName || "Unknown"}
-              </span>
-              <span className="text-xs text-[#a1887f]">
-                reported a {isDiscussion ? "Scroll" : "Inscription"}
-              </span>
-            </div>
-            <p className="text-xs text-[#5d4037]">
-              {formatDistanceToNow(new Date(report.createdAt))} ago
-            </p>
-          </div>
-        </div>
+    <Case
+      busy={isPending}
+      actions={
+        <>
+          <ActionButton
+            tone="clear"
+            onClick={handleDismiss}
+            loading={isPending}
+            disabled={isPending}
+          >
+            {!isPending && <Check aria-hidden />}
+            Dismiss report
+          </ActionButton>
 
-        {isDiscussion ? (
-          <FileText size={18} className="text-[#d4af37]" />
-        ) : (
-          <MessageSquare size={18} className="text-blue-400" />
-        )}
-      </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <ActionButton tone="ban" disabled={isPending || !contentId}>
+                <Trash2 aria-hidden />
+                Delete {kind}
+              </ActionButton>
+            </AlertDialogTrigger>
 
-      {            }
-      <div className="mb-4 rounded-lg bg-[#0f0b0a] border border-[#3e2723] p-3">
-        <span className="text-xs font-bold text-red-400 uppercase tracking-wider mb-1 block">
-          Reason
-        </span>
-        <p className="text-sm text-[#eaddcf] italic">&quot;{report.reason}&quot;</p>
-      </div>
+            <AlertDialogContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="font-serif text-xl text-[#eaddcf]">
+                  Delete this {kind}?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="leading-relaxed text-[#a1887f]">
+                  It will be permanently removed. This can&apos;t be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="border-[#3e2723] bg-transparent text-[#eaddcf] hover:bg-[#0f0b0a] hover:text-[#eaddcf]">
+                  Keep {kind}
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={executeDelete}
+                  className="bg-[#8f3b31] text-[#eaddcf] hover:bg-[#a6453a]"
+                >
+                  Delete {kind}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      }
+    >
+      <header className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <Tag tone="report">{isDiscussion ? "Discussion report" : "Comment report"}</Tag>
+        <p className="text-sm text-[#8d6e63]" suppressHydrationWarning>
+          Reported by <span className="text-[#a1887f]">{reporterName}</span>, {when}
+        </p>
+      </header>
 
-      {                     }
-      <div className="mb-6 pl-4 border-l-2 border-[#3e2723]">
-        <p className="text-xs text-[#a1887f] mb-1">Target Content:</p>
+      <div>
+        <p className="text-xs text-[#8d6e63]">Reported {kind}</p>
         {isDiscussion ? (
           report.discussion ? (
             <Link
               href={`/discussions/${report.discussion.id}`}
               target="_blank"
-              className="block group-hover/link:underline"
+              rel="noopener noreferrer"
+              className="mt-1.5 inline-flex max-w-full items-center gap-2 font-serif text-lg text-[#eaddcf] transition-colors hover:text-[#d4af37]"
             >
-              <h4 className="text-sm font-bold text-[#d4af37] truncate flex items-center gap-2 hover:underline decoration-[#d4af37]">
-                {report.discussion.title}
-                <ExternalLink size={12} />
-              </h4>
+              <span className="truncate">{report.discussion.title}</span>
+              <ArrowUpRight className="size-4 shrink-0" aria-hidden />
+              <span className="sr-only">(opens in a new tab)</span>
             </Link>
           ) : (
-            <span className="text-sm text-red-900 italic">Content deleted</span>
+            <p className="mt-1.5 text-sm text-[#8d6e63]">
+              This discussion has already been deleted.
+            </p>
           )
         ) : report.comment ? (
-          <div>
-            <p className="text-sm text-[#a1887f] line-clamp-2 italic">"{displayContent}"</p>
+          <>
+            <p className="mt-1.5 line-clamp-3 font-serif leading-relaxed text-[#eaddcf]/80">
+              {report.comment.description}
+            </p>
             <Link
               href={`/discussions/${report.comment.discussionId}`}
               target="_blank"
-              className="text-[10px] text-[#5d4037] hover:text-[#d4af37] flex items-center gap-1 mt-2 transition-colors"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-1.5 text-sm text-[#a1887f] transition-colors hover:text-[#d4af37]"
             >
-              View Context <ExternalLink size={10} />
+              View in context
+              <ArrowUpRight className="size-3.5" aria-hidden />
+              <span className="sr-only">(opens in a new tab)</span>
             </Link>
-          </div>
+          </>
         ) : (
-          <span className="text-sm text-red-900 italic">Content deleted</span>
+          <p className="mt-1.5 text-sm text-[#8d6e63]">This comment has already been deleted.</p>
         )}
       </div>
 
-      {             }
-      <div className="grid grid-cols-2 gap-3">
-        <Button
-          variant="outline"
-          onClick={handleDismiss}
-          disabled={isPending}
-          className="border-[#3e2723] bg-[#0f0b0a] text-[#a1887f] hover:bg-[#3e2723]/30 hover:text-green-400 transition-colors"
-        >
-          {isPending ? (
-            <Loader2 className="animate-spin" size={16} />
-          ) : (
-            <ShieldCheck size={16} className="mr-2" />
-          )}
-          Dismiss
-        </Button>
-
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="destructive"
-              disabled={isPending}
-              className="bg-red-900/20 text-red-500 hover:bg-red-600 hover:text-white border border-red-900/50 transition-all"
-            >
-              {isPending ? (
-                <Loader2 className="animate-spin" size={16} />
-              ) : (
-                <Trash2 size={16} className="mr-2" />
-              )}
-              Delete
-            </Button>
-          </AlertDialogTrigger>
-
-          <AlertDialogContent className="bg-[#1a110d] border-[#3e2723] text-[#eaddcf]">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-red-500">Confirm Judgment</AlertDialogTitle>
-              <AlertDialogDescription className="text-[#a1887f]">
-                Permanently delete this {isDiscussion ? "scroll" : "inscription"}?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="bg-transparent border-[#3e2723] text-[#a1887f]">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={executeDelete}
-                className="bg-red-900/20 text-red-500 hover:bg-red-600"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    </Card>
+      <ReasonQuote>{report.reason}</ReasonQuote>
+    </Case>
   );
 }

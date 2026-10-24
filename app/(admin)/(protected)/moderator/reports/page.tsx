@@ -1,11 +1,3 @@
-import {
-  MessageSquareWarning,
-  Archive,
-  FileText,
-  MessageSquare,
-  Users,
-  ShieldAlert,
-} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -13,10 +5,17 @@ import { checkRole } from "@/utils/roles";
 import { ReportCard } from "@/components/Admin/RouteSide/ReportCard";
 import { UserReportCard } from "@/components/Admin/RouteSide/UserReportCard";
 import { BannedUserCard } from "@/components/Admin/RouteSide/BannedUserCard";
+import { Tag } from "@/components/Admin/RouteSide/ReportParts";
+import AdminPageHeader from "@/components/Admin/RouteSide/AdminPageHeader";
+import { CatSeal } from "@/components/User/Profileornaments";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const metadata = { title: "Moderation Reports" };
 
+/**
+ * One page for both roles: re-export it from /admin/reports and
+ * /moderator/reports (`export { default, metadata } from "..."`).
+ */
 export default async function AdminReportsPage() {
   const user = await currentUser();
   if (!user || (!checkRole("admin") && !checkRole("moderator"))) redirect("/");
@@ -33,7 +32,7 @@ export default async function AdminReportsPage() {
           profileUrl: true,
           email: true,
           isBanned: true,
-          isShadowBanned: true,                                                          
+          isShadowBanned: true,
         },
       },
     },
@@ -97,134 +96,121 @@ export default async function AdminReportsPage() {
   const totalCases = discussionReports.length + commentReports.length + userReports.length;
 
   return (
-    <div className="space-y-6 p-6">
-      {            }
-      <div className="flex items-center gap-3 border-b border-[#3e2723] pb-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-900/20 text-red-500 border border-red-900/50">
-          <MessageSquareWarning size={24} />
+    <div className="mx-auto max-w-5xl space-y-10">
+      <AdminPageHeader
+        title="Reports"
+        kanji="報告"
+        description="Cases raised by members. Review each one, then dismiss it or take action."
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-[#a1887f]">
+            <span className="font-serif text-2xl tabular-nums text-[#eaddcf]">{totalCases}</span>{" "}
+            open {totalCases === 1 ? "case" : "cases"}
+          </p>
+          {/* Colour key for decisions */}
+          <ul className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Colour key">
+            <li>
+              <Tag tone="clear">Dismiss or lift</Tag>
+            </li>
+            <li>
+              <Tag tone="shadow">Shadow ban</Tag>
+            </li>
+            <li>
+              <Tag tone="ban">Ban or delete</Tag>
+            </li>
+          </ul>
         </div>
-        <div>
-          <h1 className="text-3xl font-black text-[#eaddcf] tracking-tight">The Tribunal</h1>
-          <p className="text-[#a1887f]">{totalCases} cases require judgment.</p>
+      </AdminPageHeader>
+
+      <Tabs defaultValue="members" className="w-full gap-0">
+        <div className="overflow-x-auto scrollbar-hide">
+          <TabsList className="h-auto w-max min-w-full justify-start gap-8 rounded-none border-b border-[#3e2723] bg-transparent p-0">
+            <TabButton value="members" label="Members" count={userReports.length} tone="open" />
+            <TabButton
+              value="discussions"
+              label="Discussions"
+              count={discussionReports.length}
+              tone="open"
+            />
+            <TabButton
+              value="comments"
+              label="Comments"
+              count={commentReports.length}
+              tone="open"
+            />
+            <TabButton value="banned" label="Banned" count={bannedUsers.length} tone="ban" />
+            <TabButton value="resolved" label="Resolved" />
+          </TabsList>
         </div>
-      </div>
 
-      <Tabs defaultValue="ronins" className="space-y-6">
-        <TabsList className="bg-[#1a110d] border border-[#3e2723] p-1 h-auto w-full md:w-auto flex-wrap">
-          <TabsTrigger
-            value="ronins"
-            className="data-[state=active]:bg-[#ef4444] data-[state=active]:text-white text-[#a1887f] gap-2 px-4 py-2"
-          >
-            <Users size={16} /> Ronins
-            {userReports.length > 0 && (
-              <span className="ml-1 bg-white/20 px-1.5 rounded text-[10px] font-bold">
-                {userReports.length}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger
-            value="scrolls"
-            className="data-[state=active]:bg-[#d4af37] data-[state=active]:text-[#0f0b0a] text-[#a1887f] gap-2 px-4 py-2"
-          >
-            <FileText size={16} /> Scrolls
-            {discussionReports.length > 0 && (
-              <span className="ml-1 bg-[#0f0b0a]/20 px-1.5 rounded text-[10px] font-bold">
-                {discussionReports.length}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger
-            value="inscriptions"
-            className="data-[state=active]:bg-[#3b82f6] data-[state=active]:text-white text-[#a1887f] gap-2 px-4 py-2"
-          >
-            <MessageSquare size={16} /> Inscriptions
-            {commentReports.length > 0 && (
-              <span className="ml-1 bg-white/20 px-1.5 rounded text-[10px] font-bold">
-                {commentReports.length}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger
-            value="banned"
-            className="data-[state=active]:bg-red-900 data-[state=active]:text-red-100 text-[#5d4037] gap-2 px-4 py-2"
-          >
-            <ShieldAlert size={16} /> Banned Registry
-            {bannedUsers.length > 0 && (
-              <span className="ml-1 bg-red-950 px-1.5 rounded text-[10px] font-bold">
-                {bannedUsers.length}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger
-            value="archive"
-            className="data-[state=active]:bg-[#3e2723] data-[state=active]:text-[#eaddcf] text-[#5d4037] gap-2 px-4 py-2"
-          >
-            <Archive size={16} /> Resolved (24h)
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="ronins" className="space-y-4">
+        <TabsContent value="members" className="mt-0">
           {userReports.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
               {userReports.map(
                 (r) =>
-                  r.reported && <UserReportCard key={r.id} report={r as any} />
+                  r.reported && (
+                    <UserReportCard key={r.id} report={{ ...r, reported: r.reported }} />
+                  )
               )}
             </div>
           ) : (
-            <EmptyState message="No Ronins flagged." />
+            <EmptyState message="No members have been reported." />
           )}
         </TabsContent>
 
-        <TabsContent value="scrolls" className="space-y-4">
+        <TabsContent value="discussions" className="mt-0">
           {discussionReports.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
               {discussionReports.map((r) => (
                 <ReportCard key={r.id} report={r} />
               ))}
             </div>
           ) : (
-            <EmptyState message="No scrolls flagged." />
+            <EmptyState message="No discussions have been reported." />
           )}
         </TabsContent>
 
-        <TabsContent value="inscriptions" className="space-y-4">
+        <TabsContent value="comments" className="mt-0">
           {commentReports.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
               {commentReports.map((r) => (
                 <ReportCard key={r.id} report={r} />
               ))}
             </div>
           ) : (
-            <EmptyState message="No comments flagged." />
+            <EmptyState message="No comments have been reported." />
           )}
         </TabsContent>
 
-        <TabsContent value="banned" className="space-y-4 animate-in fade-in duration-300">
+        <TabsContent value="banned" className="mt-0">
+          <p className="py-4 text-sm text-[#8d6e63]">
+            Members who are currently banned. Lifting a ban restores their access.
+          </p>
           {bannedUsers.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {bannedUsers.map((user) => (
-                <BannedUserCard key={user.id} user={user} />
+            <div className="border-t border-[#3e2723]">
+              {bannedUsers.map((u) => (
+                <BannedUserCard key={u.id} user={u} />
               ))}
             </div>
           ) : (
-            <EmptyState message="No users are currently banned." />
+            <EmptyState message="Nobody is currently banned." />
           )}
         </TabsContent>
 
-        <TabsContent value="archive" className="space-y-4">
+        <TabsContent value="resolved" className="mt-0">
+          <p className="py-4 text-sm text-[#8d6e63]">Cases closed in the last 24 hours.</p>
           {resolvedReports.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-75">
+            <div className="border-t border-[#3e2723]">
               {resolvedReports.map((r) =>
                 r.reportedId && r.reported ? (
-                  <UserReportCard key={r.id} report={r as any} />
+                  <UserReportCard key={r.id} report={{ ...r, reported: r.reported }} />
                 ) : (
                   <ReportCard key={r.id} report={r} />
                 )
               )}
             </div>
           ) : (
-            <EmptyState message="No history for today." />
+            <EmptyState message="Nothing has been resolved in the last 24 hours." />
           )}
         </TabsContent>
       </Tabs>
@@ -232,11 +218,39 @@ export default async function AdminReportsPage() {
   );
 }
 
+function TabButton({
+  value,
+  label,
+  count,
+  tone,
+}: {
+  value: string;
+  label: string;
+  count?: number;
+  tone?: "open" | "ban";
+}) {
+  return (
+    <TabsTrigger
+      value={value}
+      className="-mb-px h-auto flex-none gap-2 rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-3 pt-2 text-[#8d6e63] shadow-none transition-colors hover:text-[#eaddcf] data-[state=active]:border-[#d4af37] data-[state=active]:bg-transparent data-[state=active]:text-[#eaddcf] data-[state=active]:shadow-none dark:data-[state=active]:border-[#d4af37] dark:data-[state=active]:bg-transparent"
+    >
+      {label}
+      {count !== undefined && count > 0 && (
+        <span
+          className={`text-xs tabular-nums ${tone === "ban" ? "text-[#d4796b]" : "text-[#d4af37]"}`}
+        >
+          {count}
+        </span>
+      )}
+    </TabsTrigger>
+  );
+}
+
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-[#3e2723] rounded-xl bg-[#1a110d]/20">
-      <div className="h-2 w-2 bg-[#5d4037] rounded-full mb-4 animate-pulse" />
-      <p className="text-[#a1887f] font-mono uppercase tracking-widest text-xs">{message}</p>
+    <div className="flex flex-col items-center border-b border-[#3e2723] px-4 py-20 text-center">
+      <CatSeal className="size-12 text-[#5d4037]" />
+      <p className="mt-6 text-sm text-[#a1887f]">{message}</p>
     </div>
   );
 }

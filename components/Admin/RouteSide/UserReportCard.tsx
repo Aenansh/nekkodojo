@@ -1,27 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { ShieldAlert, EyeOff, Gavel, XCircle, Loader2, Unlock, UserX, Ghost } from "lucide-react";
+import { Check, EyeOff, Gavel, Unlock } from "lucide-react";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   dismissReport,
   banUser,
   unbanUser,
   shadowbanUser,
 } from "@/app/(admin)/(protected)/_actions";
-
+import { ActionButton, Case, ReasonQuote, Tag, statusLabel, statusTone } from "./ReportParts";
 
 export function UserReportCard({ report }: UserReportProps) {
   const [loading, setLoading] = useState(false);
 
   const reporterName = report.reporter.firstName
-    ? `${report.reporter.firstName} ${report.reporter.lastName || ""}`
-    : "Unknown Ronin";
+    ? `${report.reporter.firstName} ${report.reporter.lastName || ""}`.trim()
+    : "A member";
 
   const reportedName = report.reported.firstName
-    ? `${report.reported.firstName} ${report.reported.lastName || ""}`
-    : "Unknown User";
+    ? `${report.reported.firstName} ${report.reported.lastName || ""}`.trim()
+    : "Unknown member";
+
+  const status = String((report as { status?: string }).status ?? "PENDING");
+  const date = new Date(report.createdAt).toLocaleDateString();
 
   const handleAction = async (action: "dismiss" | "ban" | "unban" | "shadowban") => {
     setLoading(true);
@@ -50,115 +64,115 @@ export function UserReportCard({ report }: UserReportProps) {
           break;
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       toast.error("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
+  /* ---- Closed cases: one quiet line ---- */
+  if (status !== "PENDING") {
+    return (
+      <article className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-[#3e2723]/60 px-2 py-4">
+        <div className="flex min-w-0 items-baseline gap-4">
+          <Tag tone={statusTone(status)}>{statusLabel(status)}</Tag>
+          <span className="truncate text-[#a1887f]">
+            {reportedName}: {report.reason}
+          </span>
+        </div>
+        <span className="text-sm text-[#8d6e63]">Member report, {date}</span>
+      </article>
+    );
+  }
+
+  /* ---- Open case ---- */
   return (
-    <div className="bg-[#1a110d] border border-[#3e2723] rounded-xl p-5 shadow-lg group hover:border-[#d4af37]/30 transition-all relative overflow-hidden">
-      {                                                                    }
-      <div className="absolute top-2 right-2 flex gap-1">
-        {report.reported.isBanned && (
-          <div className="bg-red-900/40 text-red-500 text-[10px] font-bold px-2 py-0.5 rounded border border-red-900 flex items-center gap-1">
-            <UserX size={10} /> BANNED
-          </div>
-        )}
-        {report.reported.isShadowBanned && (
-          <div className="bg-orange-900/40 text-orange-500 text-[10px] font-bold px-2 py-0.5 rounded border border-orange-900 flex items-center gap-1">
-            <Ghost size={10} /> SHADOW
-          </div>
-        )}
-      </div>
+    <Case
+      busy={loading}
+      actions={
+        <>
+          <ActionButton tone="clear" onClick={() => handleAction("dismiss")} disabled={loading}>
+            <Check aria-hidden />
+            Dismiss report
+          </ActionButton>
 
-      {                                  }
-      <div className="flex flex-col gap-3 mb-4 pb-4 border-b border-[#3e2723]">
-        {                                }
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#d4af37]/10 border border-[#d4af37]/30 shrink-0">
-            {report.reported.profileUrl ? (
-              <Image
-                src={report.reported.profileUrl}
-                alt="Reported"
-                width={40}
-                height={40}
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-[#d4af37]">
-                <UserX size={20} />
-              </div>
-            )}
-          </div>
-          <div>
-            <h3 className="text-[#eaddcf] font-bold text-sm leading-tight">{reportedName}</h3>
-            <p className="text-[#a1887f] text-xs font-mono">{report.reported.email}</p>
-          </div>
-        </div>
-
-        {                     }
-        <div className="flex items-center gap-2 text-[10px] text-[#5d4037] font-mono uppercase tracking-widest pl-4 border-l border-[#3e2723]">
-          <span>Reported by</span>
-          <span className="text-[#8d6e63] font-bold">{reporterName}</span>
-          <span>•</span>
-          <span>{new Date(report.createdAt).toLocaleDateString()}</span>
-        </div>
-      </div>
-
-      {                 }
-      <div className="bg-[#0f0b0a] p-3 rounded-lg border border-[#3e2723] mb-6">
-        <div className="flex items-start gap-2">
-          <ShieldAlert size={16} className="text-[#d4af37] mt-0.5 shrink-0" />
-          <p className="text-sm text-[#eaddcf] italic leading-relaxed">&ldquo;{report.reason}&rdquo;</p>
-        </div>
-      </div>
-
-      {                 }
-      <div className="grid grid-cols-2 gap-2">
-        {             }
-        <button
-          disabled={loading}
-          onClick={() => handleAction("dismiss")}
-          className="col-span-2 flex items-center justify-center p-2 rounded bg-[#3e2723]/20 text-[#a1887f] hover:bg-[#3e2723] hover:text-[#eaddcf] transition-colors text-xs font-medium gap-2 disabled:opacity-50"
-        >
-          {loading ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />}
-          Dismiss Report
-        </button>
-
-        {                        }
-        <button
-          disabled={loading}
-          onClick={() => handleAction("shadowban")}
-          className="flex flex-col items-center justify-center p-3 rounded bg-[#3e2723]/20 text-[#a1887f] hover:bg-orange-900/20 hover:text-orange-500 border border-transparent hover:border-orange-900/30 transition-all text-xs gap-1 disabled:opacity-50"
-          title="Shadowban for 7 days"
-        >
-          <EyeOff size={16} />
-          <span className="font-bold">7d Shadow</span>
-        </button>
-
-        {                       }
-        {report.reported.isBanned ? (
-          <button
+          <ActionButton
+            tone="shadow"
+            onClick={() => handleAction("shadowban")}
             disabled={loading}
-            onClick={() => handleAction("unban")}
-            className="flex flex-col items-center justify-center p-3 rounded bg-green-900/10 text-green-600 hover:bg-green-900/20 hover:text-green-500 border border-transparent hover:border-green-900/30 transition-all text-xs gap-1 disabled:opacity-50"
+            title="Hide this member's posts from others for 7 days"
           >
-            <Unlock size={16} />
-            <span className="font-bold">Unban User</span>
-          </button>
-        ) : (
-          <button
-            disabled={loading}
-            onClick={() => handleAction("ban")}
-            className="flex flex-col items-center justify-center p-3 rounded bg-[#3e2723]/20 text-[#a1887f] hover:bg-red-900/20 hover:text-red-500 border border-transparent hover:border-red-900/30 transition-all text-xs gap-1 disabled:opacity-50"
-          >
-            <Gavel size={16} />
-            <span className="font-bold">Perm Ban</span>
-          </button>
-        )}
+            <EyeOff aria-hidden />
+            Shadow ban, 7 days
+          </ActionButton>
+
+          {report.reported.isBanned ? (
+            <ActionButton tone="clear" onClick={() => handleAction("unban")} disabled={loading}>
+              <Unlock aria-hidden />
+              Lift ban
+            </ActionButton>
+          ) : (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <ActionButton tone="ban" disabled={loading}>
+                  <Gavel aria-hidden />
+                  Ban permanently
+                </ActionButton>
+              </AlertDialogTrigger>
+
+              <AlertDialogContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="font-serif text-xl text-[#eaddcf]">
+                    Ban {reportedName} permanently?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="leading-relaxed text-[#a1887f]">
+                    They will lose access to their account. You can lift the ban later from the
+                    Banned tab.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="border-[#3e2723] bg-transparent text-[#eaddcf] hover:bg-[#0f0b0a] hover:text-[#eaddcf]">
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => handleAction("ban")}
+                    className="bg-[#8f3b31] text-[#eaddcf] hover:bg-[#a6453a]"
+                  >
+                    Ban permanently
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </>
+      }
+    >
+      <header className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <Tag tone="report">Member report</Tag>
+        <p className="text-sm text-[#8d6e63]">
+          Reported by <span className="text-[#a1887f]">{reporterName}</span>, {date}
+        </p>
+      </header>
+
+      <div className="flex items-center gap-4">
+        <Avatar className="size-11 border border-[#3e2723]">
+          <AvatarImage src={report.reported.profileUrl || ""} alt="" />
+          <AvatarFallback className="bg-[#3e2723] text-[#eaddcf]">
+            {reportedName.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="font-serif text-lg text-[#eaddcf]">{reportedName}</span>
+            {report.reported.isBanned && <Tag tone="ban">Banned</Tag>}
+            {report.reported.isShadowBanned && <Tag tone="shadow">Shadow banned</Tag>}
+          </p>
+          <p className="truncate text-sm text-[#8d6e63]">{report.reported.email}</p>
+        </div>
       </div>
-    </div>
+
+      <ReasonQuote>{report.reason}</ReasonQuote>
+    </Case>
   );
 }
