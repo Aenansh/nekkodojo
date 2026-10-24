@@ -1,102 +1,103 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { cn } from "@/lib/utils";
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
 }
 
+type PageItem = number | "gap";
+
+function getPageItems(current: number, total: number): PageItem[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const items: PageItem[] = [1];
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+
+  if (start > 2) items.push("gap");
+  for (let i = start; i <= end; i++) items.push(i);
+  if (end < total - 1) items.push("gap");
+  items.push(total);
+
+  return items;
+}
+
+const stepClass = "px-3 py-2 text-sm transition-colors";
+
 export default function PaginationControls({ currentPage, totalPages }: PaginationProps) {
   const searchParams = useSearchParams();
 
-  const createPageURL = (pageNumber: number | string) => {
+  const createPageURL = (pageNumber: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", pageNumber.toString());
     return `?${params.toString()}`;
   };
 
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;                                            
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, "ellipsis", totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1, "ellipsis", totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, "ellipsis", currentPage, "ellipsis", totalPages);
-      }
-    }
-    return pages;
-  };
+  const hasPrev = currentPage > 1;
+  const hasNext = currentPage < totalPages;
 
   return (
-    <Pagination>
-      <PaginationContent>
-        
-        {                     }
-        <PaginationItem>
-          <PaginationPrevious 
-            href={currentPage > 1 ? createPageURL(currentPage - 1) : "#"}
-            aria-disabled={currentPage <= 1}
-            className={`
-              border-[#3e2723] text-[#a1887f] hover:bg-[#3e2723]/20 hover:text-[#d4af37]
-              ${currentPage <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-            `}
-          />
-        </PaginationItem>
+    <nav aria-label="Pagination" className="flex items-center justify-center gap-2">
+      {hasPrev ? (
+        <Link
+          href={createPageURL(currentPage - 1)}
+          className={cn(stepClass, "text-[#a1887f] hover:text-[#d4af37]")}
+        >
+          Previous
+        </Link>
+      ) : (
+        <span aria-disabled className={cn(stepClass, "text-[#5d4037]")}>
+          Previous
+        </span>
+      )}
 
-        {                  }
-        {getPageNumbers().map((page, index) => (
-          <PaginationItem key={index}>
-            {page === "ellipsis" ? (
-              <PaginationEllipsis className="text-[#5d4037]" />
-            ) : (
-              <PaginationLink
-                href={createPageURL(page)}
-                isActive={currentPage === page}
-                className={`
-                  border-[#3e2723] cursor-pointer
-                  ${currentPage === page 
-                    ? "bg-[#d4af37]/10 text-[#d4af37] border-[#d4af37] hover:bg-[#d4af37]/20 hover:text-[#d4af37]" 
-                    : "text-[#a1887f] hover:bg-[#3e2723]/20 hover:text-[#eaddcf] bg-transparent"
-                  }
-                `}
+      {/* Small screens: a single status line instead of the number row */}
+      <span className="text-sm tabular-nums text-[#a1887f] sm:hidden">
+        Page {currentPage} of {totalPages}
+      </span>
+
+      <ul className="hidden items-center gap-1 sm:flex">
+        {getPageItems(currentPage, totalPages).map((item, index) =>
+          item === "gap" ? (
+            <li key={`gap-${index}`} aria-hidden className="px-1 text-[#5d4037]">
+              …
+            </li>
+          ) : (
+            <li key={item}>
+              <Link
+                href={createPageURL(item)}
+                aria-current={item === currentPage ? "page" : undefined}
+                aria-label={`Page ${item}`}
+                className={cn(
+                  "block min-w-9 border-b-2 px-2 py-2 text-center text-sm tabular-nums transition-colors",
+                  item === currentPage
+                    ? "border-[#d4af37] text-[#d4af37]"
+                    : "border-transparent text-[#a1887f] hover:text-[#eaddcf]"
+                )}
               >
-                {page}
-              </PaginationLink>
-            )}
-          </PaginationItem>
-        ))}
+                {item}
+              </Link>
+            </li>
+          )
+        )}
+      </ul>
 
-        {                 }
-        <PaginationItem>
-          <PaginationNext 
-            href={currentPage < totalPages ? createPageURL(currentPage + 1) : "#"}
-            aria-disabled={currentPage >= totalPages}
-            className={`
-              border-[#3e2723] text-[#a1887f] hover:bg-[#3e2723]/20 hover:text-[#d4af37]
-              ${currentPage >= totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-            `}
-          />
-        </PaginationItem>
-
-      </PaginationContent>
-    </Pagination>
+      {hasNext ? (
+        <Link
+          href={createPageURL(currentPage + 1)}
+          className={cn(stepClass, "text-[#a1887f] hover:text-[#d4af37]")}
+        >
+          Next
+        </Link>
+      ) : (
+        <span aria-disabled className={cn(stepClass, "text-[#5d4037]")}>
+          Next
+        </span>
+      )}
+    </nav>
   );
 }

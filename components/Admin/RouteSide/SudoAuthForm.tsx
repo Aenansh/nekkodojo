@@ -2,12 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldAlert, Loader2, KeyRound, UserCog } from "lucide-react";
-import { toast } from "sonner";                                             
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import AdminShell from "./AdminShell";
+
+const ROLES = [
+  { value: "admin", label: "Admin" },
+  { value: "moderator", label: "Moderator" },
+] as const;
 
 export default function SudoAuthForm() {
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState<string>("user");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -48,7 +55,7 @@ export default function SudoAuthForm() {
         throw new Error("Authentication succeeded without a redirect target.");
       }
 
-      toast.success(`Identity Verified, Welcome back ${role}`);
+      toast.success(`Verified. Signed in as ${role}.`);
       router.replace(responseData.redirectTo);
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message || "Something went wrong.");
@@ -58,89 +65,79 @@ export default function SudoAuthForm() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      {                       }
-      <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-[#3e2723] via-[#d4af37] to-[#3e2723] opacity-50" />
+  const canSubmit = !loading && password.length > 0 && role !== "user";
 
-      <div className="w-full max-w-md bg-[#1a110d] border border-[#3e2723] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
-        {            }
-        <div className="bg-[#1f1512] p-8 text-center border-b border-[#3e2723]">
-          <div className="mx-auto bg-[#d4af37]/10 w-16 h-16 rounded-full flex items-center justify-center mb-4 text-[#d4af37]">
-            <ShieldAlert size={32} />
+  return (
+    <AdminShell kanji="関所" caption="Checkpoint. This area is for staff only.">
+      <h1 className="font-serif text-3xl tracking-tight text-[#eaddcf]">Restricted area</h1>
+      <p className="mt-3 text-sm leading-relaxed text-[#a1887f]">
+        Choose your role and enter your sudo password to continue.
+      </p>
+
+      <form onSubmit={handleSubmit} className="mt-10 space-y-8">
+        <fieldset>
+          <legend className="text-sm text-[#a1887f]">Role</legend>
+          <div className="mt-3 grid grid-cols-2 overflow-hidden rounded-md border border-[#3e2723]">
+            {ROLES.map((r, i) => (
+              <label
+                key={r.value}
+                className={cn(
+                  "cursor-pointer px-4 py-3 text-center text-sm transition-colors has-focus-visible:ring-2 has-focus-visible:ring-inset has-focus-visible:ring-[#eaddcf]",
+                  i > 0 && "border-l border-[#3e2723]",
+                  role === r.value
+                    ? "bg-[#d4af37] font-medium text-[#0f0b0a]"
+                    : "text-[#a1887f] hover:text-[#eaddcf]"
+                )}
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value={r.value}
+                  checked={role === r.value}
+                  onChange={() => setRole(r.value)}
+                  className="sr-only"
+                />
+                {r.label}
+              </label>
+            ))}
           </div>
-          <h1 className="text-2xl font-bold text-[#eaddcf] tracking-tight">Restricted Access</h1>
-          <p className="text-[#a1887f] text-sm mt-2">Verify your Sudo credentials to proceed.</p>
+        </fieldset>
+
+        <div>
+          <label htmlFor="sudo-password" className="text-sm text-[#a1887f]">
+            Sudo password
+          </label>
+          <input
+            id="sudo-password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="mt-2 w-full border-0 border-b border-[#3e2723] bg-transparent px-0 py-3 text-[#eaddcf] transition-colors focus:border-[#d4af37] focus:outline-none focus-visible:border-b-2"
+          />
         </div>
 
-        {          }
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          {                    }
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-[#795548] flex items-center gap-2">
-              <UserCog size={14} /> Claim Role
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setRole("admin")}
-                className={`p-3 text-sm font-medium rounded-lg border transition-all ${
-                  role === "admin"
-                    ? "bg-[#d4af37] border-[#d4af37] text-[#0f0b0a]"
-                    : "bg-[#0f0b0a] border-[#3e2723] text-[#a1887f] hover:border-[#795548]"
-                }`}
-              >
-                Admin
-              </button>
-              <button
-                type="button"
-                onClick={() => setRole("moderator")}
-                className={`p-3 text-sm font-medium rounded-lg border transition-all ${
-                  role === "moderator"
-                    ? "bg-[#d4af37] border-[#d4af37] text-[#0f0b0a]"
-                    : "bg-[#0f0b0a] border-[#3e2723] text-[#a1887f] hover:border-[#795548]"
-                }`}
-              >
-                Moderator
-              </button>
-            </div>
-          </div>
+        {error && (
+          <p role="alert" className="border-l-2 border-[#8f3b31] pl-3 text-sm text-[#d4796b]">
+            {error}
+          </p>
+        )}
 
-          {                    }
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-[#795548] flex items-center gap-2">
-              <KeyRound size={14} /> Sudo Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••••••"
-              className="w-full bg-[#0f0b0a] border border-[#3e2723] rounded-lg px-4 py-3 text-[#eaddcf] placeholder-[#3e2723] focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] transition-all"
-            />
-          </div>
-
-          {                   }
-          {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center animate-in fade-in slide-in-from-top-2">
-              {error}
-            </div>
+        <button
+          type="submit"
+          disabled={!canSubmit}
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-[#d4af37] py-3 font-medium text-[#0f0b0a] transition-colors hover:bg-[#b5952f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#eaddcf] disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+              Verifying…
+            </>
+          ) : (
+            "Verify and continue"
           )}
-
-          {                   }
-          <button
-            type="submit"
-            disabled={loading || !password}
-            className="w-full bg-[#d4af37] hover:bg-[#b5952f] disabled:opacity-50 disabled:cursor-not-allowed text-[#0f0b0a] font-bold py-3.5 rounded-lg transition-all flex items-center justify-center gap-2 mt-4"
-          >
-            {loading ? <Loader2 className="animate-spin" size={20} /> : "Verify Identity"}
-          </button>
-        </form>
-      </div>
-
-      <p className="mt-8 text-xs text-[#5d4037] uppercase tracking-widest">
-        NekoDojo Security Protocol
-      </p>
-    </div>
+        </button>
+      </form>
+    </AdminShell>
   );
 }

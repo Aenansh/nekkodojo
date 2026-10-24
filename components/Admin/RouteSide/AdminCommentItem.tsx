@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { Trash2, Loader2, ArrowUpRight, AlertTriangle } from "lucide-react";
+import { Trash2, Loader2, ArrowUpRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,8 +17,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteComment } from "@/app/(admin)/(protected)/_actions"; 
+import { deleteComment } from "@/app/(admin)/(protected)/_actions";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface CommentProps {
   id: string;
@@ -45,103 +46,108 @@ export function AdminCommentItem({ data }: { data: CommentProps }) {
     startTransition(async () => {
       try {
         await deleteComment(formData);
-        toast.success("Inscription burned (deleted)");
+        toast.success("Comment deleted");
       } catch (error) {
-        toast.error("Failed to delete");
+        console.error(error);
+        toast.error("Unable to delete comment");
       }
     });
   };
 
   const authorName = `${data.author.firstName || "Unknown"} ${data.author.lastName || ""}`.trim();
+  const created = new Date(data.createdAt);
 
   return (
-    <div className="group flex flex-col gap-3 rounded-xl border border-[#3e2723] bg-[#1a110d] p-4 transition-all hover:border-[#d4af37]/50 hover:bg-[#1a110d]/80">
-      
-      {                                               }
-      <div className="flex flex-wrap items-start justify-between gap-y-2 gap-x-4">
-        
-        {                 }
-        <div className="flex items-center gap-2 min-w-0 max-w-full">
-          <Avatar className="h-6 w-6 shrink-0 border border-[#3e2723]">
-            <AvatarImage src={data.author.profileUrl || ""} />
-            <AvatarFallback className="text-[9px] bg-[#3e2723]">?</AvatarFallback>
-          </Avatar>
-          
-          <div className="flex items-center gap-2 overflow-hidden">
-            <span className="text-xs font-bold text-[#eaddcf] truncate">
-              {authorName}
-            </span>
-            <span className="text-xs text-[#5d4037] shrink-0">•</span>
-            <span className="text-xs text-[#5d4037] shrink-0 whitespace-nowrap">
-              {formatDistanceToNow(new Date(data.createdAt))} ago
-            </span>
-          </div>
-        </div>
-        
-        {                  }
-        <Link 
-          href={`/discussions/${data.discussion.id}`} 
+    <article
+      aria-busy={isPending}
+      className={cn(
+        "grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-4 rounded-md border border-[#5c3d21]/50 bg-[#18120e]/75 px-4 py-4 shadow-sm transition-colors hover:border-[#d4af37]/30 hover:bg-[#21170f]/90",
+        isPending && "opacity-50"
+      )}
+    >
+      <Avatar className="size-9 border border-[#3e2723]">
+        <AvatarImage src={data.author.profileUrl || ""} alt="" />
+        <AvatarFallback className="bg-[#3e2723] text-xs text-[#eaddcf]">
+          {authorName.charAt(0).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+
+      <div className="min-w-0">
+        <p className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-sm">
+          <span className="font-medium text-[#eaddcf]">{authorName}</span>
+          <time
+            dateTime={created.toISOString()}
+            title={created.toLocaleString()}
+            suppressHydrationWarning
+            className="text-[#8d6e63]"
+          >
+            {formatDistanceToNow(created, { addSuffix: true })}
+          </time>
+        </p>
+
+        <p className="mt-2 line-clamp-3 max-w-2xl wrap-break-word font-serif leading-7 text-[#eaddcf]/85">
+          {data.description}
+        </p>
+
+        <Link
+          href={`/discussions/${data.discussion.id}`}
           target="_blank"
-          className="flex items-center gap-1 text-[10px] text-[#a1887f] hover:text-[#d4af37] transition-colors max-w-full sm:max-w-[200px]"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex max-w-full items-center gap-1.5 text-sm text-[#a1887f] transition-colors hover:text-[#d4af37]"
         >
-          <span className="shrink-0 opacity-70">on</span>
-          <span className="truncate font-medium italic">
-            &quot;{data.discussion.title}&quot;
-          </span>
-          <ArrowUpRight size={12} className="shrink-0" />
+          <span className="shrink-0">On</span>
+          <span className="truncate">{data.discussion.title}</span>
+          <ArrowUpRight className="size-3.5 shrink-0" aria-hidden />
+          <span className="sr-only">(opens in a new tab)</span>
         </Link>
       </div>
 
-      {                         }
-      <div className="pl-0 sm:pl-8">
-        <p className="text-sm text-[#a1887f] line-clamp-3 leading-relaxed wrap-break-word">
-          {data.description}
-        </p>
-      </div>
-
-      {                               }
-      <div className="flex justify-end pt-2 border-t border-[#3e2723]/50 mt-1">
+      <div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
               disabled={isPending}
-              className="h-7 px-2 text-xs text-[#5d4037] hover:text-red-400 hover:bg-red-900/10 transition-colors"
+              className="h-8 px-3 text-sm text-[#8d6e63] hover:bg-transparent hover:text-[#d4796b]"
             >
               {isPending ? (
-                <Loader2 size={12} className="animate-spin mr-1.5" />
+                <Loader2 className="mr-1.5 size-3.5 animate-spin" aria-hidden />
               ) : (
-                <Trash2 size={12} className="mr-1.5" />
+                <Trash2 className="mr-1.5 size-3.5" aria-hidden />
               )}
-              Burn Inscription
+              Delete
             </Button>
           </AlertDialogTrigger>
 
-          <AlertDialogContent className="bg-[#1a110d] border-[#3e2723] text-[#eaddcf]">
+          <AlertDialogContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-red-500 flex items-center gap-2">
-                <AlertTriangle size={20} />
-                Confirm Deletion
+              <AlertDialogTitle className="font-serif text-xl text-[#eaddcf]">
+                Delete this comment?
               </AlertDialogTitle>
-              <AlertDialogDescription className="text-[#a1887f]">
-                This action cannot be undone. This will permanently remove the inscription from the dojo walls.
+              <AlertDialogDescription className="leading-relaxed text-[#a1887f]">
+                It will be permanently removed from the discussion. This can&apos;t be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
+
+            <blockquote className="line-clamp-3 border-l border-[#3e2723] pl-4 font-serif leading-relaxed text-[#eaddcf]/80">
+              {data.description}
+            </blockquote>
+
             <AlertDialogFooter>
-              <AlertDialogCancel className="bg-transparent border-[#3e2723] text-[#a1887f] hover:bg-[#3e2723]/20 hover:text-[#eaddcf]">
-                Cancel
+              <AlertDialogCancel className="border-[#3e2723] bg-transparent text-[#eaddcf] hover:bg-[#0f0b0a] hover:text-[#eaddcf]">
+                Keep comment
               </AlertDialogCancel>
-              <AlertDialogAction 
+              <AlertDialogAction
                 onClick={executeDelete}
-                className="bg-red-900/20 text-red-500 hover:bg-red-600 hover:text-white border border-red-900/50"
+                className="bg-[#8f3b31] text-[#eaddcf] hover:bg-[#a6453a]"
               >
-                Delete Permanently
+                Delete comment
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </div>
+    </article>
   );
 }

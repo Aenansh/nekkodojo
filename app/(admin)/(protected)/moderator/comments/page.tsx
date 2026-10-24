@@ -1,13 +1,30 @@
-import { MessageSquareText, MessageSquareX } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { checkRole } from "@/utils/roles";
 
-import { AdminCommentItem } from "@/components/Admin/RouteSide/AdminCommentItem"; 
-import PaginationControls from "@/components/Admin/RouteSide/PaginationControls"; 
+import { AdminCommentItem } from "@/components/Admin/RouteSide/AdminCommentItem";
+import PaginationControls from "@/components/Admin/RouteSide/PaginationControls";
+import AdminPageHeader from "@/components/Admin/RouteSide/AdminPageHeader";
+import { CatSeal } from "@/components/User/Profileornaments";
 
 export const metadata = { title: "Comment Moderation" };
+
+function dayLabel(date: Date) {
+  const day = new Date(date);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (day.toDateString() === today.toDateString()) return "Today";
+  if (day.toDateString() === yesterday.toDateString()) return "Yesterday";
+  return day.toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
 
 export default async function AdminCommentsPage(props: {
   searchParams: Promise<{ page?: string }>;
@@ -18,8 +35,8 @@ export default async function AdminCommentsPage(props: {
   }
 
   const params = await props.searchParams;
-  const page = Number(params.page) || 1;
-  const limit = 20;                                          
+  const page = Math.max(1, Math.floor(Number(params.page)) || 1);
+  const limit = 20;
   const skip = (page - 1) * limit;
 
   const [comments, totalCount] = await prisma.$transaction([
@@ -29,57 +46,77 @@ export default async function AdminCommentsPage(props: {
       orderBy: { createdAt: "desc" },
       include: {
         author: {
-          select: { firstName: true, lastName: true, profileUrl: true }
+          select: { firstName: true, lastName: true, profileUrl: true },
         },
         discussion: {
-          select: { id: true, title: true }
-        }
-      }
+          select: { id: true, title: true },
+        },
+      },
     }),
-    prisma.comment.count()
+    prisma.comment.count(),
   ]);
 
   const totalPages = Math.ceil(totalCount / limit);
 
+  const groups: { label: string; items: typeof comments }[] = [];
+  for (const comment of comments) {
+    const label = dayLabel(comment.createdAt);
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) last.items.push(comment);
+    else groups.push({ label, items: [comment] });
+  }
+
   return (
-    <div className="space-y-6">
-      
-      {            }
-      <div className="flex items-center gap-3 border-b border-[#3e2723] pb-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#3e2723]/30 text-[#d4af37]">
-          <MessageSquareText size={24} />
+    <div className="space-y-10">
+      <AdminPageHeader
+        title="Comments"
+        kanji="発言"
+        description="Review comments from across the dojo, newest first, and remove any that break the rules."
+      >
+        <p className="text-sm text-[#a1887f]">
+          <span className="font-serif text-2xl tabular-nums text-[#eaddcf]">
+            {totalCount.toLocaleString()}
+          </span>{" "}
+          {totalCount === 1 ? "comment" : "comments"} in total
+          {totalPages > 1 && (
+            <span className="ml-3 text-[#8d6e63]">
+              Page {page} of {totalPages}
+            </span>
+          )}
+        </p>
+      </AdminPageHeader>
+
+      {groups.length > 0 ? (
+        <div className="space-y-10">
+          {groups.map((group) => (
+            <section key={group.label} aria-label={group.label}>
+              <div className="flex items-center gap-4">
+                <h2 className="shrink-0 font-serif text-base text-[#eaddcf]">{group.label}</h2>
+                <span aria-hidden className="h-px flex-1 bg-[#3e2723]" />
+                <span className="shrink-0 text-sm tabular-nums text-[#8d6e63]">
+                  {group.items.length}
+                </span>
+              </div>
+
+              <div className="mt-2">
+                {group.items.map((comment) => (
+                  <AdminCommentItem key={comment.id} data={comment} />
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
-        <div>
-          <h1 className="text-3xl font-black text-[#d4af37] tracking-tight">Inscriptions Log</h1>
-          <p className="text-[#a1887f]">
-            Monitor the {totalCount} most recent comments across the dojo.
+      ) : (
+        <div className="flex flex-col items-center border-y border-[#3e2723] px-4 py-20 text-center">
+          <CatSeal className="size-12 text-[#5d4037]" />
+          <h2 className="mt-6 font-serif text-xl text-[#eaddcf]">No comments yet</h2>
+          <p className="mt-2 text-sm text-[#a1887f]">
+            New comments will appear here as members post them.
           </p>
         </div>
-      </div>
-
-      {                   }
-      <div className="space-y-4">
-        {comments.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             {comments.map((comment) => (
-               <AdminCommentItem key={comment.id} data={comment} />
-             ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-24 border-2 border-dashed border-[#3e2723] rounded-xl bg-[#1a110d]/20">
-            <MessageSquareX className="h-16 w-16 text-[#5d4037] mb-4" />
-            <h3 className="text-xl font-bold text-[#a1887f]">Silence in the Dojo</h3>
-            <p className="text-[#5d4037] text-sm mt-2">No comments found.</p>
-          </div>
-        )}
-      </div>
-
-      {                }
-      {totalPages > 1 && (
-        <div className="border-t border-[#3e2723] pt-4 flex justify-center">
-          <PaginationControls currentPage={page} totalPages={totalPages} />
-        </div>
       )}
+
+      {totalPages > 1 && <PaginationControls currentPage={page} totalPages={totalPages} />}
     </div>
   );
 }

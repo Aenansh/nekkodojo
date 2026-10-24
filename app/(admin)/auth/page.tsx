@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import SudoAuthForm from "@/components/Admin/RouteSide/SudoAuthForm";
+import { CatSeal } from "@/components/User/Profileornaments";
 
 export default function AdminAuthPage() {
   const router = useRouter();
@@ -47,20 +48,26 @@ export default function AdminAuthPage() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-[#d4af37]">
-        <Loader2 className="size-6 animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-[#0f0b0a] text-[#a1887f]">
+        <div role="status" aria-live="polite" className="flex items-center gap-3 text-sm">
+          <Loader2 className="size-4 animate-spin text-[#d4af37]" aria-hidden />
+          Checking your session…
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center">
-        <p role="alert" className="text-red-400">{error}</p>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-[#0f0b0a] px-6 text-center">
+        <CatSeal className="size-10 text-[#5d4037]" />
+        <p role="alert" className="max-w-sm text-sm leading-relaxed text-[#d4796b]">
+          {error}
+        </p>
         <button
           type="button"
           onClick={() => setRetryCount((count) => count + 1)}
-          className="rounded-md border border-[#5d4037] px-4 py-2 text-[#eaddcf] hover:bg-[#1a110d]"
+          className="rounded-full border border-[#3e2723] px-5 py-2 text-sm text-[#eaddcf] transition-colors hover:border-[#d4af37] hover:text-[#d4af37]"
         >
           Try again
         </button>
