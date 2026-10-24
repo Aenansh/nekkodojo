@@ -1,7 +1,7 @@
-import { Users, UserX, ShieldAlert, ShieldCheck, Search, Calendar, Mail } from "lucide-react";
+import { Users, UserX, ShieldAlert, ShieldCheck, Calendar, Mail } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminUserCard } from "@/components/Admin/RouteSide/AdminUserCard";
-import PaginationControls from "@/components/Admin/RouteSide/PaginationControls"; 
+import PaginationControls from "@/components/Admin/RouteSide/PaginationControls";
 import { currentUser } from "@clerk/nextjs/server";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,6 +9,18 @@ import { format } from "date-fns";
 import Link from "next/link";
 
 export const metadata = { title: "User Management" };
+
+type AdminUserRow = {
+  id: string;
+  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  beltRank: string | null;
+  profileUrl: string | null;
+  createdAt: Date;
+  role: string;
+};
 
 export default async function AdminUsersPage(props: {
   searchParams: Promise<{ page?: string; search?: string }>;
@@ -28,10 +40,7 @@ export default async function AdminUsersPage(props: {
       },
       take: limit,
       skip: skip,
-      orderBy: [
-        { role: "asc" },                                 
-        { createdAt: "desc" },
-      ],
+      orderBy: [{ role: "asc" }, { createdAt: "desc" }],
       select: {
         id: true,
         name: true,
@@ -53,7 +62,7 @@ export default async function AdminUsersPage(props: {
   const moderators = users.filter((u) => u.role === "moderator");
   const disciples = users.filter((u) => u.role !== "admin" && u.role !== "moderator");
 
-  const mapToUserProps = (u: any) => ({
+  const mapToUserProps = (u: AdminUserRow) => ({
     id: u.id,
     firstName: u.firstName,
     lastName: u.lastName,
@@ -65,7 +74,7 @@ export default async function AdminUsersPage(props: {
     beltRank: u.beltRank,
   });
 
-  const UserRow = ({ u, borderAccent }: { u: any; borderAccent: string }) => (
+  const UserRow = ({ u, borderAccent }: { u: AdminUserRow; borderAccent: string }) => (
     <div
       className={`
         group relative grid grid-cols-1 md:grid-cols-12 gap-4 items-center 
@@ -74,7 +83,7 @@ export default async function AdminUsersPage(props: {
         border-l-[3px] ${borderAccent} shadow-sm hover:shadow-md
       `}
     >
-      {                  }
+      {}
       <div className="col-span-1 md:col-span-5 flex items-center gap-4">
         <Avatar className="h-10 w-10 md:h-12 md:w-12 border border-[#3e2723]">
           <AvatarImage src={u.profileUrl || ""} />
@@ -93,7 +102,7 @@ export default async function AdminUsersPage(props: {
         </div>
       </div>
 
-      {                  }
+      {}
       <div className="col-span-1 md:col-span-3 flex items-center gap-3">
         {u.beltRank && (
           <Badge
@@ -105,13 +114,13 @@ export default async function AdminUsersPage(props: {
         )}
       </div>
 
-      {             }
+      {}
       <div className="hidden md:col-span-3 md:flex items-center gap-2 text-xs text-[#5d4037]">
         <Calendar size={14} />
         <span>{format(new Date(u.createdAt), "MMM d, yyyy")}</span>
       </div>
 
-      {                }
+      {}
       <div className="col-span-1 text-right flex justify-end">
         <div className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
           <AdminUserCard user={mapToUserProps(u)} />
@@ -122,7 +131,7 @@ export default async function AdminUsersPage(props: {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      {                    }
+      {}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#3e2723] pb-6">
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-[#3e2723] to-[#1a110d] border border-[#3e2723] text-[#d4af37] shadow-lg">
@@ -137,7 +146,7 @@ export default async function AdminUsersPage(props: {
         </div>
       </div>
 
-      {                     }
+      {}
       {users.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32 border border-dashed border-[#3e2723] rounded-2xl bg-[#0f0b0a]/50">
           <div className="p-4 rounded-full bg-[#1a110d] mb-4">
@@ -147,7 +156,7 @@ export default async function AdminUsersPage(props: {
         </div>
       ) : (
         <div className="space-y-10 animate-in fade-in duration-500">
-          {                       }
+          {}
           {admins.length > 0 && (
             <section className="space-y-4">
               <div className="flex items-center gap-2 px-1 border-b border-[#3e2723]/50 pb-2">
@@ -170,7 +179,7 @@ export default async function AdminUsersPage(props: {
             </section>
           )}
 
-          {                           }
+          {}
           {moderators.length > 0 && (
             <section className="space-y-4">
               <div className="flex items-center gap-2 px-1 border-b border-[#3e2723]/50 pb-2">
@@ -193,7 +202,7 @@ export default async function AdminUsersPage(props: {
             </section>
           )}
 
-          {                          }
+          {}
           {disciples.length > 0 && (
             <section className="space-y-4">
               <div className="flex items-center gap-2 px-1 border-b border-[#3e2723]/50 pb-2">
@@ -220,7 +229,7 @@ export default async function AdminUsersPage(props: {
             </section>
           )}
 
-          {                }
+          {}
           {totalPages > 1 && (
             <div className="pt-6 flex justify-center border-t border-[#3e2723]">
               <PaginationControls currentPage={page} totalPages={totalPages} />

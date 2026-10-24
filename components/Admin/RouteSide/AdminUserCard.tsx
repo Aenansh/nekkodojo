@@ -21,7 +21,19 @@ import {
 import { removeRole, setRole } from "@/app/(admin)/(protected)/_actions";
 import { toast } from "sonner";
 
-export function AdminUserCard({ user }: { user: UserProps }) {
+type AdminUserRow = {
+  id: string;
+  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  beltRank: string | null;
+  profileUrl: string | null;
+  createdAt: Date;
+  role: string;
+};
+
+export function AdminUserCard({ user }: { user: AdminUserRow }) {
   const [optimisticRole, setOptimisticRole] = useOptimistic(
     user.role,
     (state, newRole: string) => newRole
@@ -39,6 +51,7 @@ export function AdminUserCard({ user }: { user: UserProps }) {
         await setRole(formData);
         toast.success(`Role updated to ${newRole}`);
       } catch (error) {
+        console.log(error);
         toast.error("Failed to update role");
       }
     });
@@ -54,6 +67,7 @@ export function AdminUserCard({ user }: { user: UserProps }) {
         await removeRole(formData);
         toast.success("Role revoked");
       } catch (error) {
+        console.log(error);
         toast.error("Failed to remove role");
       }
     });
@@ -82,11 +96,11 @@ export function AdminUserCard({ user }: { user: UserProps }) {
         className="w-56 border-[#3e2723] bg-[#1a110d] text-[#eaddcf] shadow-xl z-50"
       >
         <DropdownMenuLabel className="text-xs font-semibold text-[#5d4037] uppercase tracking-wider">
-          Manage {user.firstName}'s Role
+          Manage {user.firstName}&quo;s Role
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-[#3e2723]" />
 
-        {                         }
+        {}
         <DropdownMenuItem
           disabled={optimisticRole === "admin" || isPending}
           onClick={() => handleSetRole("admin")}
@@ -104,7 +118,7 @@ export function AdminUserCard({ user }: { user: UserProps }) {
           </div>
         </DropdownMenuItem>
 
-        {                             }
+        {}
         <DropdownMenuItem
           disabled={optimisticRole === "moderator" || isPending}
           onClick={() => handleSetRole("moderator")}
@@ -122,7 +136,7 @@ export function AdminUserCard({ user }: { user: UserProps }) {
           </div>
         </DropdownMenuItem>
 
-        {                    }
+        {}
         {optimisticRole !== "user" && (
           <>
             <DropdownMenuSeparator className="bg-[#3e2723]" />
