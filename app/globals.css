@@ -62,6 +62,84 @@ body {
   font-family: var(--font-sans);
 }
 
+.member-brush-row {
+  isolation: isolate;
+  position: relative;
+}
+
+.member-brush-row::before {
+  position: absolute;
+  z-index: 0;
+  inset: 4px 0;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition:
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease-out;
+  clip-path: polygon(
+    0 18%,
+    4% 12%,
+    9% 18%,
+    14% 10%,
+    22% 16%,
+    31% 8%,
+    42% 15%,
+    54% 9%,
+    66% 17%,
+    77% 10%,
+    89% 16%,
+    100% 12%,
+    98% 78%,
+    91% 85%,
+    83% 78%,
+    72% 89%,
+    61% 80%,
+    49% 88%,
+    37% 79%,
+    24% 87%,
+    13% 79%,
+    5% 85%,
+    1% 76%
+  );
+}
+
+.member-brush-row[data-brush="admin"]::before {
+  background: linear-gradient(100deg, #e6c84f 0%, #f3d96d 48%, #d4af37 100%);
+}
+
+.member-brush-row[data-brush="moderator"]::before {
+  background: linear-gradient(100deg, #60a5fa 0%, #93c5fd 48%, #3b82f6 100%);
+}
+
+.member-brush-row[data-brush="disciple"]::before {
+  background: linear-gradient(100deg, #e7e5e4 0%, #fff 48%, #d6d3d1 100%);
+}
+
+.member-brush-row > * {
+  position: relative;
+  z-index: 1;
+}
+
+.member-brush-row:is(:hover, :focus-within)::before {
+  opacity: 0.96;
+  transform: scaleX(1);
+}
+
+.member-brush-row:is(:hover, :focus-within) .member-row-copy,
+.member-brush-row:is(:hover, :focus-within) .member-row-copy :is(a, p, span),
+.member-brush-heading:is(:hover, :focus-within) :is(h2, span) {
+  color: #000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-brush-row::before {
+    transition: none;
+  }
+}
+
 .font-sans {
   font-family: var(--font-sans);
 }

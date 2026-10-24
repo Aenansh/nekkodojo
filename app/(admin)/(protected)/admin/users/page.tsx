@@ -1,12 +1,14 @@
-import { Users, UserX, ShieldAlert, ShieldCheck, Calendar, Mail } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { format } from "date-fns";
+import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { checkRole } from "@/utils/roles";
 import { AdminUserCard } from "@/components/Admin/RouteSide/AdminUserCard";
 import PaginationControls from "@/components/Admin/RouteSide/PaginationControls";
-import { currentUser } from "@clerk/nextjs/server";
-import { Badge } from "@/components/ui/badge";
+import AdminPageHeader from "@/components/Admin/RouteSide/AdminPageHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { format } from "date-fns";
-import Link from "next/link";
+import { CatSeal, SectionHeading } from "@/components/User/Profileornaments";
 
 export const metadata = { title: "User Management" };
 
@@ -22,14 +24,18 @@ type AdminUserRow = {
   role: string;
 };
 
+const rowGrid = "md:grid-cols-[minmax(0,1fr)_8rem_8rem_auto]";
+
 export default async function AdminUsersPage(props: {
   searchParams: Promise<{ page?: string; search?: string }>;
 }) {
   const user = await currentUser();
-  if (!user) return null;
+  if (!user || !checkRole("admin")) {
+    redirect("/");
+  }
 
   const params = await props.searchParams;
-  const page = Number(params.page) || 1;
+  const page = Math.max(1, Math.floor(Number(params.page)) || 1);
   const limit = 10;
   const skip = (page - 1) * limit;
 
@@ -62,181 +68,155 @@ export default async function AdminUsersPage(props: {
   const moderators = users.filter((u) => u.role === "moderator");
   const disciples = users.filter((u) => u.role !== "admin" && u.role !== "moderator");
 
-  const mapToUserProps = (u: AdminUserRow) => ({
-    id: u.id,
-    firstName: u.firstName,
-    lastName: u.lastName,
-    email: u.email,
-    profileUrl: u.profileUrl,
-    role: u.role || "user",
-    createdAt: u.createdAt,
-    name: u.name,
-    beltRank: u.beltRank,
-  });
-
-  const UserRow = ({ u, borderAccent }: { u: AdminUserRow; borderAccent: string }) => (
-    <div
-      className={`
-        group relative grid grid-cols-1 md:grid-cols-12 gap-4 items-center 
-        p-4 rounded-xl border border-[#3e2723] bg-[#1a110d] 
-        hover:bg-[#241a15] transition-all duration-300
-        border-l-[3px] ${borderAccent} shadow-sm hover:shadow-md
-      `}
-    >
-      {}
-      <div className="col-span-1 md:col-span-5 flex items-center gap-4">
-        <Avatar className="h-10 w-10 md:h-12 md:w-12 border border-[#3e2723]">
-          <AvatarImage src={u.profileUrl || ""} />
-          <AvatarFallback className="bg-[#0f0b0a] text-[#d4af37]">
-            {u.firstName?.[0] || u.name?.[0]}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0">
-          <Link href={`/member/${u.name}`} className="font-bold text-[#eaddcf] truncate text-base">
-            {u.firstName} {u.lastName}
-          </Link>
-          <div className="flex items-center gap-2 text-xs text-[#a1887f]">
-            <Mail size={12} />
-            <span className="truncate max-w-[150px] md:max-w-xs">{u.email}</span>
-          </div>
-        </div>
-      </div>
-
-      {}
-      <div className="col-span-1 md:col-span-3 flex items-center gap-3">
-        {u.beltRank && (
-          <Badge
-            variant="outline"
-            className="border-[#3e2723] text-[#5d4037] font-mono text-[10px]"
-          >
-            {u.beltRank}
-          </Badge>
-        )}
-      </div>
-
-      {}
-      <div className="hidden md:col-span-3 md:flex items-center gap-2 text-xs text-[#5d4037]">
-        <Calendar size={14} />
-        <span>{format(new Date(u.createdAt), "MMM d, yyyy")}</span>
-      </div>
-
-      {}
-      <div className="col-span-1 text-right flex justify-end">
-        <div className="opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-          <AdminUserCard user={mapToUserProps(u)} />
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      {}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#3e2723] pb-6">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-[#3e2723] to-[#1a110d] border border-[#3e2723] text-[#d4af37] shadow-lg">
-            <Users size={24} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-black text-[#eaddcf] tracking-tight">Dojo Roster</h1>
-            <p className="text-sm text-[#a1887f] font-mono">
-              Managing <span className="text-[#d4af37]">{totalCount}</span> active disciples
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="mx-auto max-w-7xl space-y-10">
+      <AdminPageHeader
+        title="Disciples"
+        kanji="門下"
+        description="Everyone who trains in the dojo. Change roles here to give disciples moderation or admin access."
+      >
+        <p className="text-sm text-[#a1887f]">
+          <span className="font-serif text-2xl tabular-nums text-[#eaddcf]">
+            {totalCount.toLocaleString()}
+          </span>{" "}
+          {totalCount === 1 ? "other disciple" : "other disciples"}
+          {totalPages > 1 && (
+            <span className="ml-3 text-[#8d6e63]">
+              Page {page} of {totalPages}
+            </span>
+          )}
+        </p>
+      </AdminPageHeader>
 
-      {}
       {users.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-32 border border-dashed border-[#3e2723] rounded-2xl bg-[#0f0b0a]/50">
-          <div className="p-4 rounded-full bg-[#1a110d] mb-4">
-            <UserX className="h-8 w-8 text-[#5d4037]" />
-          </div>
-          <h3 className="text-lg font-bold text-[#a1887f]">No disciples found</h3>
+        <div className="flex flex-col items-center border-y border-[#3e2723] px-4 py-20 text-center">
+          <CatSeal className="size-12 text-[#5d4037]" />
+          <h2 className="mt-6 font-serif text-xl text-[#eaddcf]">No disciples found</h2>
+          <p className="mt-2 text-sm text-[#a1887f]">There is nobody else on this page.</p>
         </div>
       ) : (
-        <div className="space-y-10 animate-in fade-in duration-500">
-          {}
-          {admins.length > 0 && (
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 px-1 border-b border-[#3e2723]/50 pb-2">
-                <ShieldAlert size={16} className="text-[#d4af37]" />
-                <h2 className="text-sm font-bold uppercase tracking-widest text-[#d4af37]">
-                  Senseis (Admins)
-                </h2>
-                <Badge
-                  variant="secondary"
-                  className="bg-[#d4af37]/10 text-[#d4af37] text-[10px] ml-auto"
-                >
-                  {admins.length}
-                </Badge>
-              </div>
-              <div className="flex flex-col gap-3">
-                {admins.map((u) => (
-                  <UserRow key={u.id} u={u} borderAccent="border-l-yellow-500" />
-                ))}
-              </div>
-            </section>
-          )}
+        <div className="space-y-12">
+          <div
+            aria-hidden
+            className={`hidden gap-x-6 px-2 text-xs text-[#8d6e63] md:grid ${rowGrid}`}
+          >
+            <span>Disciple</span>
+            <span>Belt</span>
+            <span>Joined</span>
+            <span className="w-20" />
+          </div>
 
-          {}
-          {moderators.length > 0 && (
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 px-1 border-b border-[#3e2723]/50 pb-2">
-                <ShieldCheck size={16} className="text-blue-400" />
-                <h2 className="text-sm font-bold uppercase tracking-widest text-blue-400">
-                  Guardians (Moderators)
-                </h2>
-                <Badge
-                  variant="secondary"
-                  className="bg-blue-500/10 text-blue-400 text-[10px] ml-auto"
-                >
-                  {moderators.length}
-                </Badge>
-              </div>
-              <div className="flex flex-col gap-3">
-                {moderators.map((u) => (
-                  <UserRow key={u.id} u={u} borderAccent="border-l-blue-500" />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {}
-          {disciples.length > 0 && (
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 px-1 border-b border-[#3e2723]/50 pb-2">
-                <Users size={16} className="text-[#a1887f]" />
-                <h2 className="text-sm font-bold uppercase tracking-widest text-[#a1887f]">
-                  Disciples
-                </h2>
-                <Badge
-                  variant="secondary"
-                  className="bg-[#3e2723]/20 text-[#a1887f] text-[10px] ml-auto"
-                >
-                  {disciples.length}
-                </Badge>
-              </div>
-              <div className="flex flex-col gap-3">
-                {disciples.map((u) => (
-                  <UserRow
-                    key={u.id}
-                    u={u}
-                    borderAccent="border-l-transparent hover:border-l-[#5d4037]"
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {}
-          {totalPages > 1 && (
-            <div className="pt-6 flex justify-center border-t border-[#3e2723]">
-              <PaginationControls currentPage={page} totalPages={totalPages} />
-            </div>
-          )}
+          <MemberSection title="Admins" kanji="管理" members={admins} brush="admin" />
+          <MemberSection title="Moderators" kanji="巡回" members={moderators} brush="moderator" />
+          <MemberSection title="Disciples" kanji="門下" members={disciples} brush="disciple" />
         </div>
       )}
+
+      {totalPages > 1 && <PaginationControls currentPage={page} totalPages={totalPages} />}
     </div>
+  );
+}
+
+function MemberSection({
+  title,
+  kanji,
+  members,
+  brush,
+}: {
+  title: string;
+  kanji: string;
+  members: AdminUserRow[];
+  brush: "admin" | "moderator" | "disciple";
+}) {
+  if (members.length === 0) return null;
+
+  return (
+    <section aria-label={title} className="-mt-6 first:mt-0">
+      <div className="member-brush-row member-brush-heading" data-brush={brush}>
+        <SectionHeading
+          title={title}
+          kanji={kanji}
+          aside={<span className="text-sm tabular-nums text-[#8d6e63]">{members.length}</span>}
+        />
+      </div>
+      <ul>
+        {members.map((u) => {
+          const rowBrush =
+            u.role === "admin" ? "admin" : u.role === "moderator" ? "moderator" : "disciple";
+          return <MemberRow key={u.id} u={u} brush={rowBrush} />;
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function MemberRow({
+  u,
+  brush,
+}: {
+  u: AdminUserRow;
+  brush: "admin" | "moderator" | "disciple";
+}) {
+  const displayName = `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || u.name || "Unknown";
+  const belt = u.beltRank ? u.beltRank.toLowerCase().replace(/_/g, " ") : null;
+  const joined = format(new Date(u.createdAt), "MMM d, yyyy");
+
+  return (
+    <li
+      className={`member-brush-row grid items-center gap-x-6 gap-y-2 border-b border-[#3e2723]/60 px-2 py-4 grid-cols-[minmax(0,1fr)_auto] ${rowGrid}`}
+      data-brush={brush}
+    >
+      <div className="flex min-w-0 items-center gap-4">
+        <Avatar className="size-10 border border-[#3e2723]">
+          <AvatarImage src={u.profileUrl || ""} alt="" />
+          <AvatarFallback className="bg-[#3e2723] text-[#eaddcf]">
+            {(u.firstName?.[0] || u.name?.[0] || "?").toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="member-row-copy min-w-0">
+          {u.name ? (
+            <Link
+              href={`/member/${u.name}`}
+              className="block truncate font-medium text-[#eaddcf] transition-colors hover:text-[#d4af37]"
+            >
+              {displayName}
+            </Link>
+          ) : (
+            <span className="block truncate font-medium text-[#eaddcf]">{displayName}</span>
+          )}
+          <p className="truncate text-sm text-[#8d6e63]">{u.email}</p>
+          {/* Small screens: belt and join date fold under the email */}
+          <p className="mt-0.5 text-xs text-[#8d6e63] md:hidden">
+            {belt && <span className="capitalize">{belt}</span>}
+            {belt && <span className="mx-2">/</span>}
+            Joined {joined}
+          </p>
+        </div>
+      </div>
+
+      <span className="member-row-copy hidden text-sm capitalize text-[#a1887f] md:block">
+        {belt ?? "None"}
+      </span>
+      <span className="member-row-copy hidden text-sm tabular-nums text-[#a1887f] md:block">
+        {joined}
+      </span>
+
+      <div className="flex justify-end">
+        <AdminUserCard
+          user={{
+            id: u.id,
+            firstName: u.firstName,
+            lastName: u.lastName,
+            email: u.email,
+            profileUrl: u.profileUrl,
+            role: u.role || "user",
+            createdAt: u.createdAt,
+            name: u.name,
+            beltRank: u.beltRank,
+          }}
+        />
+      </div>
+    </li>
   );
 }

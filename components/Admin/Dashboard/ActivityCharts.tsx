@@ -1,13 +1,14 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMemo } from "react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { SectionHeading } from "@/components/User/Profileornaments";
 
 interface ChartDataPoint {
   day: string;
@@ -17,61 +18,89 @@ interface ChartDataPoint {
 
 const chartConfig = {
   users: {
-    label: "New Disciples",
-    color: "#3b82f6",
+    label: "New members",
+    color: "#d4af37",
   },
   scrolls: {
-    label: "New Scrolls",
-    color: "#d4af37",
+    label: "New discussions",
+    color: "#8d6e63",
   },
 } satisfies ChartConfig;
 
+const SERIES = ["users", "scrolls"] as const;
+
 export function ActivityChart({ chartData }: { chartData: ChartDataPoint[] }) {
+  const totals = useMemo(
+    () => ({
+      users: chartData.reduce((sum, d) => sum + d.users, 0),
+      scrolls: chartData.reduce((sum, d) => sum + d.scrolls, 0),
+    }),
+    [chartData]
+  );
+
   return (
-    <Card className="border border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
-      <CardHeader>
-        <CardTitle className="text-[#d4af37]">Weekly Activity</CardTitle>
-        <CardDescription className="text-[#a1887f]">
-          New disciples and scrolls over the last 7 days.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-          <BarChart accessibilityLayer data={chartData}>
-            <CartesianGrid vertical={false} stroke="#3e2723" strokeDasharray="3 3" />
-            <XAxis
-              dataKey="day"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tick={{ fill: "#a1887f" }}
+    <section aria-labelledby="activity-heading">
+      <SectionHeading id="activity-heading" title="Weekly activity" kanji="週間" />
+
+      {/* The legend doubles as the 7-day totals */}
+      <ul className="mt-6 flex flex-wrap gap-x-10 gap-y-3">
+        {SERIES.map((key) => (
+          <li key={key} className="flex items-baseline gap-3 text-sm text-[#a1887f]">
+            <span
+              aria-hidden
+              className="size-2.5 translate-y-px rounded-[2px]"
+              style={{ backgroundColor: chartConfig[key].color }}
             />
-            <ChartTooltip
-              cursor={{ fill: "#3e2723", opacity: 0.4 }}
-              content={
-                <ChartTooltipContent
-                  className="bg-[#1a110d] border-[#3e2723] shadow-xl"
-                  labelClassName="text-[#d4af37] font-bold mb-1"
-                  formatter={(value, name) => (
-                    <div className="flex min-w-[120px] items-center gap-2 text-xs text-[#eaddcf]">
-                      <div
-                        className="h-2 w-2 rounded-full"
-                        style={{ backgroundColor: name === "users" ? "#3b82f6" : "#d4af37" }}
-                      />
-                      <span className="text-[#a1887f] capitalize">
-                        {name === "users" ? "Disciples" : "Scrolls"}:
-                      </span>
-                      <span className="ml-auto font-mono font-bold text-[#eaddcf]">{value}</span>
-                    </div>
-                  )}
-                />
-              }
-            />
-            <Bar dataKey="users" fill="var(--color-users)" radius={4} />
-            <Bar dataKey="scrolls" fill="var(--color-scrolls)" radius={4} />
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+            {chartConfig[key].label}
+            <span className="font-serif text-xl tabular-nums text-[#eaddcf]">{totals[key]}</span>
+            <span className="text-xs text-[#8d6e63]">in 7 days</span>
+          </li>
+        ))}
+      </ul>
+
+      <ChartContainer config={chartConfig} className="mt-6 aspect-auto h-60 w-full">
+        <BarChart
+          accessibilityLayer
+          data={chartData}
+          barGap={3}
+          barCategoryGap="30%"
+          margin={{ top: 8, right: 0, left: 0, bottom: 0 }}
+        >
+          <CartesianGrid vertical={false} stroke="#3e2723" strokeOpacity={0.7} />
+          <XAxis
+            dataKey="day"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={12}
+            tick={{ fill: "#a1887f", fontSize: 12 }}
+          />
+          <YAxis
+            allowDecimals={false}
+            tickLine={false}
+            axisLine={false}
+            tickCount={4}
+            width={28}
+            tick={{ fill: "#8d6e63", fontSize: 12 }}
+          />
+          <ChartTooltip
+            cursor={{ fill: "#eaddcf", fillOpacity: 0.04 }}
+            content={
+              <ChartTooltipContent
+                indicator="dot"
+                className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf] shadow-xl"
+                labelClassName="font-serif text-[#eaddcf]"
+              />
+            }
+          />
+          <Bar dataKey="users" fill="var(--color-users)" radius={[2, 2, 0, 0]} maxBarSize={16} />
+          <Bar
+            dataKey="scrolls"
+            fill="var(--color-scrolls)"
+            radius={[2, 2, 0, 0]}
+            maxBarSize={16}
+          />
+        </BarChart>
+      </ChartContainer>
+    </section>
   );
 }

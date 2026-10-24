@@ -1,13 +1,7 @@
 "use client";
 
 import { useOptimistic, useTransition } from "react";
-import {
-  ShieldAlert,
-  UserX,
-  ShieldCheck,
-  MoreVertical,
-  Loader2,
-} from "lucide-react";
+import { Check, ChevronDown, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { removeRole, setRole } from "@/app/(admin)/(protected)/_actions";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 type AdminUserRow = {
   id: string;
@@ -51,8 +46,8 @@ export function AdminUserCard({ user }: { user: AdminUserRow }) {
         await setRole(formData);
         toast.success(`Role updated to ${newRole}`);
       } catch (error) {
-        console.log(error);
-        toast.error("Failed to update role");
+        console.error(error);
+        toast.error("Unable to update role");
       }
     });
   };
@@ -65,95 +60,116 @@ export function AdminUserCard({ user }: { user: AdminUserRow }) {
       setOptimisticRole("user");
       try {
         await removeRole(formData);
-        toast.success("Role revoked");
+        toast.success("Role removed");
       } catch (error) {
-        console.log(error);
-        toast.error("Failed to remove role");
+        console.error(error);
+        toast.error("Unable to remove role");
       }
     });
   };
+
+  const person = user.firstName || user.name || "this member";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
+          size="sm"
           disabled={isPending}
-          className="h-8 w-8 text-[#5d4037] hover:bg-[#3e2723]/30 hover:text-[#d4af37] transition-colors focus-visible:ring-1 focus-visible:ring-[#d4af37]"
+          className="h-8 gap-1.5 rounded-full border border-[#3e2723] px-3 text-sm text-[#a1887f] hover:border-[#d4af37] hover:bg-transparent hover:text-[#d4af37] focus-visible:ring-1 focus-visible:ring-[#d4af37]"
         >
           {isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="size-3.5 animate-spin" aria-hidden />
           ) : (
-            <MoreVertical className="h-4 w-4" />
+            <>
+              Role
+              <ChevronDown className="size-3.5" aria-hidden />
+            </>
           )}
-          <span className="sr-only">Open menu</span>
+          <span className="sr-only">Change role for {person}</span>
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
         align="end"
-        className="w-56 border-[#3e2723] bg-[#1a110d] text-[#eaddcf] shadow-xl z-50"
+        className="z-50 w-64 border-[#3e2723] bg-[#1a110d] text-[#eaddcf] shadow-xl"
       >
-        <DropdownMenuLabel className="text-xs font-semibold text-[#5d4037] uppercase tracking-wider">
-          Manage {user.firstName}&quo;s Role
+        <DropdownMenuLabel className="text-sm font-normal text-[#a1887f]">
+          Role for {person}
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-[#3e2723]" />
 
-        {}
-        <DropdownMenuItem
-          disabled={optimisticRole === "admin" || isPending}
-          onClick={() => handleSetRole("admin")}
-          className="cursor-pointer focus:bg-[#3e2723]/40 focus:text-[#d4af37] gap-3 py-2.5 my-1"
-        >
-          <ShieldAlert
-            size={16}
-            className={optimisticRole === "admin" ? "text-[#d4af37]" : "text-[#5d4037]"}
-          />
-          <div className="flex flex-col">
-            <span className={optimisticRole === "admin" ? "text-[#d4af37] font-bold" : ""}>
-              {optimisticRole === "admin" ? "Currently Sensei" : "Promote to Sensei"}
-            </span>
-            <span className="text-[10px] text-[#5d4037]">Full system access</span>
-          </div>
-        </DropdownMenuItem>
+        <RoleItem
+          title="Admin"
+          description="Full access to every admin tool."
+          current={optimisticRole === "admin"}
+          disabled={isPending}
+          onSelect={() => handleSetRole("admin")}
+        />
+        <RoleItem
+          title="Moderator"
+          description="Can review content, comments and reports."
+          current={optimisticRole === "moderator"}
+          disabled={isPending}
+          onSelect={() => handleSetRole("moderator")}
+        />
 
-        {}
-        <DropdownMenuItem
-          disabled={optimisticRole === "moderator" || isPending}
-          onClick={() => handleSetRole("moderator")}
-          className="cursor-pointer focus:bg-[#3e2723]/40 focus:text-blue-400 gap-3 py-2.5 my-1"
-        >
-          <ShieldCheck
-            size={16}
-            className={optimisticRole === "moderator" ? "text-blue-400" : "text-[#5d4037]"}
-          />
-          <div className="flex flex-col">
-            <span className={optimisticRole === "moderator" ? "text-blue-400 font-bold" : ""}>
-              {optimisticRole === "moderator" ? "Currently Guardian" : "Promote to Guardian"}
-            </span>
-            <span className="text-[10px] text-[#5d4037]">Content moderation</span>
-          </div>
-        </DropdownMenuItem>
-
-        {}
         {optimisticRole !== "user" && (
           <>
             <DropdownMenuSeparator className="bg-[#3e2723]" />
-            <DropdownMenuItem
+            <RoleItem
+              title="Remove role"
+              description="Return to a regular member."
+              danger
               disabled={isPending}
-              onClick={handleRemoveRole}
-              className="cursor-pointer focus:bg-red-900/20 focus:text-red-400 text-red-400 gap-3 py-2.5 my-1"
-            >
-              <UserX size={16} />
-              <div className="flex flex-col">
-                <span>Revoke Rank</span>
-                <span className="text-[10px] opacity-70">Revert to Disciple</span>
-              </div>
-            </DropdownMenuItem>
+              onSelect={handleRemoveRole}
+            />
           </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function RoleItem({
+  title,
+  description,
+  current,
+  danger,
+  disabled,
+  onSelect,
+}: {
+  title: string;
+  description: string;
+  current?: boolean;
+  danger?: boolean;
+  disabled?: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <DropdownMenuItem
+      disabled={disabled || current}
+      onSelect={onSelect}
+      className={cn(
+        "my-0.5 cursor-pointer items-start gap-3 py-2.5 data-disabled:opacity-100",
+        danger
+          ? "text-[#d4796b] focus:bg-[#8f3b31]/20 focus:text-[#d4796b]"
+          : "focus:bg-[#3e2723]/40 focus:text-[#d4af37]"
+      )}
+    >
+      <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center">
+        {current && <Check className="size-4 text-[#d4af37]" aria-hidden />}
+      </span>
+      <span className="flex flex-col">
+        <span className={cn(current && "text-[#d4af37]")}>
+          {title}
+          {current && <span className="ml-2 text-xs text-[#8d6e63]">Current</span>}
+        </span>
+        <span className={cn("text-xs", danger ? "opacity-80" : "text-[#8d6e63]")}>
+          {description}
+        </span>
+      </span>
+    </DropdownMenuItem>
   );
 }

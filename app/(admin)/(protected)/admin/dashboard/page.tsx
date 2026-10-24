@@ -1,19 +1,3 @@
-import {
-  Users,
-  ShieldAlert,
-  Search,
-  ScrollText,
-  MessageSquareWarning,
-  TrendingUp,
-  UserPlus,
-  ArrowRight,
-  ShieldCheck,
-  Activity,
-  User,
-  MessageSquareText,              
-  FeatherIcon,
-  type LucideIcon
-} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 import { checkRole } from "@/utils/roles";
@@ -21,64 +5,20 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
-import { SearchUsers } from "@/components/Admin/Dashboard/SearchUsers"; 
-import { UserRoleCard } from "@/components/Admin/Dashboard/UserRoleCard"; 
-import { ActivityChart } from "@/components/Admin/Dashboard/ActivityCharts"; 
+import { SearchUsers } from "@/components/Admin/Dashboard/SearchUsers";
+import { UserRoleCard } from "@/components/Admin/Dashboard/UserRoleCard";
+import { ActivityChart } from "@/components/Admin/Dashboard/ActivityCharts";
+import AdminPageHeader from "@/components/Admin/RouteSide/AdminPageHeader";
+import { FigureStrip, RecentList, Shortcuts } from "@/components/Admin/Dashboard/DashboardParts";
+import { CatSeal, SectionHeading } from "@/components/User/Profileornaments";
 import { getWeeklyStats } from "@/lib/activity";
 
-
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  colorClass,
-}: {
-  title: string;
-  value: string | number;
-  icon: LucideIcon;
-  colorClass: string;
-}) {
-  return (
-    <div className="relative overflow-hidden rounded-xl border border-[#3e2723] bg-[#1a110d] p-6 transition-all hover:border-[#d4af37]/30 hover:shadow-lg hover:shadow-[#d4af37]/5">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-[#a1887f] uppercase tracking-wider">{title}</p>
-          <h3 className="mt-2 text-3xl font-black text-[#eaddcf]">{value}</h3>
-        </div>
-        <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-opacity-10 ${colorClass}`}>
-          <Icon size={24} className="text-white" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ActivityItem({
-  icon: Icon,
-  text,
-  time,
-  color,
-}: {
-  icon: LucideIcon;
-  text: string;
-  time: string;
-  color: string;
-}) {
-  return (
-    <div className="flex items-center gap-4 py-3 border-b border-[#3e2723] last:border-0">
-      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-opacity-10 ${color}`}>
-        <Icon size={14} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-[#eaddcf] truncate">{text}</p>
-        <p className="text-xs text-[#5d4037]">{time}</p>
-      </div>
-    </div>
-  );
-}
-
-
 export const metadata = { title: "Admin Dashboard" };
+
+const nameOf = (first?: string | null, last?: string | null) =>
+  `${first ?? ""} ${last ?? ""}`.trim() || "A member";
+
+const ago = (date: Date) => formatDistanceToNow(new Date(date), { addSuffix: true });
 
 export default async function AdminDashboard(params: {
   searchParams: Promise<{ search?: string }>;
@@ -96,26 +36,31 @@ export default async function AdminDashboard(params: {
     reportCount,
     todaysJoiners,
     recentUsers,
-    recentComments,                       
-    chartData
+    recentComments,
+    chartData,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.discussion.count(),
     prisma.report?.count({ where: { status: "PENDING" } }) || 0,
     prisma.user.count({
-      where: { createdAt: { gte: new Date(new Date().setHours(0,0,0,0)) } }
+      where: { createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } },
     }),
-    
+
     prisma.user.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
-      select: { id: true, firstName: true, lastName: true, createdAt: true }
+      select: { id: true, firstName: true, lastName: true, createdAt: true },
     }),
 
     prisma.comment.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
-      select: { description: true, createdAt: true, author: { select: { firstName: true } } }
+      select: {
+        id: true,
+        description: true,
+        createdAt: true,
+        author: { select: { firstName: true, lastName: true } },
+      },
     }),
 
     getWeeklyStats(),
@@ -124,93 +69,68 @@ export default async function AdminDashboard(params: {
   const searchedUsers = query ? (await client.users.getUserList({ query })).data : [];
 
   return (
-    <div className="min-h-screen text-[#eaddcf] p-6 md:p-10 space-y-8 animate-in fade-in duration-500">
-      
-      {                                }
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="border-b border-[#3e2723] pb-6">
-          <h1 className="text-4xl font-black text-[#d4af37] tracking-tight flex items-center gap-3">
-            <ShieldAlert className="h-8 w-8 text-[#d4af37]" />
-            Dojo Command
-          </h1>
-          <p className="text-[#a1887f]">
-            System status and disciple management.
-          </p>
+    <div className="mx-auto max-w-7xl space-y-14">
+      <AdminPageHeader
+        title="Dashboard"
+        kanji="本部"
+        description="How the dojo is doing this week, and where to find and manage its members."
+      />
+
+      <FigureStrip
+        figures={[
+          { label: "Members", value: userCount.toLocaleString() },
+          { label: "Discussions", value: scrollCount.toLocaleString() },
+          {
+            label: "Open reports",
+            value: reportCount,
+            note: "Waiting for review",
+            href: "/admin/reports",
+            emphasis: Number(reportCount) > 0,
+          },
+          { label: "Joined today", value: todaysJoiners },
+        ]}
+      />
+
+      {/* --- FIND A MEMBER --- */}
+      <section aria-labelledby="find-heading">
+        <SectionHeading id="find-heading" title="Find a member" kanji="検索" />
+        <div className="mt-6">
+          <SearchUsers placeholder="Search by name or email" />
         </div>
 
-        {                }
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard 
-            title="Total Disciples" 
-            value={userCount} 
-            icon={Users} 
-            colorClass="bg-blue-500 text-blue-500" 
-          />
-          <StatCard 
-            title="Scrolls Library" 
-            value={scrollCount} 
-            icon={ScrollText} 
-            colorClass="bg-[#d4af37] text-[#d4af37]" 
-          />
-          <StatCard 
-            title="Open Reports" 
-            value={reportCount} 
-            icon={MessageSquareWarning} 
-            colorClass="bg-red-500 text-red-500" 
-          />
-          <StatCard 
-            title="New Today" 
-            value={`+${todaysJoiners}`} 
-            icon={TrendingUp} 
-            colorClass="bg-green-500 text-green-500" 
-          />
-        </div>
-      </div>
+        {query && (
+          <div className="mt-8">
+            <p className="text-sm text-[#a1887f]">
+              <span className="font-serif text-2xl tabular-nums text-[#eaddcf]">
+                {searchedUsers.length}
+              </span>{" "}
+              {searchedUsers.length === 1 ? "result" : "results"} for &ldquo;{query}&rdquo;
+              <Link href="?" className="ml-3 text-[#d4af37] underline-offset-4 hover:underline">
+                Clear search
+              </Link>
+            </p>
 
-      {                                      }
-      <div className="max-w-7xl mx-auto space-y-6">
-        
-        {                }
-        <div className="flex items-center gap-4 bg-[#1a110d] p-4 rounded-xl border border-[#3e2723]">
-          <div className="flex-1">
-            <SearchUsers />
-          </div>
-          {query && (
-            <div className="hidden md:block text-sm text-[#a1887f] font-mono whitespace-nowrap px-4">
-              Found {searchedUsers.length} results
-            </div>
-          )}
-        </div>
-
-        {                              }
-        {query ? (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold text-[#eaddcf] flex items-center gap-2">
-              <Search size={20} className="text-[#d4af37]" />
-              Search Results
-            </h2>
-            {                                       }
             {searchedUsers.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-[#3e2723] rounded-2xl bg-[#1a110d]/30">
-                <div className="bg-[#3e2723]/20 p-6 rounded-full mb-4">
-                  <User className="h-12 w-12 text-[#5d4037]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#a1887f]">No Disciples Found</h3>
-                <p className="text-[#5d4037] text-sm mt-2">Try adjusting your search terms.</p>
+              <div className="mt-6 flex flex-col items-center border-y border-[#3e2723] px-4 py-16 text-center">
+                <CatSeal className="size-12 text-[#5d4037]" />
+                <h3 className="mt-6 font-serif text-xl text-[#eaddcf]">No members found</h3>
+                <p className="mt-2 text-sm text-[#a1887f]">Try a different name or email.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {searchedUsers.map((user) => {
-                  const currentRole = (user.publicMetadata.role as string) || "user";
-                  const email = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress;
+              <div className="mt-4 border-t border-[#3e2723]">
+                {searchedUsers.map((u) => {
+                  const currentRole = (u.publicMetadata.role as string) || "user";
+                  const email = u.emailAddresses.find(
+                    (e) => e.id === u.primaryEmailAddressId
+                  )?.emailAddress;
                   return (
                     <UserRoleCard
-                      key={user.id}
+                      key={u.id}
                       user={{
-                        id: user.id,
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                        imageUrl: user.imageUrl,
+                        id: u.id,
+                        firstName: u.firstName,
+                        lastName: u.lastName,
+                        imageUrl: u.imageUrl,
                         email: email,
                         initialRole: currentRole,
                       }}
@@ -220,105 +140,66 @@ export default async function AdminDashboard(params: {
               </div>
             )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {                                       }
-            <div className="lg:col-span-2 space-y-8">
-              <ActivityChart chartData={chartData} />
-
-              <div className="rounded-xl border border-[#3e2723] bg-[#1a110d] p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-bold text-[#eaddcf] flex items-center gap-2">
-                    <Activity size={18} className="text-[#d4af37]" />
-                    Recent Movements
-                  </h2>
-                  <Link href="/admin/users" className="text-xs text-[#d4af37] hover:underline flex items-center gap-1">
-                    View All <ArrowRight size={12} />
-                  </Link>
-                </div>
-                <div className="flex flex-col">
-                  {recentUsers.map((u) => (
-                    <ActivityItem 
-                      key={u.id}
-                      icon={UserPlus}
-                      text={`${u.firstName} ${u.lastName || ""} joined the dojo`}
-                      time={formatDistanceToNow(new Date(u.createdAt!)) + " ago"}
-                      color="bg-blue-500 text-blue-500"
-                    />
-                  ))}
-                  {recentUsers.length === 0 && <p className="text-[#5d4037] italic text-sm">No recent activity.</p>}
-                </div>
-              </div>
-            </div>
-
-            {                                         }
-            <div className="space-y-6">
-              
-              {                   }
-              <div className="rounded-xl border border-[#3e2723] bg-[#1a110d] p-6">
-                <h2 className="text-lg font-bold text-[#eaddcf] mb-4">Admin Actions</h2>
-                <div className="space-y-3">
-                  <Link href="/admin/users" className="block w-full">
-                    <div className="flex items-center gap-3 rounded-lg border border-[#3e2723] bg-[#0f0b0a] p-3 hover:bg-[#3e2723]/40 hover:border-blue-500/50 transition-all group">
-                       <ShieldCheck size={18} className="text-[#a1887f] group-hover:text-blue-500" />
-                       <span className="text-sm text-[#eaddcf]">Manage Roles</span>
-                    </div>
-                  </Link>
-                  <Link href="/admin/reports" className="block w-full">
-                    <div className="flex items-center gap-3 rounded-lg border border-[#3e2723] bg-[#0f0b0a] p-3 hover:bg-[#3e2723]/40 hover:border-red-500/50 transition-all group">
-                       <ShieldAlert size={18} className="text-[#a1887f] group-hover:text-red-500" />
-                       <span className="text-sm text-[#eaddcf]">The Tribunal</span>
-                    </div>
-                  </Link>
-                  <Link href="/admin/questions" className="block w-full">
-                    <div className="flex items-center gap-3 rounded-lg border border-[#3e2723] bg-[#0f0b0a] p-3 hover:bg-[#3e2723]/40 hover:border-[#d4af37]/50 transition-all group">
-                       <FeatherIcon size={18} className="text-[#a1887f] group-hover:text-[#d4af37]" />
-                       <span className="text-sm text-[#eaddcf]">Manage Katas</span>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-
-              {                                                     }
-              <div className="rounded-xl border border-[#3e2723] bg-[#1a110d] p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-bold text-[#eaddcf]">Fresh Inscriptions</h2>
-                  <Link href="/admin/comments" className="text-xs text-[#d4af37] hover:underline flex items-center gap-1">
-                    View All <ArrowRight size={12} />
-                  </Link>
-                </div>
-                
-                <div className="flex flex-col">
-                  {recentComments.length > 0 ? (
-                    recentComments.map((comment, i) => (
-                      <ActivityItem 
-                        key={i}
-                        icon={MessageSquareText}
-                        text={`"${comment.description}" by ${comment.author.firstName}`}
-                        time={formatDistanceToNow(new Date(comment.createdAt)) + " ago"}
-                        color="bg-emerald-500 text-emerald-500"                                  
-                      />
-                    ))
-                  ) : (
-                    <p className="text-sm text-[#5d4037] italic">No inscriptions found recently.</p>
-                  )}
-                </div>
-              </div>
-
-              {                         }
-              <div className="p-4 rounded-xl border border-green-900/30 bg-green-900/10 flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                <div>
-                  <p className="text-xs font-bold text-green-500 uppercase tracking-widest">System Online</p>
-                  <p className="text-[10px] text-green-500/70">Database & Auth services operational</p>
-                </div>
-              </div>
-
-            </div>
-          </div>
         )}
-      </div>
+      </section>
+
+      {/* --- OVERVIEW (hidden while a search is showing) --- */}
+      {!query && (
+        <div className="grid gap-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
+          <div className="space-y-14">
+            <ActivityChart chartData={chartData} />
+
+            <RecentList
+              title="New members"
+              kanji="新入"
+              href="/admin/users"
+              empty="No members have joined yet."
+              items={recentUsers.map((u) => ({
+                id: u.id,
+                primary: `${nameOf(u.firstName, u.lastName)} joined`,
+                secondary: ago(u.createdAt),
+              }))}
+            />
+          </div>
+
+          <div className="space-y-14">
+            <RecentList
+              title="Recent comments"
+              kanji="発言"
+              href="/admin/comments"
+              empty="No comments yet."
+              items={recentComments.map((c) => ({
+                id: c.id,
+                primary: c.description,
+                secondary: `${nameOf(c.author.firstName, c.author.lastName)}, ${ago(c.createdAt)}`,
+              }))}
+            />
+
+            <Shortcuts
+              items={[
+                {
+                  title: "Members",
+                  kanji: "門下",
+                  description: "Manage roles and accounts",
+                  href: "/admin/users",
+                },
+                {
+                  title: "Reports",
+                  kanji: "報告",
+                  description: "Review reported content",
+                  href: "/admin/reports",
+                },
+                {
+                  title: "Katas",
+                  kanji: "型",
+                  description: "Create and edit problems",
+                  href: "/admin/questions",
+                },
+              ]}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
