@@ -14,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AlertTriangle } from "lucide-react";
 
 interface Props {
   company: { id: string; name: string } | null;
@@ -56,26 +57,38 @@ export function DeleteCompanyDialog({ company, open, onOpenChange, onSuccess }: 
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-[#1a110d] border-[#3e2723] text-[#eaddcf]">
+      <AlertDialogContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {company?.name}?</AlertDialogTitle>
-          <AlertDialogDescription className="text-[#a1887f]">
-            This will permanently delete the company and its logo. This action cannot be undone.
+          <div className="mb-1 flex size-11 items-center justify-center rounded-full border border-[#8f3b31]/40 bg-[#8f3b31]/10 text-[#d4796b]">
+            <AlertTriangle className="size-5" aria-hidden />
+          </div>
+          <AlertDialogTitle className="font-serif text-xl text-[#eaddcf]">
+            Remove {company?.name}?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="leading-relaxed text-[#a1887f]">
+            This takes the company and its crest off the wall for good. If questions are still
+            attached, the dojo will stop the deletion. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="bg-transparent border-[#3e2723] text-[#eaddcf] hover:bg-[#3e2723]/50 hover:text-[#eaddcf]">
-            Cancel
+        <AlertDialogFooter className="gap-2">
+          <AlertDialogCancel className="border-[#3e2723] bg-transparent text-[#eaddcf] hover:bg-[#0f0b0a] hover:text-[#eaddcf]">
+            Keep it
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               handleDelete();
             }}
-            className="bg-red-900/50 text-red-200 border border-red-900 hover:bg-red-900"
+            className="bg-[#8f3b31] text-[#eaddcf] hover:bg-[#a6453a]"
             disabled={isLoading}
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden /> Removing…
+              </>
+            ) : (
+              "Remove company"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LogoUploader } from "./LogoUploader";
+import { Field, fieldClass } from "@/components/Admin/Questions/KataParts";
 
 interface Props {
   company: CompanyData | null;
@@ -100,61 +100,54 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#1a110d] border-[#3e2723] text-[#eaddcf] max-w-lg">
+      <DialogContent className="max-w-lg border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
         <DialogHeader>
-          <DialogTitle>Edit Company</DialogTitle>
+          <DialogTitle className="font-serif text-2xl">Edit company</DialogTitle>
           <DialogDescription className="text-[#a1887f]">
-            Update company details.
+            Refine this house&apos;s name, website, or crest.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          {                }
-          <div className="grid gap-2">
-            <Label htmlFor="edit-name" className="text-[#a1887f]">Name</Label>
+        <div className="grid gap-5 py-2">
+          <Field label="Name" htmlFor="edit-name">
             <Input
               id="edit-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-[#0f0b0a] border-[#3e2723] text-[#eaddcf]"
+              className={fieldClass}
             />
-          </div>
+          </Field>
 
-          {                    }
-          <div className="grid gap-2">
-            <Label className="text-[#a1887f]">Slug (Read-only)</Label>
-            <div className="px-3 py-2 rounded-md bg-[#0f0b0a]/50 border border-[#3e2723] text-[#5d4037] font-mono text-sm">
+          <Field label="Slug (read-only)" hint="The company address stays the same.">
+            <div className="rounded-md border border-[#3e2723] bg-[#0f0b0a]/50 px-3 py-2 font-mono text-sm text-[#8d6e63]">
               {company?.slug}
             </div>
-          </div>
+          </Field>
 
-          {                   }
-          <div className="grid gap-2">
-            <Label htmlFor="edit-web" className="text-[#a1887f]">Website URL</Label>
+          <Field label="Website URL" htmlFor="edit-web">
             <Input
               id="edit-web"
               value={websiteUrl}
               onChange={(e) => setWebsiteUrl(e.target.value)}
-              className="bg-[#0f0b0a] border-[#3e2723] text-[#eaddcf]"
+              placeholder="https://example.com"
+              className={fieldClass}
             />
-          </div>
+          </Field>
 
-          {                    }
-          <div className="flex items-center space-x-2 border border-[#3e2723] p-3 rounded-md bg-[#0f0b0a]/30 mt-2">
+          <div className="flex items-center gap-3 rounded-md border border-[#3e2723] bg-[#0f0b0a]/30 p-3">
             <Checkbox 
               id="has-logo" 
               checked={includeLogo}
-              onCheckedChange={handleCheckboxChange}
-              className="border-[#d4af37] data-[state=checked]:bg-[#d4af37] data-[state=checked]:text-black"
+              onCheckedChange={(checked) => handleCheckboxChange(checked === true)}
+              className="border-[#5d4037] data-[state=checked]:border-[#d4af37] data-[state=checked]:bg-[#d4af37] data-[state=checked]:text-[#0f0b0a]"
             />
-            <Label htmlFor="has-logo" className="text-[#eaddcf] cursor-pointer font-medium select-none">
-              Company has a logo
-            </Label>
+            <label htmlFor="has-logo" className="cursor-pointer select-none text-sm text-[#eaddcf]">
+              This company has a crest
+            </label>
           </div>
 
-          {                                       }
           {includeLogo && (
-            <div className="grid gap-2 animate-in fade-in zoom-in-95 duration-200">
+            <div className="animate-in fade-in zoom-in-95 duration-200">
               <LogoUploader 
                 currentLogoUrl={logoUrl}
                 onUploadSuccess={(res) => {
@@ -170,20 +163,26 @@ export function EditCompanyDialog({ company, open, onOpenChange, onSuccess }: Pr
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="border-[#3e2723] bg-[#3e2723] text-[#a1887f] hover:bg-[#3e2723]/20 hover:text-[#eaddcf]"
+            className="rounded-full text-[#a1887f] hover:bg-transparent hover:text-[#eaddcf]"
           >
             Cancel
           </Button>
           <Button
             onClick={handleUpdate}
             disabled={isLoading}
-            className="bg-[#d4af37] text-black hover:bg-[#b5952f]"
+            className="rounded-full bg-[#d4af37] px-5 text-[#0f0b0a] hover:bg-[#b5952f]"
           >
-            {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Save Changes"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden /> Saving…
+              </>
+            ) : (
+              "Save changes"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

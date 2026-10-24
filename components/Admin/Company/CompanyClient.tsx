@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Search, Edit2, Trash2, ExternalLink, Loader2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, ArrowUpRight, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import AdminPageHeader from "@/components/Admin/RouteSide/AdminPageHeader";
+import { CatSeal, EnsoRing } from "@/components/User/Profileornaments";
 import { CreateCompanyDialog } from "./CreateDialog";
 import { EditCompanyDialog } from "./EditDialog";
 import { DeleteCompanyDialog } from "./DeleteDialog";
@@ -52,21 +53,31 @@ export default function CompanyClient() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[55vh] items-center justify-center gap-3 text-[#d4af37]" role="status" aria-live="polite">
-        <Loader2 className="size-5 animate-spin" aria-hidden="true" />
-        <span>Loading companies...</span>
+      <div
+        className="flex min-h-[55vh] flex-col items-center justify-center gap-4 text-[#a1887f]"
+        role="status"
+        aria-live="polite"
+      >
+        <CatSeal className="size-10 text-[#5d4037]" />
+        <p className="flex items-center gap-2 text-sm">
+          <Loader2 className="size-4 animate-spin text-[#d4af37]" aria-hidden />
+          Gathering the crests…
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="space-y-4 py-12 text-center">
-        <p role="alert" className="text-red-400">{error}</p>
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-5 text-center">
+        <CatSeal className="size-10 text-[#5d4037]" />
+        <p role="alert" className="text-sm text-[#d4796b]">
+          {error}
+        </p>
         <Button
           onClick={() => setRetryCount((count) => count + 1)}
-          variant="outline"
-          className="border-[#3e2723] text-[#eaddcf]"
+          variant="ghost"
+          className="rounded-full border border-[#3e2723] px-5 text-[#eaddcf] hover:border-[#d4af37] hover:bg-transparent hover:text-[#d4af37]"
         >
           Try again
         </Button>
@@ -75,137 +86,149 @@ export default function CompanyClient() {
   }
 
   return (
-    <div className="space-y-6">
-      {                    }
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#3e2723] pb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-[#eaddcf]">Companies</h1>
-          <p className="text-[#a1887f] text-sm mt-1">
-            Manage tech companies and their question associations.
+    <div className="space-y-10">
+      <AdminPageHeader
+        title="Companies"
+        kanji="企業"
+        description="The great houses members train to face. Each crest gathers the katas asked in that company's interviews."
+      >
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+          <Button
+            onClick={() => setIsCreateOpen(true)}
+            className="rounded-full bg-[#d4af37] px-5 text-[#0f0b0a] hover:bg-[#b5952f]"
+          >
+            <Plus aria-hidden /> Add company
+          </Button>
+          <p className="text-sm text-[#a1887f]">
+            <span className="font-serif text-2xl tabular-nums text-[#eaddcf]">{data.length}</span>{" "}
+            {data.length === 1 ? "crest" : "crests"} on the wall
           </p>
         </div>
-        <Button
-          onClick={() => setIsCreateOpen(true)}
-          className="bg-[#d4af37] text-black hover:bg-[#b5952f]"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Company
-        </Button>
-      </div>
+      </AdminPageHeader>
 
-      {                    }
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5d4037]" />
+      {/* ---------- Search ---------- */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="relative w-full max-w-sm">
+          <label htmlFor="company-search" className="sr-only">
+            Search companies
+          </label>
+          <Search
+            className="pointer-events-none absolute left-0 top-1/2 size-4 -translate-y-1/2 text-[#8d6e63]"
+            aria-hidden
+          />
           <Input
-            placeholder="Search companies..."
+            id="company-search"
+            placeholder="Search companies"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-[#1a110d]/50 border-[#3e2723] text-[#eaddcf] placeholder:text-[#5d4037]"
+            className="h-10 rounded-none border-0 border-b border-[#3e2723] bg-transparent pl-7 text-[#eaddcf] shadow-none placeholder:text-[#6d4c41] focus-visible:border-[#d4af37] focus-visible:ring-0"
           />
         </div>
-        <div className="text-xs font-mono text-[#5d4037] uppercase">Total: {filtered.length}</div>
+        {searchTerm && (
+          <p className="text-sm text-[#8d6e63]">
+            {filtered.length} of {data.length} shown
+          </p>
+        )}
       </div>
 
-      {                   }
-      <div className="rounded-xl border border-[#3e2723] bg-[#1a110d]/40 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-[#3e2723] bg-[#0f0b0a]/50 text-[#a1887f]">
-                <th className="p-4 font-medium">Company</th>
-                <th className="p-4 font-medium">Slug</th>
-                <th className="p-4 font-medium">Website</th>
-                <th className="p-4 font-medium text-center">Questions</th>
-                <th className="p-4 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#3e2723]">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-[#5d4037]">
-                    No companies found matching &quot;{searchTerm}&quot;
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((comp) => (
-                  <tr key={comp.id} className="group hover:bg-[#3e2723]/10 transition-colors">
-                    {                 }
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded bg-white/5 border border-[#3e2723] flex items-center justify-center overflow-hidden relative shrink-0">
-                          {comp.logo ? (
-                            <Image
-                              src={comp.logo}
-                              alt={comp.name}
-                              fill
-                              className="object-contain p-1"
-                            />
-                          ) : (
-                            <span className="text-[10px] text-[#5d4037] font-bold">
-                              {comp.name.substring(0, 2).toUpperCase()}
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-medium text-[#eaddcf]">{comp.name}</span>
-                      </div>
-                    </td>
-
-                    {          }
-                    <td className="p-4 font-mono text-xs text-[#5d4037]">{comp.slug}</td>
-
-                    {             }
-                    <td className="p-4">
-                      {comp.websiteUrl ? (
-                        <Link
-                          href={comp.websiteUrl}
-                          target="_blank"
-                          className="text-[#d4af37] hover:underline flex items-center gap-1 text-xs"
-                        >
-                          Visit <ExternalLink size={10} />
-                        </Link>
-                      ) : (
-                        <span className="text-[#5d4037] text-xs">-</span>
-                      )}
-                    </td>
-
-                    {                     }
-                    <td className="p-4 text-center">
-                      <Badge className="bg-[#3e2723]/50 text-[#eaddcf]">
-                        {comp._count.questions}
-                      </Badge>
-                    </td>
-
-                    {             }
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setCompToEdit(comp)}
-                          className="h-8 w-8 text-[#a1887f] hover:text-[#d4af37] hover:bg-[#3e2723]/50"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setCompToDelete(comp)}
-                          className="h-8 w-8 text-[#a1887f] hover:text-red-400 hover:bg-red-900/10"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {/* ---------- The wall of crests ---------- */}
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center border-y border-[#3e2723] px-4 py-20 text-center">
+          <CatSeal className="size-12 text-[#5d4037]" />
+          <h2 className="mt-6 font-serif text-xl text-[#eaddcf]">
+            {searchTerm ? "No crest matches" : "The wall is bare"}
+          </h2>
+          <p className="mt-2 text-sm text-[#a1887f]">
+            {searchTerm
+              ? `No companies match \u201C${searchTerm}\u201D.`
+              : "Add the first company to hang its crest."}
+          </p>
         </div>
-      </div>
+      ) : (
+        <ul className="grid grid-cols-2 gap-x-6 gap-y-14 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {filtered.map((comp) => {
+            const count = comp._count.questions;
+            return (
+              <li key={comp.id} className="group flex flex-col items-center text-center">
+                {/* The crest: a logo inside an open enso ring */}
+                <div className="relative size-28 text-[#d4af37]/40 transition-colors duration-300 group-hover:text-[#d4af37] group-focus-within:text-[#d4af37]">
+                  <EnsoRing />
+                  <div className="absolute inset-[13%] overflow-hidden rounded-full border border-[#3e2723] bg-white/5">
+                    {comp.logo ? (
+                      <Image
+                        src={comp.logo}
+                        alt=""
+                        fill
+                        sizes="96px"
+                        className="object-contain p-3"
+                      />
+                    ) : (
+                      <span className="flex size-full items-center justify-center font-serif text-2xl text-[#a1887f]">
+                        {comp.name.substring(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                </div>
 
-      {                     }
+                <h2 className="mt-5 font-serif text-lg leading-tight text-[#eaddcf] transition-colors group-hover:text-[#d4af37]">
+                  {comp.name}
+                </h2>
+                <p className="mt-1 font-mono text-xs text-[#8d6e63]">{comp.slug}</p>
+
+                <p className="mt-3 text-sm text-[#a1887f]">
+                  {count > 0 ? (
+                    <>
+                      <span className="font-serif text-lg tabular-nums text-[#eaddcf]">
+                        {count}
+                      </span>{" "}
+                      {count === 1 ? "kata" : "katas"}
+                    </>
+                  ) : (
+                    "No katas yet"
+                  )}
+                </p>
+
+                {comp.websiteUrl && (
+                  <Link
+                    href={comp.websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center gap-1 text-xs text-[#d4af37] underline-offset-4 hover:underline"
+                  >
+                    Website
+                    <ArrowUpRight className="size-3" aria-hidden />
+                    <span className="sr-only">(opens in a new tab)</span>
+                  </Link>
+                )}
+
+                <div className="mt-3 flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCompToEdit(comp)}
+                    className="h-8 px-3 text-[#a1887f] hover:bg-transparent hover:text-[#d4af37]"
+                  >
+                    <Pencil className="mr-1.5 size-3.5" aria-hidden />
+                    Edit
+                    <span className="sr-only"> {comp.name}</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCompToDelete(comp)}
+                    className="h-8 px-3 text-[#8d6e63] hover:bg-transparent hover:text-[#d4796b]"
+                  >
+                    <Trash2 className="mr-1.5 size-3.5" aria-hidden />
+                    Delete
+                    <span className="sr-only"> {comp.name}</span>
+                  </Button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
       <CreateCompanyDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}

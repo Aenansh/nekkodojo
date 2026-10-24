@@ -1,15 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, Search, Edit2, Trash2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EnsoCat, Grain, Paw, SleepingCat } from "@/components/Landing Page/DojoGraphics";
 
 import { CreateTagDialog } from "./CreateDialog";
 import { EditTagDialog } from "./EditDialog";
 import { DeleteTagDialog } from "./DeleteDialog";
+
+type SortKey = "name" | "popular" | "recent";
+
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: "name", label: "Name" },
+  { key: "popular", label: "Most used" },
+  { key: "recent", label: "Recent" },
+];
 
 export default function TagClient() {
   const [data, setData] = useState<TagData[]>([]);
@@ -17,6 +26,7 @@ export default function TagClient() {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sort, setSort] = useState<SortKey>("name");
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [tagToDelete, setTagToDelete] = useState<TagData | null>(null);
@@ -48,27 +58,54 @@ export default function TagClient() {
     };
   }, [retryCount]);
 
-  const filteredTags = data.filter((tag) =>
-    tag.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTags = useMemo(() => {
+    const list = data.filter((tag) => tag.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    return [...list].sort((a, b) => {
+      if (sort === "popular") return b._count.discussions - a._count.discussions;
+      if (sort === "recent")
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      return a.name.localeCompare(b.name);
+    });
+  }, [data, searchTerm, sort]);
+
+  const totalDiscussions = data.reduce((sum, t) => sum + t._count.discussions, 0);
+  const topTag = data.reduce<TagData | null>(
+    (best, t) => (!best || t._count.discussions > best._count.discussions ? t : best),
+    null
   );
 
+  /* ---------- Loading ---------- */
   if (isLoading) {
     return (
-      <div className="flex min-h-[55vh] items-center justify-center gap-3 text-[#d4af37]" role="status" aria-live="polite">
-        <Loader2 className="size-5 animate-spin" aria-hidden="true" />
-        <span>Loading tags...</span>
+      <div className="space-y-6" role="status" aria-live="polite">
+        <div className="flex items-center justify-center gap-3 py-10 text-[#d4af37]">
+          <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+          <span>Loading tags...</span>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-44 animate-pulse rounded-md border border-[#3a2318] bg-[#2b1a12]/50"
+            />
+          ))}
+        </div>
       </div>
     );
   }
 
+  /* ---------- Error ---------- */
   if (error) {
     return (
-      <div className="space-y-4 py-12 text-center">
-        <p role="alert" className="text-red-400">{error}</p>
+      <div className="mx-auto flex max-w-sm flex-col items-center space-y-5 py-16 text-center">
+        <EnsoCat className="size-24 opacity-60" />
+        <p role="alert" className="text-red-400">
+          {error}
+        </p>
         <Button
           onClick={() => setRetryCount((count) => count + 1)}
           variant="outline"
-          className="border-[#3e2723] text-[#eaddcf]"
+          className="border-[#5c3d21] text-[#eaddcf] hover:border-[#d4af37] hover:bg-[#2b1a12] hover:text-[#d4af37]"
         >
           Try again
         </Button>
@@ -77,112 +114,191 @@ export default function TagClient() {
   }
 
   return (
-    <div className="space-y-6">
-      {                    }
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#3e2723] pb-6">
+    <div className="space-y-8">
+      {/* ---------- Header ---------- */}
+      <header className="relative flex flex-col items-start justify-between gap-5 border-b border-[#5c3d21] pb-7 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-3xl font-bold text-[#eaddcf]">Discussion Tags</h1>
-          <p className="text-[#a1887f] text-sm mt-1">
+          <span className="font-serif text-sm tracking-[0.5em] text-[#d4af37]/80">札</span>
+          <h1 className="mt-2 font-serif text-3xl font-bold tracking-wide text-[#eaddcf] md:text-4xl">
+            Discussion <span className="text-[#d4af37]">Tags</span>
+          </h1>
+          <p className="mt-2 text-sm text-[#a1887f]">
             Manage tags used to categorize community discussions.
           </p>
         </div>
 
-        <Button
-          onClick={() => setIsCreateOpen(true)}
-          className="bg-[#d4af37] text-black hover:bg-[#b5952f]"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Tag
-        </Button>
-      </div>
+        <div className="flex items-end gap-6">
+          <SleepingCat className="hidden w-28 opacity-70 md:block" />
+          <Button
+            onClick={() => setIsCreateOpen(true)}
+            className="bg-[#d4af37] font-semibold text-[#1a110d] hover:bg-[#c5a028]"
+          >
+            <Plus className="mr-2 size-4" />
+            Add Tag
+          </Button>
+        </div>
+      </header>
 
-      {                    }
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5d4037]" />
+      {/* ---------- Stats ---------- */}
+      <section aria-label="Tag summary" className="grid gap-3 sm:grid-cols-3">
+        <StatTile watermark="札" label="Tags">
+          <span className="font-serif text-3xl font-semibold tabular-nums text-[#eaddcf]">
+            {data.length}
+          </span>
+        </StatTile>
+        <StatTile watermark="話" label="Tagged discussions">
+          <span className="font-serif text-3xl font-semibold tabular-nums text-[#eaddcf]">
+            {totalDiscussions}
+          </span>
+        </StatTile>
+        <StatTile watermark="一" label="Most used">
+          {topTag && topTag._count.discussions > 0 ? (
+            <Badge
+              className={`mt-1 whitespace-nowrap rounded border px-2 py-0.5 text-xs hover:bg-transparent ${topTag.color}`}
+            >
+              {topTag.name}
+            </Badge>
+          ) : (
+            <span className="text-[#5d4037]">None yet</span>
+          )}
+        </StatTile>
+      </section>
+
+      {/* ---------- Search and sort ---------- */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#5d4037]" />
           <Input
             placeholder="Search tags..."
+            aria-label="Search tags"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-[#1a110d]/50 border-[#3e2723] text-[#eaddcf] placeholder:text-[#5d4037]"
+            className="h-11 border-[#5c3d21] bg-[#18120e] pl-10 text-[#eaddcf] shadow-[inset_0_2px_5px_rgba(0,0,0,0.4)] placeholder:text-[#5d4037] focus-visible:border-[#d4af37] focus-visible:ring-1 focus-visible:ring-[#d4af37]/50"
           />
         </div>
-        <div className="text-xs font-mono text-[#5d4037] uppercase">
-          Total: {filteredTags.length}
+
+        <div className="flex items-center gap-4">
+          <span className="text-xs tabular-nums text-[#8d6e63]">
+            Showing {filteredTags.length} of {data.length}
+          </span>
+          <div
+            role="group"
+            aria-label="Sort tags"
+            className="flex rounded-md border border-[#5c3d21] bg-[#18120e] p-1"
+          >
+            {SORTS.map((s) => (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => setSort(s.key)}
+                aria-pressed={sort === s.key}
+                className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
+                  sort === s.key
+                    ? "bg-[#d4af37] text-[#1a110d]"
+                    : "text-[#a1887f] hover:text-[#d4af37]"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {                   }
-      <div className="rounded-xl border border-[#3e2723] bg-[#1a110d]/40 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-[#3e2723] bg-[#0f0b0a]/50 text-[#a1887f]">
-                <th className="p-4 font-medium">Tag Name</th>
-                <th className="p-4 font-medium">Slug</th>
-                <th className="p-4 font-medium">Color Preview</th>
-                <th className="p-4 font-medium text-center">Discussions</th>
-                <th className="p-4 font-medium text-right">Last Updated</th>
-                <th className="p-4 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#3e2723]">
-              {filteredTags.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="p-8 text-center text-[#5d4037]">
-                    No tags found matching &quot;{searchTerm}&quot;
-                  </td>
-                </tr>
-              ) : (
-                filteredTags.map((tag) => (
-                  <tr key={tag.id} className="group hover:bg-[#3e2723]/10 transition-colors">
-                    <td className="p-4 font-medium text-[#eaddcf]">{tag.name}</td>
-                    <td className="p-4 font-mono text-xs text-[#5d4037]">{tag.slug}</td>
-                    <td className="p-4">
-                      {                                            }
-                      <Badge
-                        className={`px-2 py-0.5 rounded text-[10px] font-mono whitespace-nowrap border hover:bg-transparent ${tag.color}`}
-                      >
-                        {tag.name}
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-center">
-                      <Badge className="bg-[#3e2723]/50 text-[#eaddcf]">
-                        {tag._count.discussions}
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-right text-[#5d4037] tabular-nums">
+      {/* ---------- Tag plates ---------- */}
+      {filteredTags.length === 0 ? (
+        <div className="flex flex-col items-center rounded-md border border-dashed border-[#5c3d21] py-16 text-center">
+          <EnsoCat className="size-20 opacity-50" />
+          <p className="mt-4 font-serif text-lg text-[#eaddcf]/90">
+            {data.length === 0
+              ? "The tag rack is empty."
+              : `No tags found matching "${searchTerm}"`}
+          </p>
+          {data.length === 0 && (
+            <Button
+              onClick={() => setIsCreateOpen(true)}
+              variant="outline"
+              className="mt-5 border-[#5c3d21] text-[#d4af37] hover:border-[#d4af37] hover:bg-[#2b1a12]"
+            >
+              <Plus className="mr-2 size-4" /> Add the first tag
+            </Button>
+          )}
+        </div>
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {filteredTags.map((tag) => (
+            <li key={tag.id}>
+              <article className="group relative h-full overflow-hidden rounded-md border border-[#5c3d21] bg-[#2b1a12] pb-4 pt-9 transition-all duration-300 hover:-translate-y-1 hover:border-[#d4af37]/60 hover:shadow-[0_18px_30px_-18px_rgba(0,0,0,0.9)]">
+                <Grain variant="hinoki" strength={0.8} />
+
+                {/* cord hole, like a tag hung on a rack */}
+                <span
+                  aria-hidden="true"
+                  className="absolute left-1/2 top-3 size-3 -translate-x-1/2 rounded-full border border-[#5c3d21] bg-[#120d0a] shadow-[inset_0_1px_2px_rgba(0,0,0,0.8)]"
+                />
+                {/* gold line drawn from the centre of the top edge */}
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-6 top-0 h-px origin-center scale-x-0 bg-[#d4af37] transition-transform duration-500 group-hover:scale-x-100"
+                />
+
+                <div className="relative px-5">
+                  {/* the tag as members see it */}
+                  <div className="flex min-h-10 items-center justify-center rounded-sm border border-[#3a2318] bg-[#18120e]/70 px-3 py-4">
+                    <Badge
+                      className={`whitespace-nowrap rounded border px-3 py-1 text-xs hover:bg-transparent ${tag.color}`}
+                    >
+                      {tag.name}
+                    </Badge>
+                  </div>
+
+                  <div className="mt-4 flex items-baseline justify-between gap-3">
+                    <h2 className="truncate font-semibold text-[#eaddcf]">{tag.name}</h2>
+                    <span className="shrink-0 font-mono text-xs text-[#8d6e63]">/{tag.slug}</span>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between border-t border-[#3a2318] pt-3">
+                    <div className="flex items-center gap-2 text-sm text-[#a1887f]">
+                      <Paw className="size-4 text-[#d4af37]/70 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110" />
+                      <span className="tabular-nums text-[#eaddcf]">{tag._count.discussions}</span>
+                      <span className="text-xs text-[#8d6e63]">
+                        {tag._count.discussions === 1 ? "discussion" : "discussions"}
+                      </span>
+                    </div>
+                    <time className="text-xs tabular-nums text-[#5d4037]">
                       {format(new Date(tag.updatedAt), "MMM d, yyyy")}
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setTagToEdit(tag)}
-                          className="h-8 w-8 text-[#a1887f] hover:text-[#d4af37] hover:bg-[#3e2723]/50"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setTagToDelete(tag)}
-                          className="h-8 w-8 text-[#a1887f] hover:text-red-400 hover:bg-red-900/10"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                    </time>
+                  </div>
 
-      {                     }
+                  {/* actions: always visible on touch, revealed on hover for desktop */}
+                  <div className="mt-3 flex items-center justify-end gap-1 transition-opacity md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setTagToEdit(tag)}
+                      aria-label={`Edit ${tag.name}`}
+                      className="size-8 text-[#a1887f] hover:bg-[#3a2318] hover:text-[#d4af37]"
+                    >
+                      <Edit2 className="size-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setTagToDelete(tag)}
+                      aria-label={`Delete ${tag.name}`}
+                      className="size-8 text-[#a1887f] hover:bg-red-900/20 hover:text-red-400"
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              </article>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* ---------- Dialogs ---------- */}
       <CreateTagDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
@@ -208,6 +324,30 @@ export default function TagClient() {
           setRetryCount((count) => count + 1);
         }}
       />
+    </div>
+  );
+}
+
+/* A small summary tile with a faint kanji behind it */
+function StatTile({
+  watermark,
+  label,
+  children,
+}: {
+  watermark: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-md border border-[#5c3d21] bg-[#18120e] px-5 py-4">
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-1 -top-3 select-none font-serif text-7xl leading-none text-[#d4af37]/[0.07]"
+      >
+        {watermark}
+      </span>
+      <p className="relative text-xs text-[#8d6e63]">{label}</p>
+      <div className="relative mt-1">{children}</div>
     </div>
   );
 }

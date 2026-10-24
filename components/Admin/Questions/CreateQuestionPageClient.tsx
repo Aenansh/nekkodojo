@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { EnsoCat } from "@/components/Landing Page/DojoGraphics";
 import CreateQuestionForm from "./CreateQuestionForm";
 
 interface Option {
@@ -74,21 +75,39 @@ export default function CreateQuestionPageClient({
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[55vh] items-center justify-center gap-3 text-[#d4af37]" role="status" aria-live="polite">
-        <Loader2 className="size-5 animate-spin" aria-hidden="true" />
-        <span>Loading company and language options...</span>
+      <div className="space-y-6" role="status" aria-live="polite">
+        <div className="flex items-center justify-center gap-3 py-8 text-[#d4af37]">
+          <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+          <span>Loading company and language options...</span>
+        </div>
+        {/* placeholder chapters, so the page does not jump when the form arrives */}
+        <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
+          <div className="space-y-6">
+            {[260, 160, 300].map((h, i) => (
+              <div
+                key={i}
+                style={{ height: h }}
+                className="animate-pulse rounded-md border border-[#3a2318] bg-[#18120e]"
+              />
+            ))}
+          </div>
+          <div className="hidden h-72 animate-pulse rounded-md border border-[#3a2318] bg-[#2b1a12]/50 lg:block" />
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="space-y-4 py-8">
-        <p role="alert" className="text-red-400">{error}</p>
+      <div className="mx-auto flex max-w-sm flex-col items-center space-y-5 py-16 text-center">
+        <EnsoCat className="size-24 opacity-60" />
+        <p role="alert" className="text-red-400">
+          {error}
+        </p>
         <button
           type="button"
           onClick={() => setRetryCount((count) => count + 1)}
-          className="rounded-md border border-[#3e2723] px-4 py-2 text-[#eaddcf] hover:bg-[#1a110d]"
+          className="rounded-md border border-[#5c3d21] px-5 py-2 text-[#eaddcf] transition-colors hover:border-[#d4af37] hover:bg-[#2b1a12] hover:text-[#d4af37]"
         >
           Try again
         </button>
