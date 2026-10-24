@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Check } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import slugify from "slugify";                                 
-import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -16,8 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { generateSlug } from "@/lib/actions/makeSlug";
+import { Field, PrereqPicker, fieldClass } from "@/components/Admin/Questions/KataParts";
 
 interface CategoryData {
   id: string;
@@ -38,13 +36,12 @@ export function CreateCategoryDialog({ allCategories, open, onOpenChange }: Prop
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
-  const [order, setOrder] = useState<number | "">("");               
+  const [order, setOrder] = useState<number | "">("");
   const [prereqs, setPrereqs] = useState<string[]>([]);
 
   const handleNameChange = (val: string) => {
     setName(val);
-    const autoSlug = generateSlug(val);
-    setSlug(autoSlug);
+    setSlug(generateSlug(val));
   };
 
   const togglePrereq = (catSlug: string) => {
@@ -55,7 +52,7 @@ export function CreateCategoryDialog({ allCategories, open, onOpenChange }: Prop
 
   const handleSubmit = async () => {
     if (!name || !slug || order === "") {
-      toast.error("Please fill in Name, Slug, and Order.");
+      toast.error("Please fill in the name, slug and order.");
       return;
     }
 
@@ -73,22 +70,23 @@ export function CreateCategoryDialog({ allCategories, open, onOpenChange }: Prop
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData || "Failed to create category");
+        const errorData: unknown = await res.json().catch(() => null);
+        throw new Error(
+          typeof errorData === "string" && errorData ? errorData : "Failed to create category"
+        );
       }
 
-      toast.success("Category created successfully!");
-      router.refresh();                         
-      
+      toast.success("Category added to the path.");
+      router.refresh();
+
       setName("");
       setSlug("");
       setOrder("");
       setPrereqs([]);
-      onOpenChange(false);                
-
-    } catch (error: any) {
+      onOpenChange(false);
+    } catch (error: unknown) {
       console.error(error);
-      toast.error(typeof error.message === "string" ? error.message : "Something went wrong");
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setIsLoading(false);
     }
@@ -96,104 +94,75 @@ export function CreateCategoryDialog({ allCategories, open, onOpenChange }: Prop
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#1a110d] border-[#3e2723] text-[#eaddcf] max-w-lg">
+      <DialogContent className="max-w-lg border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
         <DialogHeader>
-          <DialogTitle>Create New Category</DialogTitle>
+          <DialogTitle className="font-serif text-2xl">Add a category</DialogTitle>
           <DialogDescription className="text-[#a1887f]">
-            Add a new topic to your learning roadmap.
+            Lay a new stone on the learning path.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          {                       }
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="create-name" className="text-[#a1887f]">Name</Label>
+        <div className="grid gap-5 py-2">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Name" htmlFor="create-name">
               <Input
                 id="create-name"
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
-                placeholder="e.g. Graphs"
-                className="bg-[#0f0b0a] border-[#3e2723] text-[#eaddcf]"
+                placeholder="Graphs"
+                className={fieldClass}
               />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="create-slug" className="text-[#a1887f]">Slug (Auto)</Label>
+            </Field>
+            <Field label="Slug (filled in for you)" htmlFor="create-slug">
               <Input
                 id="create-slug"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                placeholder="e.g. graphs"
-                className="bg-[#0f0b0a] border-[#3e2723] text-[#eaddcf] font-mono text-xs"
+                placeholder="graphs"
+                className={`${fieldClass} font-mono text-xs`}
               />
-            </div>
+            </Field>
           </div>
 
-          {                 }
-          <div className="grid gap-2">
-            <Label htmlFor="create-order" className="text-[#a1887f]">Order Index</Label>
+          <Field
+            label="Order"
+            htmlFor="create-order"
+            hint="Where this stone sits on the path. Lower numbers come first."
+          >
             <Input
               id="create-order"
               type="number"
               value={order}
-              onChange={(e) => setOrder(Number(e.target.value))}
-              placeholder="e.g. 12"
-              className="bg-[#0f0b0a] border-[#3e2723] text-[#eaddcf]"
+              onChange={(e) => setOrder(e.target.value === "" ? "" : Number(e.target.value))}
+              placeholder="12"
+              className={fieldClass}
             />
-            <p className="text-[10px] text-[#5d4037]">
-              Determines the position in the roadmap.
-            </p>
-          </div>
+          </Field>
 
-          {                            }
-          <div className="grid gap-2">
-            <Label className="text-[#a1887f]">Prerequisites</Label>
-            <div className="h-40 overflow-y-auto border border-[#3e2723] rounded-md bg-[#0f0b0a] p-2 custom-scrollbar">
-              {allCategories.length === 0 ? (
-                <div className="text-xs text-[#5d4037] p-2 text-center">No categories available.</div>
-              ) : (
-                allCategories.map((cat) => {
-                  const isSelected = prereqs.includes(cat.slug);
-                  return (
-                    <div
-                      key={cat.id}
-                      onClick={() => togglePrereq(cat.slug)}
-                      className={cn(
-                        "flex items-center justify-between px-3 py-2 rounded-md cursor-pointer text-sm transition-colors mb-1",
-                        isSelected
-                          ? "bg-[#3e2723]/40 text-[#d4af37] border border-[#d4af37]/20"
-                          : "text-[#a1887f] hover:bg-[#3e2723]/20"
-                      )}
-                    >
-                      <span>{cat.name}</span>
-                      {isSelected && <Check className="w-3.5 h-3.5" />}
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
+          <Field label="Opens after (prerequisites)">
+            <PrereqPicker options={allCategories} selected={prereqs} onToggle={togglePrereq} />
+          </Field>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="border-[#3e2723] bg-[#3e2723] text-[#a1887f] hover:bg-[#3e2723]/20 hover:text-[#eaddcf]"
+            className="rounded-full text-[#a1887f] hover:bg-transparent hover:text-[#eaddcf]"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="bg-[#d4af37] text-black hover:bg-[#b5952f]"
+            className="rounded-full bg-[#d4af37] px-5 text-[#0f0b0a] hover:bg-[#b5952f]"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating...
+                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden /> Adding…
               </>
             ) : (
-              "Create Category"
+              "Add category"
             )}
           </Button>
         </DialogFooter>

@@ -37,15 +37,15 @@ export function DeleteCategoryDialog({ category, open, onOpenChange, onSuccess }
 
       if (!res.ok) {
         if (res.status === 409) {
-          toast.error("Cannot delete: This category has dependencies or questions attached.");
+          toast.error("Can't delete this one: other categories or katas still depend on it.");
           return;
         }
         throw new Error("Failed to delete");
       }
 
-      toast.success("Category deleted!");
+      toast.success("Category removed from the path.");
       router.refresh();
-      onSuccess();                
+      onSuccess();
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong");
@@ -56,30 +56,35 @@ export function DeleteCategoryDialog({ category, open, onOpenChange, onSuccess }
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-[#1a110d] border-[#3e2723] text-[#eaddcf]">
+      <AlertDialogContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription className="text-[#a1887f]">
-            This will permanently delete the category{" "}
-            <span className="text-[#d4af37] font-bold">
-              {category?.name}
-            </span>
-            . This action cannot be undone.
+          <AlertDialogTitle className="font-serif text-xl text-[#eaddcf]">
+            Remove {category?.name}?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="leading-relaxed text-[#a1887f]">
+            This takes the stone off the path for good. If other categories or katas still depend on
+            it, the dojo will tell you and nothing will be deleted.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="bg-transparent border-[#3e2723] text-[#eaddcf] hover:bg-[#3e2723]/50 hover:text-[#eaddcf]">
-            Cancel
+          <AlertDialogCancel className="border-[#3e2723] bg-transparent text-[#eaddcf] hover:bg-[#0f0b0a] hover:text-[#eaddcf]">
+            Keep it
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
-              e.preventDefault();                                                   
+              e.preventDefault();
               handleDelete();
             }}
-            className="bg-red-900/50 text-red-200 border border-red-900 hover:bg-red-900"
+            className="bg-[#8f3b31] text-[#eaddcf] hover:bg-[#a6453a]"
             disabled={isLoading}
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden /> Removing…
+              </>
+            ) : (
+              "Remove category"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

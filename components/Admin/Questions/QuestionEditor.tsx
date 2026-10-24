@@ -3,12 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, EyeOff, Loader2, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Select,
@@ -29,6 +28,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { CatSeal } from "@/components/User/Profileornaments";
+import {
+  ChipBar,
+  CodeFrame,
+  DIFFICULTY_COLOR,
+  Field,
+  Segmented,
+  codeAreaClass,
+  fieldClass,
+} from "./KataParts";
 
 type Option = { id: string; name: string; slug: string };
 type Language = {
@@ -91,16 +100,21 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
     result = null;
   }
   if (!response.ok) {
-    throw new Error(
-      typeof result === "string" ? result : `Request failed (${response.status})`
-    );
+    throw new Error(typeof result === "string" ? result : `Request failed (${response.status})`);
   }
   return result as T;
 }
 
-const fieldClass =
-  "border-[#3e2723] bg-[#0f0b0a] text-[#eaddcf] placeholder:text-[#5d4037]";
-const sectionClass = "rounded-xl border border-[#3e2723] bg-[#1a110d] p-4 sm:p-6";
+const tabClass =
+  "-mb-px h-auto flex-none gap-2 rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pb-3 pt-2 text-[#8d6e63] shadow-none transition-colors hover:text-[#eaddcf] data-[state=active]:border-[#d4af37] data-[state=active]:bg-transparent data-[state=active]:text-[#eaddcf] data-[state=active]:shadow-none dark:data-[state=active]:border-[#d4af37] dark:data-[state=active]:bg-transparent";
+
+const goldButton =
+  "rounded-full bg-[#d4af37] px-5 text-[#0f0b0a] hover:bg-[#b5952f] focus-visible:ring-[#eaddcf]";
+const quietButton =
+  "rounded-full border border-[#3e2723] bg-transparent px-5 text-[#eaddcf] hover:border-[#5d4037] hover:bg-transparent hover:text-[#eaddcf]";
+
+const dotExt = (extension: string) => (extension.startsWith(".") ? extension : `.${extension}`);
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 export default function QuestionEditor({
   questionId,
@@ -121,6 +135,11 @@ export default function QuestionEditor({
   const [pageError, setPageError] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
+
+  // Which chip is selected on each tab ("" = first item, "new" = the add form)
+  const [activeCase, setActiveCase] = useState("");
+  const [activeStub, setActiveStub] = useState("");
+  const [activeChecker, setActiveChecker] = useState("");
 
   const loadEditorData = useCallback(async () => {
     setLoading(true);
@@ -211,7 +230,7 @@ export default function QuestionEditor({
       if (updated.slug !== question.slug) {
         router.replace(`/admin/questions/${updated.slug}`);
       }
-      toast.success("Question details saved.");
+      toast.success("Kata details saved.");
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to save question.");
@@ -236,11 +255,11 @@ export default function QuestionEditor({
         body: JSON.stringify({ testcases: [testcase] }),
       });
       formElement.reset();
-      const updated = await requestJson<Testcase[]>(
-        `/api/questions/${questionId}/testcases`
-      );
+      const updated = await requestJson<Testcase[]>(`/api/questions/${questionId}/testcases`);
+      const added = updated.find((item) => !testcases.some((old) => old.id === item.id));
       setTestcases(updated);
-      toast.success("Testcase added.");
+      if (added) setActiveCase(added.id);
+      toast.success("Test case added.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to add testcase.");
     }
@@ -248,16 +267,13 @@ export default function QuestionEditor({
 
   const saveTestcase = async (testcase: Testcase) => {
     try {
-      const updated = await requestJson<Testcase>(
-        `/api/questions/${questionId}/testcases`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(testcase),
-        }
-      );
+      const updated = await requestJson<Testcase>(`/api/questions/${questionId}/testcases`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(testcase),
+      });
       setTestcases((items) => items.map((item) => (item.id === updated.id ? updated : item)));
-      toast.success("Testcase saved.");
+      toast.success("Test case saved.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to save testcase.");
     }
@@ -279,9 +295,10 @@ export default function QuestionEditor({
         }),
       });
       formElement.reset();
-      setCodestubs(
-        await requestJson<Codestub[]>(`/api/questions/${questionId}/codestub`)
-      );
+      const updated = await requestJson<Codestub[]>(`/api/questions/${questionId}/codestub`);
+      setCodestubs(updated);
+      const added = updated.find((stub) => stub.languageId === languageId);
+      if (added) setActiveStub(added.id);
       toast.success("Code stub added.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to add code stub.");
@@ -320,6 +337,7 @@ export default function QuestionEditor({
         }
       );
       setCheckers((items) => [checker, ...items]);
+      setActiveChecker(checker.id);
       formElement.reset();
       toast.success(`Custom checker revision ${checker.version} created.`);
     } catch (error) {
@@ -357,7 +375,7 @@ export default function QuestionEditor({
         await requestJson(`/api/questions?questionId=${encodeURIComponent(questionId)}`, {
           method: "DELETE",
         });
-        toast.success("Question deleted.");
+        toast.success("Kata deleted.");
         router.push("/admin/questions");
         router.refresh();
       } else if (deleteTarget.type === "testcase") {
@@ -366,7 +384,7 @@ export default function QuestionEditor({
           { method: "DELETE" }
         );
         setTestcases((items) => items.filter((item) => item.id !== deleteTarget.id));
-        toast.success("Testcase deleted.");
+        toast.success("Test case deleted.");
       } else {
         const codestub = codestubs.find((item) => item.id === deleteTarget.id);
         if (!codestub) throw new Error("Code stub not found.");
@@ -385,475 +403,648 @@ export default function QuestionEditor({
 
   if (loading) {
     return (
-      <div className="flex min-h-[55vh] items-center justify-center gap-3 text-[#d4af37]" role="status" aria-live="polite">
-        <Loader2 className="size-5 animate-spin" aria-hidden="true" />
-        <span>Loading question editor...</span>
+      <div
+        className="flex min-h-[55vh] flex-col items-center justify-center gap-4 text-[#a1887f]"
+        role="status"
+        aria-live="polite"
+      >
+        <CatSeal className="size-10 text-[#5d4037]" />
+        <p className="flex items-center gap-2 text-sm">
+          <Loader2 className="size-4 animate-spin text-[#d4af37]" aria-hidden />
+          Unrolling the kata…
+        </p>
       </div>
     );
   }
   if (pageError || !question) {
     return (
-      <div className="space-y-4 py-16 text-center">
-        <p role="alert" className="text-red-400">
-          {pageError || "Question not found."}
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-5 text-center">
+        <CatSeal className="size-10 text-[#5d4037]" />
+        <p role="alert" className="text-sm text-[#d4796b]">
+          {pageError || "Kata not found."}
         </p>
-        <Button onClick={() => void loadEditorData()} variant="secondary">
+        <Button onClick={() => void loadEditorData()} className={quietButton}>
           Try again
         </Button>
       </div>
     );
   }
 
+  /* ---- chip selection, resolved against the current lists ---- */
+  const caseId =
+    activeCase === "new"
+      ? "new"
+      : testcases.some((t) => t.id === activeCase)
+        ? activeCase
+        : (testcases[0]?.id ?? "new");
+  const selectedCase = testcases.find((t) => t.id === caseId);
+
+  const stubId =
+    activeStub === "new"
+      ? "new"
+      : codestubs.some((s) => s.id === activeStub)
+        ? activeStub
+        : (codestubs[0]?.id ?? "new");
+  const selectedStub = codestubs.find((s) => s.id === stubId);
+
+  const checkerId =
+    activeChecker === "new"
+      ? "new"
+      : checkers.some((c) => c.id === activeChecker)
+        ? activeChecker
+        : (checkers[0]?.id ?? "new");
+  const selectedChecker = checkers.find((c) => c.id === checkerId);
+
+  const difficultyColor = DIFFICULTY_COLOR[question.difficulty];
+
   return (
-    <div className="space-y-6 text-[#eaddcf] [&_button]:cursor-pointer [&_button]:transition-all [&_button:hover]:brightness-110 [&_button:active]:scale-[0.98] [&_label]:cursor-pointer">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-3">
+    <div className="space-y-10 text-[#eaddcf]">
+      {/* ---------- Header ---------- */}
+      <header className="flex flex-wrap items-start justify-between gap-6 border-b border-[#3e2723] pb-8">
+        <div className="min-w-0 space-y-4">
           <Link
             href="/admin/questions"
-            className="inline-flex cursor-pointer items-center gap-2 text-sm text-[#a1887f] transition-colors hover:text-[#d4af37] hover:underline"
+            className="inline-flex items-center gap-2 text-sm text-[#a1887f] transition-colors hover:text-[#d4af37]"
           >
-            <ArrowLeft className="size-4" /> All questions
+            <ArrowLeft className="size-4" aria-hidden /> All katas
           </Link>
           <div>
-            <p className="text-xs uppercase tracking-wide text-[#a1887f]">
-              Question overview
-            </p>
-            <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{question.title}</h1>
-            <p className="mt-1 text-sm text-[#a1887f]">
-              {question.slug} · {question.difficulty} · {testcases.length} test cases ·{" "}
-              {codestubs.length} language templates
+            <h1 className="font-serif text-3xl tracking-tight sm:text-4xl">{question.title}</h1>
+            <p className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-[#a1887f]">
+              <span className="font-mono text-xs text-[#8d6e63]">{question.slug}</span>
+              <span style={{ color: difficultyColor }}>{question.difficulty}</span>
+              <span>{plural(testcases.length, "test case", "test cases")}</span>
+              <span>{plural(codestubs.length, "language template", "language templates")}</span>
             </p>
           </div>
         </div>
+
         <Button
           type="button"
-          variant="destructive"
+          variant="ghost"
+          className="rounded-full border border-[#8f3b31] px-5 text-[#d4796b] hover:bg-[#8f3b31]/25 hover:text-[#d4796b]"
           onClick={() =>
-            setDeleteTarget({
-              type: "question",
-              id: question.id,
-              title: question.title,
-            })
+            setDeleteTarget({ type: "question", id: question.id, title: question.title })
           }
         >
-          <Trash2 /> Delete question
+          <Trash2 aria-hidden /> Delete kata
         </Button>
-      </div>
+      </header>
 
-      <Tabs defaultValue="details" className="w-full">
-        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 bg-[#1a110d] p-1 sm:grid-cols-4">
-          <TabsTrigger
-            value="details"
-            className="text-white transition-colors hover:bg-[#3e2723]/70 data-[state=active]:bg-[#d4af37] data-[state=active]:text-black dark:data-[state=active]:bg-[#d4af37] dark:data-[state=active]:text-black"
-          >
-            Question details
-          </TabsTrigger>
-          <TabsTrigger
-            value="testcases"
-            className="text-white transition-colors hover:bg-[#3e2723]/70 data-[state=active]:bg-[#d4af37] data-[state=active]:text-black dark:data-[state=active]:bg-[#d4af37] dark:data-[state=active]:text-black"
-          >
-            Test cases ({testcases.length})
-          </TabsTrigger>
-          <TabsTrigger
-            value="codestubs"
-            className="text-white transition-colors hover:bg-[#3e2723]/70 data-[state=active]:bg-[#d4af37] data-[state=active]:text-black dark:data-[state=active]:bg-[#d4af37] dark:data-[state=active]:text-black"
-          >
-            Code stubs ({codestubs.length})
-          </TabsTrigger>
-          <TabsTrigger
-            value="checker"
-            className="text-white transition-colors hover:bg-[#3e2723]/70 data-[state=active]:bg-[#d4af37] data-[state=active]:text-black dark:data-[state=active]:bg-[#d4af37] dark:data-[state=active]:text-black"
-          >
-            Custom checker ({checkers.length})
-          </TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="details" className="w-full gap-0">
+        <div className="overflow-x-auto scrollbar-hide">
+          <TabsList className="h-auto w-max min-w-full justify-start gap-8 rounded-none border-b border-[#3e2723] bg-transparent p-0">
+            <TabsTrigger value="details" className={tabClass}>
+              Details
+            </TabsTrigger>
+            <TabsTrigger value="testcases" className={tabClass}>
+              Test cases
+              <span className="text-xs tabular-nums text-[#8d6e63]">{testcases.length}</span>
+            </TabsTrigger>
+            <TabsTrigger value="codestubs" className={tabClass}>
+              Code stubs
+              <span className="text-xs tabular-nums text-[#8d6e63]">{codestubs.length}</span>
+            </TabsTrigger>
+            <TabsTrigger value="checker" className={tabClass}>
+              Custom checker
+              <span className="text-xs tabular-nums text-[#8d6e63]">{checkers.length}</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value="details">
-          <form onSubmit={updateQuestion} className={`${sectionClass} mt-4 space-y-5`}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input id="title" name="title" defaultValue={question.title} className={fieldClass} required />
+        {/* ---------- DETAILS ---------- */}
+        <TabsContent value="details" className="mt-8">
+          <form onSubmit={updateQuestion}>
+            <input type="hidden" name="difficulty" value={question.difficulty} />
+
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+              <div className="space-y-6">
+                <Field label="Title" htmlFor="title">
+                  <Input
+                    id="title"
+                    name="title"
+                    defaultValue={question.title}
+                    className={fieldClass}
+                    required
+                  />
+                </Field>
+
+                <Field label="Description" htmlFor="description">
+                  <Textarea
+                    id="description"
+                    name="description"
+                    defaultValue={question.description}
+                    className={`${fieldClass} min-h-80 leading-7`}
+                    required
+                  />
+                </Field>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="External platform URL" htmlFor="externalPlatformUrl">
+                    <Input
+                      id="externalPlatformUrl"
+                      name="externalPlatformUrl"
+                      type="url"
+                      defaultValue={question.externalPlatformUrl}
+                      className={fieldClass}
+                      required
+                    />
+                  </Field>
+                  <Field label="Solution URL" htmlFor="solutionUrl">
+                    <Input
+                      id="solutionUrl"
+                      name="solutionUrl"
+                      type="url"
+                      defaultValue={question.solutionUrl}
+                      className={fieldClass}
+                      required
+                    />
+                  </Field>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="difficulty">Difficulty</Label>
-                <Select
-                  name="difficulty"
-                  value={question.difficulty}
-                  onValueChange={(value: QuestionData["difficulty"]) =>
-                    setQuestion({ ...question, difficulty: value })
-                  }
+
+              <aside className="space-y-6 lg:border-l lg:border-[#3e2723] lg:pl-10">
+                <Field label="Difficulty">
+                  <Segmented
+                    label="Difficulty"
+                    value={question.difficulty}
+                    onChange={(value) => setQuestion({ ...question, difficulty: value })}
+                    options={[
+                      { value: "Easy", label: "Easy", color: DIFFICULTY_COLOR.Easy },
+                      { value: "Medium", label: "Medium", color: DIFFICULTY_COLOR.Medium },
+                      { value: "Hard", label: "Hard", color: DIFFICULTY_COLOR.Hard },
+                    ]}
+                  />
+                </Field>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Time limit (ms)" htmlFor="timeLimit">
+                    <Input
+                      id="timeLimit"
+                      name="timeLimit"
+                      type="number"
+                      min={1}
+                      defaultValue={question.timeLimit}
+                      className={fieldClass}
+                      required
+                    />
+                  </Field>
+                  <Field label="Memory limit (MB)" htmlFor="memoryLimit">
+                    <Input
+                      id="memoryLimit"
+                      name="memoryLimit"
+                      type="number"
+                      min={1}
+                      defaultValue={question.memoryLimit}
+                      className={fieldClass}
+                      required
+                    />
+                  </Field>
+                </div>
+
+                <Field label="Judge type">
+                  <Segmented
+                    label="Judge type"
+                    value={question.judgeType}
+                    onChange={(value) => setQuestion({ ...question, judgeType: value })}
+                    options={[
+                      { value: "EXACT_MATCH", label: "Exact match" },
+                      { value: "UNORDERED_MATCH", label: "Unordered" },
+                      { value: "SPECIAL_JUDGE", label: "Special judge" },
+                    ]}
+                  />
+                </Field>
+
+                <label className="flex cursor-pointer items-center gap-3 text-sm text-[#eaddcf]">
+                  <Checkbox
+                    checked={question.hasChecker}
+                    onCheckedChange={(checked) =>
+                      setQuestion({ ...question, hasChecker: checked === true })
+                    }
+                  />
+                  Use a custom checker
+                </label>
+
+                <Field label="Categories">
+                  <MultiSelect
+                    options={categoryOptions}
+                    selected={question.categories.map((item) => item.slug)}
+                    onChange={(slugs) =>
+                      setQuestion({
+                        ...question,
+                        categories: categories.filter((item) => slugs.includes(item.slug)),
+                      })
+                    }
+                    placeholder="Select categories"
+                  />
+                </Field>
+
+                <Field label="Companies">
+                  <MultiSelect
+                    options={companyOptions}
+                    selected={question.companyTag.map((item) => item.slug)}
+                    onChange={(slugs) =>
+                      setQuestion({
+                        ...question,
+                        companyTag: companies.filter((item) => slugs.includes(item.slug)),
+                      })
+                    }
+                    placeholder="Select companies"
+                  />
+                </Field>
+
+                <Field
+                  label="Supported languages"
+                  hint="Choose at least one enabled language for this kata."
                 >
-                  <SelectTrigger
-                    id="difficulty"
-                    className="w-[180px] border-[#3e2723] bg-[#0f0b0a] text-[#eaddcf]"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
-                    <SelectItem
-                      value="Easy"
-                      className="text-green-400 focus:bg-[#3e2723]/20 focus:text-green-400"
-                    >
-                      Easy
-                    </SelectItem>
-                    <SelectItem
-                      value="Medium"
-                      className="text-yellow-400 focus:bg-[#3e2723]/20 focus:text-yellow-400"
-                    >
-                      Medium
-                    </SelectItem>
-                    <SelectItem
-                      value="Hard"
-                      className="text-red-400 focus:bg-[#3e2723]/20 focus:text-red-400"
-                    >
-                      Hard
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  <MultiSelect
+                    options={supportedLanguageOptions}
+                    selected={question.supportedLanguages.map((language) => language.id)}
+                    onChange={(ids) =>
+                      setQuestion({
+                        ...question,
+                        supportedLanguages: languages.filter(
+                          (language) => ids.includes(language.id) && language.isSupported !== false
+                        ),
+                      })
+                    }
+                    placeholder="Select supported languages"
+                  />
+                </Field>
+              </aside>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                defaultValue={question.description}
-                className={`${fieldClass} min-h-48`}
-                required
-              />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="externalPlatformUrl">External platform URL</Label>
-                <Input
-                  id="externalPlatformUrl"
-                  name="externalPlatformUrl"
-                  type="url"
-                  defaultValue={question.externalPlatformUrl}
-                  className={fieldClass}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="solutionUrl">Solution URL</Label>
-                <Input
-                  id="solutionUrl"
-                  name="solutionUrl"
-                  type="url"
-                  defaultValue={question.solutionUrl}
-                  className={fieldClass}
-                  required
-                />
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="timeLimit">Time limit (ms)</Label>
-                <Input id="timeLimit" name="timeLimit" type="number" min={1} defaultValue={question.timeLimit} className={fieldClass} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="memoryLimit">Memory limit (MB)</Label>
-                <Input id="memoryLimit" name="memoryLimit" type="number" min={1} defaultValue={question.memoryLimit} className={fieldClass} required />
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="judgeType">Judge type</Label>
-                <Select
-                  value={question.judgeType}
-                  onValueChange={(value: QuestionData["judgeType"]) =>
-                    setQuestion({ ...question, judgeType: value })
-                  }
-                >
-                  <SelectTrigger className="w-[180px] border-[#3e2723] bg-[#0f0b0a] text-[#eaddcf]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
-                    <SelectItem
-                      value="EXACT_MATCH"
-                      className="focus:bg-[#3e2723]/20 focus:text-[#eaddcf]"
-                    >
-                      Exact match
-                    </SelectItem>
-                    <SelectItem
-                      value="UNORDERED_MATCH"
-                      className="focus:bg-[#3e2723]/20 focus:text-[#eaddcf]"
-                    >
-                      Unordered match
-                    </SelectItem>
-                    <SelectItem
-                      value="SPECIAL_JUDGE"
-                      className="focus:bg-[#3e2723]/20 focus:text-[#eaddcf]"
-                    >
-                      Special judge
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <label className="flex items-center gap-3 self-end pb-2 text-sm">
-                <Checkbox
-                  checked={question.hasChecker}
-                  onCheckedChange={(checked) =>
-                    setQuestion({ ...question, hasChecker: checked === true })
-                  }
-                />
-                Use custom checker
-              </label>
-            </div>
-            <div className="space-y-2">
-              <Label>Categories</Label>
-              <MultiSelect
-                options={categoryOptions}
-                selected={question.categories.map((item) => item.slug)}
-                onChange={(slugs) =>
-                  setQuestion({
-                    ...question,
-                    categories: categories.filter((item) => slugs.includes(item.slug)),
-                  })
-                }
-                placeholder="Select categories"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Companies</Label>
-              <MultiSelect
-                options={companyOptions}
-                selected={question.companyTag.map((item) => item.slug)}
-                onChange={(slugs) =>
-                  setQuestion({
-                    ...question,
-                    companyTag: companies.filter((item) => slugs.includes(item.slug)),
-                  })
-                }
-                placeholder="Select companies"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Supported languages</Label>
-              <MultiSelect
-                options={supportedLanguageOptions}
-                selected={question.supportedLanguages.map((language) => language.id)}
-                onChange={(ids) =>
-                  setQuestion({
-                    ...question,
-                    supportedLanguages: languages.filter(
-                      (language) =>
-                        ids.includes(language.id) && language.isSupported !== false
-                    ),
-                  })
-                }
-                placeholder="Select supported languages"
-              />
-              <p className="text-xs text-[#a1887f]">
-                Select at least one enabled language for this question.
-              </p>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant={"destructive"} onClick={() => void loadEditorData()}>
-                Cancel changes
+
+            <div className="sticky bottom-0 z-10 mt-10 flex justify-end gap-3 border-t border-[#3e2723] bg-[#0f0b0a]/90 py-4 backdrop-blur">
+              <Button type="button" className={quietButton} onClick={() => void loadEditorData()}>
+                Discard changes
               </Button>
-              <Button type="submit" disabled={saving} className="bg-[#d4af37] text-black hover:bg-[#b5952f]">
-                {saving ? <Loader2 className="animate-spin" /> : <Save />}
+              <Button type="submit" disabled={saving} className={goldButton}>
+                {saving ? <Loader2 className="animate-spin" aria-hidden /> : <Save aria-hidden />}
                 Save details
               </Button>
             </div>
           </form>
         </TabsContent>
 
-        <TabsContent value="testcases">
-          <div className="mt-4 space-y-4">
-            <form onSubmit={addTestcase} className={`${sectionClass} space-y-4`}>
-              <h2 className="font-semibold">Add testcase</h2>
+        {/* ---------- TEST CASES ---------- */}
+        <TabsContent value="testcases" className="mt-8 space-y-8">
+          <div className="space-y-3">
+            <ChipBar
+              items={testcases.map((t, i) => ({
+                id: t.id,
+                label: `Case ${i + 1}`,
+                badge: t.isHidden ? (
+                  <EyeOff className="size-3.5 opacity-70" aria-label="Hidden" />
+                ) : undefined,
+              }))}
+              active={caseId}
+              onChange={setActiveCase}
+              addLabel="New case"
+            />
+            <p className="text-sm text-[#8d6e63]">
+              Hidden cases are used for judging but are never shown to members.
+            </p>
+          </div>
+
+          {selectedCase ? (
+            <div className="space-y-5">
               <div className="grid gap-4 lg:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="new-testcase-input">Input</Label>
-                  <Textarea id="new-testcase-input" name="input" className={`${fieldClass} min-h-32 font-mono text-sm`} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-testcase-output">Expected output</Label>
-                  <Textarea id="new-testcase-output" name="expectedOutput" className={`${fieldClass} min-h-32 font-mono text-sm`} required />
-                </div>
+                <CodeFrame title="Input" filename="stdin">
+                  <Textarea
+                    aria-label="Input"
+                    value={selectedCase.input}
+                    onChange={(event) =>
+                      setTestcases((items) =>
+                        items.map((item) =>
+                          item.id === selectedCase.id
+                            ? { ...item, input: event.target.value }
+                            : item
+                        )
+                      )
+                    }
+                    className={`${codeAreaClass} min-h-40`}
+                  />
+                </CodeFrame>
+                <CodeFrame title="Expected output" filename="stdout">
+                  <Textarea
+                    aria-label="Expected output"
+                    value={selectedCase.expectedOutput}
+                    onChange={(event) =>
+                      setTestcases((items) =>
+                        items.map((item) =>
+                          item.id === selectedCase.id
+                            ? { ...item, expectedOutput: event.target.value }
+                            : item
+                        )
+                      )
+                    }
+                    className={`${codeAreaClass} min-h-40`}
+                  />
+                </CodeFrame>
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox name="isHidden" /> Hidden testcase
-              </label>
-              <Button type="submit" className="bg-[#d4af37] text-black hover:bg-[#b5952f]">
-                <Plus /> Add testcase
-              </Button>
-            </form>
-            {testcases.map((testcase, index) => (
-              <div key={testcase.id} className={`${sectionClass} space-y-4`}>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Testcase {index + 1}</h3>
+
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <label className="flex cursor-pointer items-center gap-3 text-sm">
+                  <Checkbox
+                    checked={selectedCase.isHidden}
+                    onCheckedChange={(checked) =>
+                      setTestcases((items) =>
+                        items.map((item) =>
+                          item.id === selectedCase.id
+                            ? { ...item, isHidden: checked === true }
+                            : item
+                        )
+                      )
+                    }
+                  />
+                  Hidden case
+                </label>
+
+                <div className="flex flex-wrap gap-3">
                   <Button
                     type="button"
                     variant="ghost"
-                    className="text-red-400 hover:text-red-300"
-                    onClick={() => setDeleteTarget({ type: "testcase", id: testcase.id, title: `Testcase ${index + 1}` })}
+                    className="rounded-full text-[#d4796b] hover:bg-[#8f3b31]/25 hover:text-[#d4796b]"
+                    onClick={() =>
+                      setDeleteTarget({
+                        type: "testcase",
+                        id: selectedCase.id,
+                        title: `Case ${testcases.indexOf(selectedCase) + 1}`,
+                      })
+                    }
                   >
-                    <Trash2 /> Delete
+                    <Trash2 aria-hidden /> Delete
+                  </Button>
+                  <Button
+                    type="button"
+                    className={quietButton}
+                    onClick={() => void loadEditorData()}
+                  >
+                    Revert
+                  </Button>
+                  <Button
+                    type="button"
+                    className={goldButton}
+                    onClick={() => void saveTestcase(selectedCase)}
+                  >
+                    <Save aria-hidden /> Save case
                   </Button>
                 </div>
-                <div className="grid gap-4 lg:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Input</Label>
-                    <Textarea
-                      value={testcase.input}
-                      onChange={(event) =>
-                        setTestcases((items) =>
-                          items.map((item) => item.id === testcase.id ? { ...item, input: event.target.value } : item)
-                        )
-                      }
-                      className={`${fieldClass} min-h-32 font-mono text-sm`}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Expected output</Label>
-                    <Textarea
-                      value={testcase.expectedOutput}
-                      onChange={(event) =>
-                        setTestcases((items) =>
-                          items.map((item) => item.id === testcase.id ? { ...item, expectedOutput: event.target.value } : item)
-                        )
-                      }
-                      className={`${fieldClass} min-h-32 font-mono text-sm`}
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <label className="flex items-center gap-2 text-sm">
-                    <Checkbox
-                      checked={testcase.isHidden}
-                      onCheckedChange={(checked) =>
-                        setTestcases((items) =>
-                          items.map((item) => item.id === testcase.id ? { ...item, isHidden: checked === true } : item)
-                        )
-                      }
-                    />
-                    Hidden testcase
-                  </label>
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => void loadEditorData()}>
-                      Cancel
-                    </Button>
-                    <Button type="button" onClick={() => void saveTestcase(testcase)} className="bg-[#d4af37] text-black hover:bg-[#b5952f]">
-                      <Save /> Save testcase
-                    </Button>
-                  </div>
-                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <form onSubmit={addTestcase} className="space-y-5">
+              <div className="grid gap-4 lg:grid-cols-2">
+                <CodeFrame title="Input" filename="stdin">
+                  <Textarea
+                    aria-label="Input"
+                    name="input"
+                    className={`${codeAreaClass} min-h-40`}
+                    required
+                  />
+                </CodeFrame>
+                <CodeFrame title="Expected output" filename="stdout">
+                  <Textarea
+                    aria-label="Expected output"
+                    name="expectedOutput"
+                    className={`${codeAreaClass} min-h-40`}
+                    required
+                  />
+                </CodeFrame>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <label className="flex cursor-pointer items-center gap-3 text-sm">
+                  <Checkbox name="isHidden" /> Hidden case
+                </label>
+                <Button type="submit" className={goldButton}>
+                  <Plus aria-hidden /> Add case
+                </Button>
+              </div>
+            </form>
+          )}
         </TabsContent>
 
-        <TabsContent value="codestubs">
-          <div className="mt-4 space-y-4">
-            <form onSubmit={addCodestub} className={`${sectionClass} space-y-4`}>
-              <h2 className="font-semibold">Add language code stub</h2>
-              <div className="space-y-2">
-                <Label htmlFor="new-stub-language">Language</Label>
+        {/* ---------- CODE STUBS ---------- */}
+        <TabsContent value="codestubs" className="mt-8 space-y-8">
+          <div className="space-y-3">
+            <ChipBar
+              items={codestubs.map((s) => ({ id: s.id, label: s.language.name }))}
+              active={stubId}
+              onChange={setActiveStub}
+              addLabel="Add language"
+            />
+            <p className="text-sm text-[#8d6e63]">
+              The starter code is what members see in the editor. The driver code wraps their
+              solution and runs behind the scenes.
+            </p>
+          </div>
+
+          {selectedStub ? (
+            <div className="space-y-5">
+              <div className="grid gap-4 lg:grid-cols-2">
+                <CodeFrame
+                  title="Starter code"
+                  filename={`solution${dotExt(selectedStub.language.extension)}`}
+                >
+                  <Textarea
+                    aria-label="Starter code"
+                    value={selectedStub.userSnippet}
+                    onChange={(event) =>
+                      setCodestubs((items) =>
+                        items.map((item) =>
+                          item.id === selectedStub.id
+                            ? { ...item, userSnippet: event.target.value }
+                            : item
+                        )
+                      )
+                    }
+                    className={`${codeAreaClass} min-h-64`}
+                  />
+                </CodeFrame>
+                <CodeFrame
+                  title="Driver code"
+                  filename={`driver${dotExt(selectedStub.language.extension)}`}
+                >
+                  <Textarea
+                    aria-label="Driver code"
+                    value={selectedStub.driverCode}
+                    onChange={(event) =>
+                      setCodestubs((items) =>
+                        items.map((item) =>
+                          item.id === selectedStub.id
+                            ? { ...item, driverCode: event.target.value }
+                            : item
+                        )
+                      )
+                    }
+                    className={`${codeAreaClass} min-h-64`}
+                  />
+                </CodeFrame>
+              </div>
+
+              <div className="flex flex-wrap justify-end gap-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="rounded-full text-[#d4796b] hover:bg-[#8f3b31]/25 hover:text-[#d4796b]"
+                  onClick={() =>
+                    setDeleteTarget({
+                      type: "codestub",
+                      id: selectedStub.id,
+                      title: `${selectedStub.language.name} code stub`,
+                    })
+                  }
+                >
+                  <Trash2 aria-hidden /> Delete
+                </Button>
+                <Button type="button" className={quietButton} onClick={() => void loadEditorData()}>
+                  Revert
+                </Button>
+                <Button
+                  type="button"
+                  className={goldButton}
+                  onClick={() => void saveCodestub(selectedStub)}
+                >
+                  <Save aria-hidden /> Save {selectedStub.language.name}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={addCodestub} className="space-y-5">
+              <Field label="Language" htmlFor="new-stub-language" className="max-w-xs">
                 <Select name="languageId" required>
-                  <SelectTrigger
-                    id="new-stub-language"
-                    className="w-[180px] border-[#3e2723] bg-[#0f0b0a] text-[#eaddcf]"
-                  >
+                  <SelectTrigger id="new-stub-language" className={`${fieldClass} w-full`}>
                     <SelectValue placeholder="Select a language" />
                   </SelectTrigger>
                   <SelectContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
-                    {languages.filter((language) => !codestubs.some((stub) => stub.languageId === language.id)).map((language) => (
-                      <SelectItem
-                        key={language.id}
-                        value={language.id}
-                        className="focus:bg-[#3e2723]/20 focus:text-[#eaddcf]"
-                      >
-                        {language.name}
-                      </SelectItem>
-                    ))}
+                    {languages
+                      .filter(
+                        (language) => !codestubs.some((stub) => stub.languageId === language.id)
+                      )
+                      .map((language) => (
+                        <SelectItem
+                          key={language.id}
+                          value={language.id}
+                          className="focus:bg-[#3e2723]/40 focus:text-[#eaddcf]"
+                        >
+                          {language.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
+
               <div className="grid gap-4 lg:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="new-user-snippet">Frontend starter code</Label>
-                  <Textarea id="new-user-snippet" name="userSnippet" className={`${fieldClass} min-h-48 font-mono text-sm`} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-driver-code">Driver code</Label>
-                  <Textarea id="new-driver-code" name="driverCode" className={`${fieldClass} min-h-48 font-mono text-sm`} required />
-                </div>
+                <CodeFrame title="Starter code">
+                  <Textarea
+                    aria-label="Starter code"
+                    name="userSnippet"
+                    className={`${codeAreaClass} min-h-64`}
+                    required
+                  />
+                </CodeFrame>
+                <CodeFrame title="Driver code">
+                  <Textarea
+                    aria-label="Driver code"
+                    name="driverCode"
+                    className={`${codeAreaClass} min-h-64`}
+                    required
+                  />
+                </CodeFrame>
               </div>
-              <Button type="submit" className="bg-[#d4af37] text-black hover:bg-[#b5952f]">
-                <Plus /> Add code stub
-              </Button>
+
+              <div className="flex justify-end">
+                <Button type="submit" className={goldButton}>
+                  <Plus aria-hidden /> Add code stub
+                </Button>
+              </div>
             </form>
-            {codestubs.map((codestub) => (
-              <div key={codestub.id} className={`${sectionClass} space-y-4`}>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">{codestub.language.name}</h3>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="text-red-400 hover:text-red-300"
-                    onClick={() => setDeleteTarget({ type: "codestub", id: codestub.id, title: `${codestub.language.name} code stub` })}
-                  >
-                    <Trash2 /> Delete
-                  </Button>
-                </div>
-                <div className="grid gap-4 lg:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Frontend starter code</Label>
-                    <Textarea
-                      value={codestub.userSnippet}
-                      onChange={(event) =>
-                        setCodestubs((items) =>
-                          items.map((item) => item.id === codestub.id ? { ...item, userSnippet: event.target.value } : item)
-                        )
-                      }
-                      className={`${fieldClass} min-h-48 font-mono text-sm`}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Driver code</Label>
-                    <Textarea
-                      value={codestub.driverCode}
-                      onChange={(event) =>
-                        setCodestubs((items) =>
-                          items.map((item) => item.id === codestub.id ? { ...item, driverCode: event.target.value } : item)
-                        )
-                      }
-                      className={`${fieldClass} min-h-48 font-mono text-sm`}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => void loadEditorData()}>
-                    Cancel
-                  </Button>
-                  <Button type="button" onClick={() => void saveCodestub(codestub)} className="bg-[#d4af37] text-black hover:bg-[#b5952f]">
-                    <Save /> Save code stub
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+          )}
         </TabsContent>
 
-        <TabsContent value="checker">
-          <div className="mt-4 space-y-4">
-            <form onSubmit={addChecker} className={`${sectionClass} space-y-4`}>
-              <h2 className="font-semibold">Create checker revision</h2>
+        {/* ---------- CUSTOM CHECKER ---------- */}
+        <TabsContent value="checker" className="mt-8 space-y-8">
+          <div className="space-y-3">
+            <ChipBar
+              items={checkers.map((c) => ({ id: c.id, label: `v${c.version}` }))}
+              active={checkerId}
+              onChange={setActiveChecker}
+              addLabel="New revision"
+            />
+            <p className="text-sm text-[#8d6e63]">
+              Revisions are versioned. Saving a revision changes it in place, so create a new one if
+              you want to keep the previous source.
+            </p>
+          </div>
+
+          {selectedChecker ? (
+            <div className="space-y-5">
               <p className="text-sm text-[#a1887f]">
-                Checker revisions are versioned. Saving an existing revision changes it; create a new revision to preserve the previous source.
+                Revision {selectedChecker.version} in {selectedChecker.language.name}, created{" "}
+                <time suppressHydrationWarning dateTime={selectedChecker.createdAt}>
+                  {new Date(selectedChecker.createdAt).toLocaleString()}
+                </time>
               </p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="new-checker-language">Language</Label>
+
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_12rem]">
+                <CodeFrame
+                  title="Checker source"
+                  filename={`checker${dotExt(selectedChecker.language.extension)}`}
+                >
+                  <Textarea
+                    aria-label="Checker source"
+                    value={selectedChecker.scriptSource}
+                    onChange={(event) =>
+                      setCheckers((items) =>
+                        items.map((item) =>
+                          item.id === selectedChecker.id
+                            ? { ...item, scriptSource: event.target.value }
+                            : item
+                        )
+                      )
+                    }
+                    className={`${codeAreaClass} min-h-64`}
+                  />
+                </CodeFrame>
+                <Field label="Timeout (ms)" htmlFor="checker-timeout">
+                  <Input
+                    id="checker-timeout"
+                    type="number"
+                    min={1}
+                    value={selectedChecker.timeoutMs}
+                    onChange={(event) =>
+                      setCheckers((items) =>
+                        items.map((item) =>
+                          item.id === selectedChecker.id
+                            ? { ...item, timeoutMs: Number(event.target.value) }
+                            : item
+                        )
+                      )
+                    }
+                    className={fieldClass}
+                  />
+                </Field>
+              </div>
+
+              <div className="flex flex-wrap justify-end gap-3">
+                <Button type="button" className={quietButton} onClick={() => void loadEditorData()}>
+                  Revert
+                </Button>
+                <Button
+                  type="button"
+                  className={goldButton}
+                  onClick={() => void saveChecker(selectedChecker)}
+                >
+                  <Save aria-hidden /> Save revision
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={addChecker} className="space-y-5">
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,16rem)_12rem]">
+                <Field label="Language" htmlFor="new-checker-language">
                   <Select name="languageId" required>
-                    <SelectTrigger
-                      id="new-checker-language"
-                      className="w-[180px] border-[#3e2723] bg-[#0f0b0a] text-[#eaddcf]"
-                    >
+                    <SelectTrigger id="new-checker-language" className={`${fieldClass} w-full`}>
                       <SelectValue placeholder="Select a language" />
                     </SelectTrigger>
                     <SelectContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
@@ -861,95 +1052,69 @@ export default function QuestionEditor({
                         <SelectItem
                           key={language.id}
                           value={language.id}
-                          className="focus:bg-[#3e2723]/20 focus:text-[#eaddcf]"
+                          className="focus:bg-[#3e2723]/40 focus:text-[#eaddcf]"
                         >
                           {language.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-checker-timeout">Timeout (ms)</Label>
-                  <Input id="new-checker-timeout" name="timeoutMs" type="number" min={1} defaultValue={2000} className={fieldClass} required />
-                </div>
+                </Field>
+                <Field label="Timeout (ms)" htmlFor="new-checker-timeout">
+                  <Input
+                    id="new-checker-timeout"
+                    name="timeoutMs"
+                    type="number"
+                    min={1}
+                    defaultValue={2000}
+                    className={fieldClass}
+                    required
+                  />
+                </Field>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="new-checker-source">Checker source</Label>
-                <Textarea id="new-checker-source" name="scriptSource" className={`${fieldClass} min-h-48 font-mono text-sm`} required />
+
+              <CodeFrame title="Checker source">
+                <Textarea
+                  aria-label="Checker source"
+                  name="scriptSource"
+                  className={`${codeAreaClass} min-h-64`}
+                  required
+                />
+              </CodeFrame>
+
+              <div className="flex justify-end">
+                <Button type="submit" className={goldButton}>
+                  <Plus aria-hidden /> Create revision
+                </Button>
               </div>
-              <Button type="submit" className="bg-[#d4af37] text-black hover:bg-[#b5952f]">
-                <Plus /> Create revision
-              </Button>
             </form>
-            {checkers.map((checker) => (
-              <div key={checker.id} className={`${sectionClass} space-y-4`}>
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-semibold">Revision {checker.version} · {checker.language.name}</h3>
-                  <span className="text-xs text-[#a1887f]">
-                    {new Date(checker.createdAt).toLocaleString()}
-                  </span>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-[1fr_180px]">
-                  <div className="space-y-2">
-                    <Label>Checker source</Label>
-                    <Textarea
-                      value={checker.scriptSource}
-                      onChange={(event) =>
-                        setCheckers((items) =>
-                          items.map((item) => item.id === checker.id ? { ...item, scriptSource: event.target.value } : item)
-                        )
-                      }
-                      className={`${fieldClass} min-h-48 font-mono text-sm`}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Timeout (ms)</Label>
-                    <Input
-                      type="number"
-                      min={1}
-                      value={checker.timeoutMs}
-                      onChange={(event) =>
-                        setCheckers((items) =>
-                          items.map((item) => item.id === checker.id ? { ...item, timeoutMs: Number(event.target.value) } : item)
-                        )
-                      }
-                      className={fieldClass}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => void loadEditorData()}>
-                    Cancel
-                  </Button>
-                  <Button type="button" onClick={() => void saveChecker(checker)} className="bg-[#d4af37] text-black hover:bg-[#b5952f]">
-                    <Save /> Save revision
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+          )}
         </TabsContent>
       </Tabs>
 
-      <AlertDialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+      <AlertDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
         <AlertDialogContent className="border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm deletion</AlertDialogTitle>
-            <AlertDialogDescription className="text-[#a1887f]">
-              Permanently delete {deleteTarget?.title}? This action cannot be undone.
+            <AlertDialogTitle className="font-serif text-xl text-[#eaddcf]">
+              Delete {deleteTarget?.title}?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="leading-relaxed text-[#a1887f]">
+              This is permanent and can&apos;t be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="cursor-pointer border-[#3e2723] bg-transparent text-[#eaddcf] transition-colors hover:bg-[#3e2723]/60">
-              Cancel
+            <AlertDialogCancel className="border-[#3e2723] bg-transparent text-[#eaddcf] hover:bg-[#0f0b0a] hover:text-[#eaddcf]">
+              Keep it
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={(event) => {
                 event.preventDefault();
                 void deleteResource();
               }}
-              className="cursor-pointer bg-red-800 text-white transition-colors hover:bg-red-700"
+              className="bg-[#8f3b31] text-[#eaddcf] hover:bg-[#a6453a]"
             >
               Delete
             </AlertDialogAction>

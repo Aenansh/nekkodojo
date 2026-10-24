@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Check } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field, PrereqPicker, fieldClass } from "@/components/Admin/Questions/KataParts";
 
 interface CategoryData {
   id: string;
@@ -33,12 +32,18 @@ interface Props {
   onSuccess: () => void;
 }
 
-export function EditCategoryDialog({ category, allCategories, open, onOpenChange, onSuccess }: Props) {
+export function EditCategoryDialog({
+  category,
+  allCategories,
+  open,
+  onOpenChange,
+  onSuccess,
+}: Props) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [name, setName] = useState("");
-  const [order, setOrder] = useState<number>(0);
+  const [order, setOrder] = useState<number | "">(0);
   const [prereqs, setPrereqs] = useState<string[]>([]);
 
   useEffect(() => {
@@ -50,9 +55,7 @@ export function EditCategoryDialog({ category, allCategories, open, onOpenChange
   }, [category]);
 
   const togglePrereq = (slug: string) => {
-    setPrereqs((prev) =>
-      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]
-    );
+    setPrereqs((prev) => (prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]));
   };
 
   const handleUpdate = async () => {
@@ -71,7 +74,7 @@ export function EditCategoryDialog({ category, allCategories, open, onOpenChange
 
       if (!res.ok) throw new Error("Failed to update");
 
-      toast.success("Category updated!");
+      toast.success("Category updated.");
       router.refresh();
       onSuccess();
     } catch (error) {
@@ -84,80 +87,62 @@ export function EditCategoryDialog({ category, allCategories, open, onOpenChange
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#1a110d] border-[#3e2723] text-[#eaddcf] max-w-lg">
+      <DialogContent className="max-w-lg border-[#3e2723] bg-[#1a110d] text-[#eaddcf]">
         <DialogHeader>
-          <DialogTitle>Edit Category</DialogTitle>
+          <DialogTitle className="font-serif text-2xl">Edit category</DialogTitle>
           <DialogDescription className="text-[#a1887f]">
-            Make changes to the category details here.
+            Rename it, move it along the path, or change what it opens after.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="edit-name" className="text-[#a1887f]">Name</Label>
+        <div className="grid gap-5 py-2">
+          <Field label="Name" htmlFor="edit-name">
             <Input
               id="edit-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-[#0f0b0a] border-[#3e2723] text-[#eaddcf]"
+              className={fieldClass}
             />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="edit-order" className="text-[#a1887f]">Order Index</Label>
+          </Field>
+
+          <Field label="Order" htmlFor="edit-order" hint="Lower numbers come first.">
             <Input
               id="edit-order"
               type="number"
               value={order}
-              onChange={(e) => setOrder(Number(e.target.value))}
-              className="bg-[#0f0b0a] border-[#3e2723] text-[#eaddcf]"
+              onChange={(e) => setOrder(e.target.value === "" ? "" : Number(e.target.value))}
+              className={fieldClass}
             />
-          </div>
-          <div className="grid gap-2">
-            <Label className="text-[#a1887f]">Prerequisites</Label>
-            <div className="h-40 overflow-y-auto border border-[#3e2723] rounded-md bg-[#0f0b0a] p-2 custom-scrollbar">
-              {allCategories
-                .filter((c) => c.id !== category?.id)
-                .map((cat) => {
-                  const isSelected = prereqs.includes(cat.slug);
-                  return (
-                    <div
-                      key={cat.id}
-                      onClick={() => togglePrereq(cat.slug)}
-                      className={cn(
-                        "flex items-center justify-between px-3 py-2 rounded-md cursor-pointer text-sm transition-colors mb-1",
-                        isSelected
-                          ? "bg-[#3e2723]/40 text-[#d4af37] border border-[#d4af37]/20"
-                          : "text-[#a1887f] hover:bg-[#3e2723]/20"
-                      )}
-                    >
-                      <span>{cat.name}</span>
-                      {isSelected && <Check className="w-3.5 h-3.5" />}
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
+          </Field>
+
+          <Field label="Opens after (prerequisites)">
+            <PrereqPicker
+              options={allCategories.filter((c) => c.id !== category?.id)}
+              selected={prereqs}
+              onToggle={togglePrereq}
+            />
+          </Field>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="border-[#3e2723] text-[#a1887f] bg-[#3e2723]/80 hover:bg-[#3e2723]/20 hover:text-[#eaddcf]"
+            className="rounded-full text-[#a1887f] hover:bg-transparent hover:text-[#eaddcf]"
           >
             Cancel
           </Button>
           <Button
             onClick={handleUpdate}
             disabled={isLoading}
-            className="bg-[#d4af37] text-black hover:bg-[#b5952f] cursor-pointer"
+            className="rounded-full bg-[#d4af37] px-5 text-[#0f0b0a] hover:bg-[#b5952f]"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...
+                <Loader2 className="mr-2 size-4 animate-spin" aria-hidden /> Saving…
               </>
             ) : (
-              "Save Changes"
+              "Save changes"
             )}
           </Button>
         </DialogFooter>

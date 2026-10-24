@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import QuestionCreationManager from "./QuestionCreationManager";
 import QuestionsDashboard from "@/components/Admin/RouteSide/QuestionDashboard";
+import AdminPageHeader from "@/components/Admin/RouteSide/AdminPageHeader";
+import { CatSeal } from "@/components/User/Profileornaments";
 
 interface CategoryOption {
   id: string;
@@ -21,11 +23,7 @@ interface LanguageOption {
   isSupported: boolean;
 }
 
-export default function QuestionsAdminClient({
-  categories,
-}: {
-  categories: CategoryOption[];
-}) {
+export default function QuestionsAdminClient({ categories }: { categories: CategoryOption[] }) {
   const [companies, setCompanies] = useState<CompanyOption[]>([]);
   const [languages, setLanguages] = useState<LanguageOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,21 +68,31 @@ export default function QuestionsAdminClient({
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[55vh] items-center justify-center gap-3 text-[#d4af37]" role="status" aria-live="polite">
-        <Loader2 className="size-5 animate-spin" aria-hidden="true" />
-        <span>Loading company and language options...</span>
+      <div
+        className="flex min-h-[55vh] flex-col items-center justify-center gap-4 text-[#a1887f]"
+        role="status"
+        aria-live="polite"
+      >
+        <CatSeal className="size-10 text-[#5d4037]" />
+        <p className="flex items-center gap-2 text-sm">
+          <Loader2 className="size-4 animate-spin text-[#d4af37]" aria-hidden />
+          Setting up the practice floor…
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="space-y-4 py-12 text-center">
-        <p role="alert" className="text-red-400">{error}</p>
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-5 text-center">
+        <CatSeal className="size-10 text-[#5d4037]" />
+        <p role="alert" className="text-sm text-[#d4796b]">
+          {error}
+        </p>
         <button
           type="button"
           onClick={() => setRetryCount((count) => count + 1)}
-          className="rounded-md border border-[#3e2723] px-4 py-2 text-[#eaddcf] hover:bg-[#1a110d]"
+          className="rounded-full border border-[#3e2723] px-5 py-2 text-sm text-[#eaddcf] transition-colors hover:border-[#d4af37] hover:text-[#d4af37]"
         >
           Try again
         </button>
@@ -106,21 +114,20 @@ export default function QuestionsAdminClient({
   }));
 
   return (
-    <>
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-[#eaddcf]">Questions Dashboard</h1>
-          <p className="text-[#a1887f] mt-2">
-            Manage your problem set, organize categories, and track company tags.
-          </p>
-        </div>
+    <div className="space-y-10">
+      <AdminPageHeader
+        title="Katas"
+        kanji="型"
+        description="The problems members train on. Write new ones, tune the old ones, and keep every category stocked."
+      >
         <QuestionCreationManager
           categoryOptions={categoryOptions}
           companyOptions={companyOptions}
           languageOptions={languageOptions}
         />
-      </div>
+      </AdminPageHeader>
+
       <QuestionsDashboard initialCategories={categories} />
-    </>
+    </div>
   );
 }
