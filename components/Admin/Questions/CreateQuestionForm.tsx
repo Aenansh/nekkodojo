@@ -45,6 +45,7 @@ export default function CreateQuestionForm({
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [constraints, setConstraints] = useState("");
   const [difficulty, setDifficulty] = useState("Medium");
   const [externalUrl, setExternalUrl] = useState("");
   const [solutionUrl, setSolutionUrl] = useState("");
@@ -66,6 +67,7 @@ export default function CreateQuestionForm({
         body: JSON.stringify({
           title,
           description,
+          constraints,
           difficulty,
           externalPlatformUrl: externalUrl,
           solutionUrl,
@@ -76,8 +78,20 @@ export default function CreateQuestionForm({
       });
 
       if (!res.ok) {
-        const errorMsg = await res.json();
-        throw new Error(typeof errorMsg === "string" ? errorMsg : "Failed to create question");
+        const contentType = res.headers.get("content-type") ?? "";
+        const errorPayload: unknown = contentType.includes("application/json")
+          ? await res.json().catch(() => null)
+          : null;
+        const message =
+          typeof errorPayload === "string"
+            ? errorPayload
+            : typeof errorPayload === "object" &&
+                errorPayload !== null &&
+                "error" in errorPayload &&
+                typeof errorPayload.error === "string"
+              ? errorPayload.error
+              : `Failed to create question (${res.status})`;
+        throw new Error(message);
       }
 
       toast.success("Question created successfully!");
@@ -149,6 +163,20 @@ export default function CreateQuestionForm({
               className={`${inputClass} min-h-40 py-3`}
               required
             />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="constraints" className={labelClass}>
+              Constraints
+            </Label>
+            <Textarea
+              id="constraints"
+              value={constraints}
+              onChange={(e) => setConstraints(e.target.value)}
+              placeholder={"- 1 <= nums.length <= 10^5\n- -10^9 <= nums[i] <= 10^9"}
+              className={`${inputClass} min-h-28 py-3`}
+            />
+            <p className={hintClass}>Optional. Markdown is supported.</p>
           </div>
         </Chapter>
 

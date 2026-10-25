@@ -215,6 +215,8 @@ model Question {
   judgeType      JudgeType      @default(EXACT_MATCH)
   hasChecker     Boolean        @default(false)
 
+  constraints String? @db.Text
+
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   shelves        Shelf[]
@@ -334,10 +336,10 @@ model Language {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  userProgress   UserProgress[]
-  codestubs      Codestub[]
-  customCheckers CustomChecker[]
-  supportedByQuestions Question[] @relation("QuestionSupportedLanguages")
+  userProgress         UserProgress[]
+  codestubs            Codestub[]
+  customCheckers       CustomChecker[]
+  supportedByQuestions Question[]      @relation("QuestionSupportedLanguages")
 
   @@index([slug])
 }

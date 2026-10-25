@@ -27,11 +27,14 @@ const isApiRoute = (req: Request) => {
 };
 
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
+  const { sessionClaims, userId } = await auth();
+
+  if (!isPublicRoute(req) && !userId) {
+    if (isApiRoute(req)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     await auth.protect();
   }
-
-  const { sessionClaims } = await auth();
 
   if (isAdminRoute(req) && sessionClaims?.metadata?.role !== "admin") {
     if (isApiRoute(req)) {

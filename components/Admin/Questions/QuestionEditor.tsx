@@ -53,6 +53,7 @@ type QuestionData = {
   slug: string;
   title: string;
   description: string;
+  constraints: string | null;
   difficulty: "Easy" | "Medium" | "Hard";
   externalPlatformUrl: string;
   solutionUrl: string;
@@ -193,6 +194,7 @@ export default function QuestionEditor({
     const payload = {
       title: String(form.get("title") ?? "").trim(),
       description: String(form.get("description") ?? "").trim(),
+      constraints: String(form.get("constraints") ?? ""),
       difficulty: String(form.get("difficulty")),
       externalPlatformUrl: String(form.get("externalPlatformUrl") ?? "").trim(),
       solutionUrl: String(form.get("solutionUrl") ?? "").trim(),
@@ -218,6 +220,7 @@ export default function QuestionEditor({
         ...question,
         title: payload.title,
         description: payload.description,
+        constraints: payload.constraints || null,
         difficulty: payload.difficulty as QuestionData["difficulty"],
         externalPlatformUrl: payload.externalPlatformUrl,
         solutionUrl: payload.solutionUrl,
@@ -536,6 +539,16 @@ export default function QuestionEditor({
                     defaultValue={question.description}
                     className={`${fieldClass} min-h-80 leading-7`}
                     required
+                  />
+                </Field>
+
+                <Field label="Constraints" htmlFor="constraints" hint="Optional. Markdown is supported.">
+                  <Textarea
+                    id="constraints"
+                    name="constraints"
+                    defaultValue={question.constraints ?? ""}
+                    className={`${fieldClass} min-h-32 leading-7`}
+                    placeholder={"- 1 <= nums.length <= 10^5\n- -10^9 <= nums[i] <= 10^9"}
                   />
                 </Field>
 

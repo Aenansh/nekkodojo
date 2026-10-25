@@ -3,6 +3,7 @@ export const bulk_template = [
     "title": "Replace with question title",
     "slug": "replace-with-unique-question-slug",
     "description": "Replace with the complete problem statement.",
+    "constraints": "- 1 <= nums.length <= 10^5\n- -10^9 <= nums[i] <= 10^9",
     "difficulty": "Easy",
     "externalPlatformUrl": "https://example.com/problem",
     "solutionUrl": "https://example.com/solution",

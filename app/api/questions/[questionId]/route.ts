@@ -20,6 +20,7 @@ export async function GET(
           slug: true,
           title: true,
           description: true,
+          constraints: true,
           difficulty: true,
           timeLimit: true,
           memoryLimit: true,

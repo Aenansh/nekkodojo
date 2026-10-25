@@ -77,13 +77,13 @@ export function AppSidebar() {
       allowedRoles: ["admin"],
     },
     {
-      title: "Scrolls",
+      title: "Library",
       url: `${basePath}/content`,
       icon: ScrollText,
       allowedRoles: ["admin", "moderator"],
     },
     {
-      title: "Inscriptions",
+      title: "Comments",
       url: `${basePath}/comments`,
       icon: MessageSquareText,
       allowedRoles: ["admin", "moderator"],

@@ -23,13 +23,10 @@ export default async function ProblemPage({
   params: Promise<{ questionSlug: string }>;
 }) {
   const { questionSlug } = await params;
-  console.log(questionSlug)
   const question = await prisma.question.findUnique({
     where: { slug: questionSlug },
     select: { id: true, slug: true },
   });
-
-  console.log(question);
 
   if (!question) notFound();
 

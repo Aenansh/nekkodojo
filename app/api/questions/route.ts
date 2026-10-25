@@ -127,6 +127,7 @@ export async function POST(request: Request) {
       difficulty,
       externalPlatformUrl,
       solutionUrl,
+      constraints,
       companyTag = [],
       categories = [],
       supportedLanguageIds,
@@ -144,6 +145,9 @@ export async function POST(request: Request) {
       )
     ) {
       return NextResponse.json("All fields required!", { status: 400 });
+    }
+    if (constraints !== undefined && constraints !== null && typeof constraints !== "string") {
+      return NextResponse.json("Constraints must be text.", { status: 400 });
     }
 
     if (!Array.isArray(companyTag) || companyTag.length === 0) {
@@ -197,6 +201,8 @@ export async function POST(request: Request) {
         description,
         externalPlatformUrl,
         solutionUrl,
+        constraints:
+          typeof constraints === "string" && constraints.trim() ? constraints : null,
         difficulty,
         categories: {
           connect: categories.map((cat: string) => ({
@@ -289,6 +295,7 @@ export async function PATCH(request: Request) {
       difficulty,
       externalPlatformUrl,
       solutionUrl,
+      constraints,
       categories = [],
       companyTag = [],
       supportedLanguageIds,
@@ -304,6 +311,9 @@ export async function PATCH(request: Request) {
       )
     ) {
       return NextResponse.json("All fields are required!", { status: 400 });
+    }
+    if (constraints !== undefined && constraints !== null && typeof constraints !== "string") {
+      return NextResponse.json("Constraints must be text.", { status: 400 });
     }
 
     if (!Array.isArray(companyTag) || companyTag.length === 0) {
@@ -398,6 +408,14 @@ export async function PATCH(request: Request) {
         externalPlatformUrl,
         solutionUrl,
         slug: finalSlug,
+        ...(constraints !== undefined
+          ? {
+              constraints:
+                typeof constraints === "string" && constraints.trim()
+                  ? constraints
+                  : null,
+            }
+          : {}),
         ...(timeLimit !== undefined ? { timeLimit } : {}),
         ...(memoryLimit !== undefined ? { memoryLimit } : {}),
         ...(judgeType !== undefined ? { judgeType } : {}),

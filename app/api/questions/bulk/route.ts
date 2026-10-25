@@ -27,6 +27,7 @@ type BulkQuestion = {
   title: string;
   slug: string;
   description: string;
+  constraints?: string | null;
   difficulty?: Difficulty;
   externalPlatformUrl: string;
   solutionUrl: string;
@@ -68,6 +69,7 @@ function parseBulkQuestion(value: unknown): BulkQuestion | string {
     title,
     slug,
     description,
+    constraints,
     difficulty,
     externalPlatformUrl,
     solutionUrl,
@@ -97,6 +99,9 @@ function parseBulkQuestion(value: unknown): BulkQuestion | string {
     !Object.values(Difficulty).includes(difficulty as Difficulty)
   ) {
     return "difficulty must be Easy, Medium, or Hard";
+  }
+  if (constraints !== undefined && constraints !== null && typeof constraints !== "string") {
+    return "constraints must be a string or null";
   }
   if (categories !== undefined && !isStringArray(categories)) {
     return "categories must be an array of category slugs";
@@ -173,6 +178,10 @@ function parseBulkQuestion(value: unknown): BulkQuestion | string {
     title,
     slug,
     description,
+    constraints:
+      typeof constraints === "string" && !constraints.trim()
+        ? null
+        : (constraints as string | null | undefined),
     difficulty: difficulty as Difficulty | undefined,
     externalPlatformUrl,
     solutionUrl,
@@ -260,6 +269,9 @@ export async function POST(request: Request) {
             update: {
               title: question.title,
               description: question.description,
+              ...(question.constraints !== undefined
+                ? { constraints: question.constraints }
+                : {}),
               ...(question.difficulty !== undefined
                 ? { difficulty: question.difficulty }
                 : {}),
@@ -303,6 +315,7 @@ export async function POST(request: Request) {
               title: question.title,
               slug: question.slug,
               description: question.description,
+              constraints: question.constraints ?? null,
               difficulty: question.difficulty ?? "Medium",
               externalPlatformUrl: question.externalPlatformUrl,
               solutionUrl: question.solutionUrl,
