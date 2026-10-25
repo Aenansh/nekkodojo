@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Save } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
@@ -24,16 +24,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MultiSelect, Option } from "@/components/ui/multi-select";                                  
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-interface Company {
-  name: string;
-  slug: string;
-}
 
 interface Props {
   question: Question | null;

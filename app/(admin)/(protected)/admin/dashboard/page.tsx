@@ -147,7 +147,7 @@ export default async function AdminDashboard(params: {
       {!query && (
         <div className="grid gap-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
           <div className="space-y-14">
-            <ActivityChart chartData={chartData} />
+            <ActivityChart chartData={chartData ?? []} />
 
             <RecentList
               title="New members"

@@ -80,7 +80,6 @@ export default function CreateQuestionPageClient({
           <Loader2 className="size-5 animate-spin" aria-hidden="true" />
           <span>Loading company and language options...</span>
         </div>
-        {/* placeholder chapters, so the page does not jump when the form arrives */}
         <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
           <div className="space-y-6">
             {[260, 160, 300].map((h, i) => (

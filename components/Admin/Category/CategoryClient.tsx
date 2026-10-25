@@ -43,7 +43,6 @@ export default function CategoryClient({ data }: { data: CategoryWithRelations[]
         </div>
       </AdminPageHeader>
 
-      {/* ---------- Search ---------- */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative w-full max-w-sm">
           <label htmlFor="category-search" className="sr-only">
@@ -68,7 +67,6 @@ export default function CategoryClient({ data }: { data: CategoryWithRelations[]
         )}
       </div>
 
-      {/* ---------- The path ---------- */}
       {filteredCategories.length === 0 ? (
         <div className="flex flex-col items-center border-y border-[#3e2723] px-4 py-20 text-center">
           <CatSeal className="size-12 text-[#5d4037]" />

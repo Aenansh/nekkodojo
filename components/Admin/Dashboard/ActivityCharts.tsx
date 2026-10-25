@@ -42,7 +42,6 @@ export function ActivityChart({ chartData }: { chartData: ChartDataPoint[] }) {
     <section aria-labelledby="activity-heading">
       <SectionHeading id="activity-heading" title="Weekly activity" kanji="週間" />
 
-      {/* The legend doubles as the 7-day totals */}
       <ul className="mt-6 flex flex-wrap gap-x-10 gap-y-3">
         {SERIES.map((key) => (
           <li key={key} className="flex items-baseline gap-3 text-sm text-[#a1887f]">

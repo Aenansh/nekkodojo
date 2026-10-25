@@ -12,10 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const metadata = { title: "Moderation Reports" };
 
-/**
- * One page for both roles: re-export it from /admin/reports and
- * /moderator/reports (`export { default, metadata } from "..."`).
- */
 export default async function AdminReportsPage() {
   const user = await currentUser();
   if (!user || (!checkRole("admin") && !checkRole("moderator"))) redirect("/");
@@ -107,7 +103,6 @@ export default async function AdminReportsPage() {
             <span className="font-serif text-2xl tabular-nums text-[#eaddcf]">{totalCases}</span>{" "}
             open {totalCases === 1 ? "case" : "cases"}
           </p>
-          {/* Colour key for decisions */}
           <ul className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Colour key">
             <li>
               <Tag tone="clear">Dismiss or lift</Tag>

@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageKitAbortError, upload } from "@imagekit/next";
-import { Image as ImageIcon, Loader2, Trash2, UploadCloud, X } from "lucide-react";
+import { Loader2, Trash2, UploadCloud, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -33,7 +33,7 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
       if (!response.ok) throw new Error(`Auth failed: ${response.statusText}`);
       const data = await response.json();
       return data;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Authenticator Error:", error);
       throw new Error("Authentication request failed!");
     }
@@ -88,9 +88,9 @@ export function LogoUploader({ currentLogoUrl, onUploadSuccess, onRemove }: Prop
         });
         toast.success("Logo uploaded");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Upload error:", err);
-      if (err.name === "AbortError" || err instanceof ImageKitAbortError) {
+      if (err instanceof Error && err.name === "AbortError" || err instanceof ImageKitAbortError) {
         toast.info("Upload cancelled");
       } else {
         toast.error("Failed to upload logo.");

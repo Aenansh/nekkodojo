@@ -44,7 +44,7 @@ const UploaderComment = ({ onUploadSuccess, maxSizeInMB = 5 }: Props) => {
       const data = await response.json();
       const { expire, token, signature, publicKey } = data;
       return { expire, token, signature, publicKey };
-    } catch (error: any) {
+    } catch (error) {
       console.error("Authenticator Error:", error);
       throw new Error("Authentication request failed!");
     }
@@ -106,10 +106,10 @@ const UploaderComment = ({ onUploadSuccess, maxSizeInMB = 5 }: Props) => {
         } as UploadFile);
         toast.success("Image attached");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Upload process error:", err);             
 
-      if (err.name === "AbortError" || err instanceof ImageKitAbortError) {
+      if (err instanceof Error && err.name === "AbortError" || err instanceof ImageKitAbortError) {
         toast.info("Upload cancelled");
       } else {
         toast.error("Failed to upload image. Check console for details.");

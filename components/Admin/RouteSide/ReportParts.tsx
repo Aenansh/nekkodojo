@@ -2,14 +2,6 @@ import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/**
- * Colour carries meaning on the moderation pages and nowhere else:
- *   report  gold        something waiting for a decision
- *   clear   pine green  dismissed, lifted, nothing further needed
- *   shadow  wisteria    shadow ban
- *   ban     vermilion   permanent ban, or content removed
- *   quiet   bronze      neutral / unknown
- */
 export const TONES = {
   report: {
     text: "text-[#d4af37]",
@@ -81,7 +73,6 @@ export const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
 );
 ActionButton.displayName = "ActionButton";
 
-/** Frame shared by every open case: details on the left, decisions on the right. */
 export function Case({
   children,
   actions,

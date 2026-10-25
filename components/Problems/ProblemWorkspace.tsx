@@ -101,7 +101,6 @@ type WorkspaceCache = {
 
 const panelClass = "rounded-lg border border-[#5c3d21] bg-[#18120e]";
 
-/* Difficulty is shown as a belt, consistently with the rest of the dojo */
 const BELT = {
   Easy: { bar: "bg-green-500", text: "text-green-400", label: "Easy" },
   Medium: { bar: "bg-yellow-500", text: "text-yellow-400", label: "Medium" },
@@ -114,7 +113,6 @@ const STATUS_CHIP: Record<string, { label: string; className: string }> = {
   completed: { label: "Solved", className: "border-[#d4af37]/60 text-[#d4af37]" },
 };
 
-/* A dark, warm editor theme that matches the rest of the site */
 const defineDojoTheme: BeforeMount = (monaco) => {
   monaco.editor.defineTheme("dojo", {
     base: "vs-dark",

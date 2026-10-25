@@ -87,6 +87,7 @@ export function ReportDialog({ trigger, contentId, type }: ReportDialogProps) {
         }, 300);
         
       } catch (error) {
+        console.log(error)
         toast.error("Failed to submit report.");
       }
     });

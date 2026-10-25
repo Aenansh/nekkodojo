@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Share2, Link as LinkIcon, Check, Copy } from "lucide-react";
 import {
   TwitterShareButton,
@@ -25,10 +25,6 @@ export default function Share() {
   const [copied, setCopied] = useState(false);
   const title = "Check out this discussion on Nekodojo!";
 
-  useEffect(() => {
-    setUrl(window.location.href);
-  }, []);
-
   const handleCopyLink = () => {
     navigator.clipboard.writeText(url);
     setCopied(true);
@@ -42,7 +38,10 @@ export default function Share() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="flex items-center gap-2 text-[#a1887f] hover:text-[#d4af37] text-sm transition-colors focus:outline-none group">
+        <button
+          onClick={() => setUrl(window.location.href)}
+          className="flex items-center gap-2 text-[#a1887f] hover:text-[#d4af37] text-sm transition-colors focus:outline-none group"
+        >
           <Share2 size={16} className="group-hover:scale-110 transition-transform" />
           <span className="hidden sm:inline">Share</span>
         </button>

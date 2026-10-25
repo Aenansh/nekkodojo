@@ -12,8 +12,8 @@ interface Props {
   initialUpvotes: number;
   initialDownvotes: number;
   initialUserVote: "like" | "dislike" | null;
-  isLiked: Boolean;
-  isDisliked: Boolean;
+  isLiked: boolean;
+  isDisliked: boolean;
 }
 
 export default function VoteControl({
@@ -53,7 +53,6 @@ export default function VoteControl({
       const type = debouncedVote;
 
       try {
-        const targetType = type || "remove";
         if (!type) return;
 
         const res = await fetch(`/api/discussions/${discussionId}/${type}`, {
@@ -72,12 +71,13 @@ export default function VoteControl({
         previousVoteRef.current = debouncedVote;
         router.refresh();
       } catch (error) {
+        console.log(error)
         toast.error("Failed to sync vote");
       }
     };
 
     syncVoteToServer();
-  }, [debouncedVote]);
+  }, [debouncedVote, discussionId, router]);
 
   const handleVote = (type: "like" | "dislike") => {
     setVoteState((prev) => {

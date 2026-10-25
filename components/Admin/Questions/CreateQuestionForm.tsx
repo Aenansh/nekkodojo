@@ -23,7 +23,6 @@ interface Props {
   languageOptions: Option[];
 }
 
-/* Difficulty is chosen as a belt. The values are the same strings as before. */
 const BELTS = [
   { value: "Easy", note: "A first form", bar: "bg-green-500", text: "text-green-400" },
   { value: "Medium", note: "Takes patience", bar: "bg-yellow-500", text: "text-yellow-400" },

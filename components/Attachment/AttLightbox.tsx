@@ -121,8 +121,9 @@ export default function CommentAttachment({ attachment }: { attachment: Attachme
                   className="max-w-full max-h-[85vh] object-contain shadow-2xl my-auto mx-auto border border-[#3e2723]"
                 />
               ) : (
-                <img
+                <Image
                   src={attachment.postUrl}
+                  fill={true}
                   alt="Full view"
                   className="w-auto h-auto max-w-[95vw] object-contain shadow-2xl my-auto mx-auto border border-[#3e2723]"
                 />

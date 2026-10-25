@@ -44,7 +44,8 @@ const PostUploader = ({ onUploadSuccess, acceptType, maxFiles = 4 }: Props) => {
       const data = await response.json();
       const { expire, token, signature, publicKey } = data;
       return { expire, token, signature, publicKey };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if(error instanceof Error)
       console.error(error);
       throw new Error("Authentication request failed!");
     }

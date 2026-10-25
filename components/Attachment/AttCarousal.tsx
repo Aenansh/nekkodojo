@@ -180,8 +180,9 @@ export function AttachmentCarousel({ attachments }: { attachments: Attachment[] 
                   className="max-w-full max-h-[85vh] object-contain shadow-2xl my-auto mx-auto"
                 />
               ) : (
-                <img
+                <Image
                   src={selectedFile.postUrl}
+                  fill={true}
                   alt="Full view"
                   className="w-auto h-auto max-w-[95vw] object-contain shadow-2xl my-auto mx-auto"
                   loading={"eager"}

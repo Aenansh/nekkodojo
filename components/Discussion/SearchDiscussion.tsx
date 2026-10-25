@@ -66,7 +66,7 @@ const SearchDiscussion = ({ inputValue, setInputValue }: Props) => {
         setInputValue(urlString);
       }
     }
-  }, [searchParams, allTags]);
+  }, [searchParams, allTags, inputValue, setInputValue]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

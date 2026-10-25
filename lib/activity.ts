@@ -41,7 +41,7 @@ export const getWeeklyStats = async () => {
     }
 
     return chartData;
-  } catch (error: any) {
-    throw new Error("Error occured in getting weekly data", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) throw new Error("Error occured in getting weekly data", error);
   }
 };

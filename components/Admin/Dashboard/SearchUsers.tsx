@@ -21,7 +21,6 @@ export const SearchUsers = ({ placeholder = "Search for users…" }: { placehold
     } else {
       params.delete("search");
     }
-    // A new search always starts from the first page.
     params.delete("page");
 
     router.push(`${pathname}?${params.toString()}`);

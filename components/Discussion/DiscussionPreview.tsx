@@ -55,6 +55,7 @@ export default function DiscussionPreviewCard({ data, onRemove }: Props) {
         onRemove(data.id);
       }
     } catch (error) {
+      console.log(error)
       setIsBookmarked(previousState);
       toast.error("Something went wrong.");
     } finally {

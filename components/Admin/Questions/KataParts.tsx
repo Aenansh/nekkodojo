@@ -5,7 +5,6 @@ import { Check, Plus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-/** Same three difficulty colours used on member profiles. */
 export const DIFFICULTY_COLOR = {
   Easy: "#8fb573",
   Medium: "#d99a4e",
@@ -39,7 +38,6 @@ export function Field({
   );
 }
 
-/** Pill-style radio group, used for difficulty and judge type. */
 export function Segmented<T extends string>({
   label,
   value,

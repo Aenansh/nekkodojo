@@ -90,6 +90,7 @@ const CommentItem = ({
         });
         previousVoteRef.current = debouncedVote;
       } catch (error) {
+        console.log(error)
         toast.error("Failed to register vote");
       }
     };
@@ -166,7 +167,7 @@ const CommentItem = ({
       if (onDelete) {
         onDelete(comment.id);
       }
-    } catch (error: any) {
+    } catch (error) {
       setIsDeleted(false);
       setDeleting(false);
       toast.error("Couldn't delete the comment!");

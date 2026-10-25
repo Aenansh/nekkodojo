@@ -4,6 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionHeading, CatSeal } from "./Profileornaments";
+import Image from "next/image";
 
 interface CategoryStat {
   name: string;
@@ -178,9 +179,11 @@ export default function ProfileCharts({
                 solved={company.solved}
                 total={company.total}
                 leading={
-                  <img
+                  <Image
                     src={company.logo}
-                    alt=""
+                    width={20}
+                    height={20}
+                    alt="company logo"
                     className="size-5 shrink-0 rounded-full bg-[#eaddcf]/10 object-contain"
                   />
                 }

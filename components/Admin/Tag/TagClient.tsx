@@ -74,7 +74,6 @@ export default function TagClient() {
     null
   );
 
-  /* ---------- Loading ---------- */
   if (isLoading) {
     return (
       <div className="space-y-6" role="status" aria-live="polite">
@@ -94,7 +93,6 @@ export default function TagClient() {
     );
   }
 
-  /* ---------- Error ---------- */
   if (error) {
     return (
       <div className="mx-auto flex max-w-sm flex-col items-center space-y-5 py-16 text-center">
@@ -115,7 +113,6 @@ export default function TagClient() {
 
   return (
     <div className="space-y-8">
-      {/* ---------- Header ---------- */}
       <header className="relative flex flex-col items-start justify-between gap-5 border-b border-[#5c3d21] pb-7 sm:flex-row sm:items-end">
         <div>
           <span className="font-serif text-sm tracking-[0.5em] text-[#d4af37]/80">札</span>
@@ -139,7 +136,6 @@ export default function TagClient() {
         </div>
       </header>
 
-      {/* ---------- Stats ---------- */}
       <section aria-label="Tag summary" className="grid gap-3 sm:grid-cols-3">
         <StatTile watermark="札" label="Tags">
           <span className="font-serif text-3xl font-semibold tabular-nums text-[#eaddcf]">

@@ -41,8 +41,8 @@ const CommentSection = ({ discussionId, authorId }: { discussionId: string; auth
 
         if (isLoadMore) {
           setComments((prev) => {
-            const newIds = new Set(body.data.map((c: any) => c.id));
-            return [...prev, ...body.data.filter((c: any) => !newIds.has(c.id))];
+            const newIds = new Set(body.data.map((c: CommentProps) => c.id));
+            return [...prev, ...body.data.filter((c: CommentProps) => !newIds.has(c.id))];
           });
         } else {
           setComments(body.data);
@@ -66,7 +66,7 @@ const CommentSection = ({ discussionId, authorId }: { discussionId: string; auth
     setIsInitialLoading(true);
     setPage(1);              
     fetchComments(false);                
-  }, [discussionId, sort]);                                                  
+  }, [discussionId, sort, fetchComments]);                                                  
 
   const handleLoadMore = () => {
     setIsFetchingMore(true);
